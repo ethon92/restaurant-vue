@@ -1,27 +1,17 @@
 <template>
   <div class="page-container">
     <nav class="navbar">
-      <div class="navbar-content">
         <div class="logo">
           <span>平台名稱</span>
         </div>
-
-        <div class="nav-links">
-          <a href="#" class="nav-item">探索餐廳</a>
-          
+      <div class="navbar-content">
+        <div></div>
           <template v-if="!isLoggedIn">
             <button @click="showLoginModal = true" class="btn-login">登入</button>
+            </template>
+                 <template v-if="!isLoggedIn">
             <button @click="showLoginModal = true" class="btn-register">註冊</button>
           </template>
-          <template v-else>
-            <div class="user-profile">
-              <span class="user-name">你好，美食家！</span>
-              <div class="avatar">
-                <i class="fa-solid fa-user"></i>
-              </div>
-            </div>
-          </template>
-        </div>
       </div>
     </nav>
 
@@ -101,17 +91,6 @@ const performSearch = () => {
 </script>
 
 <style scoped>
-/* 定義品牌變數 */
-:emphasized {
-  --primary-color: #f97316; /* Tailwind orange-500 */
-  --primary-hover: #ea580c; /* Tailwind orange-600 */
-  --text-main: #1f2937;
-  --text-muted: #6b7280;
-  --bg-light: #f9fafb;
-  --shadow-main: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-  --shadow-large: 0 25px 50px -12px rgb(0 0 0 / 0.25);
-}
-
 /* 基礎佈局 */
 .page-container {
   min-height: 100vh;
@@ -120,34 +99,38 @@ const performSearch = () => {
 }
 
 /* Navbar 樣式 */
+/* Navbar底色樣式 */
 .navbar {
-  background-color: white;
+  background-color: grey;
   box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
   position: sticky;
   top: 0;
   z-index: 50;
 }
+/* Navbar內容位置 */
 .navbar-content {
   max-width: 80rem;
-  margin: 0 auto;
+  /* margin: 0 auto; */
   padding: 0 1rem;
   height: 4rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
+/* Navbar標題 */
 .logo {
   font-size: 1.5rem;
   font-weight: 700;
+  margin: 15px;
   color: var(--primary-color);
   letter-spacing: -0.025em;
   cursor: pointer;
 }
-.nav-links {
+/* .nav-links {
   display: flex;
   align-items: center;
   gap: 1.5rem;
-}
+} */
 .nav-item {
   color: var(--text-muted);
   font-weight: 500;
@@ -166,7 +149,7 @@ const performSearch = () => {
 }
 .btn-register {
   background-color: var(--primary-color);
-  color: white;
+  color: black;
   padding: 0.5rem 1.25rem;
   border-radius: 9999px;
   border: none;
