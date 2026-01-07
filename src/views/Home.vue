@@ -27,12 +27,16 @@
       </div>
     </nav>
 
-    <header class="relative h-[600px] flex items-center justify-center text-white">
+    <header class="relative h-[600px] flex items-center justify-center text-black">
       <!-- <div class="absolute inset-0 z-0">
         <img src="https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80" 
              class="w-full h-full object-cover" alt="Restaurant">
         <div class="absolute inset-0 bg-black/50"></div>
       </div> -->
+
+      <div class="relative z-10 w-full max-w-5xl px-4 text-center">
+        <h1 class="text-4xl md:text-6xl font-extrabold mb-4">預訂您的下一頓美味</h1>
+        <p class="text-lg md:text-xl mb-12 text-black-200">全台 4,000+ 間頂級餐廳，一鍵即刻預定</p>
         
         <div class="bg-white p-2 md:p-4 rounded-2xl shadow-2xl">
           <div class="flex flex-col lg:flex-row gap-2">
