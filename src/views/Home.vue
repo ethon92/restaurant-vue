@@ -1,17 +1,17 @@
 <template>
   <div class="page-container">
     <nav class="navbar">
-        <div class="logo">
-          <span>平台名稱</span>
-        </div>
+      <div class="logo">
+        <span>平台名稱</span>
+      </div>
       <div class="navbar-content">
-        <div></div>
-          <template v-if="!isLoggedIn">
-            <button @click="showLoginModal = true" class="btn-login">登入</button>
-            </template>
-                 <template v-if="!isLoggedIn">
-            <button @click="showLoginModal = true" class="btn-register">註冊</button>
-          </template>
+        <div class="member-feature">會員專區</div>
+        <template v-if="!isLoggedIn">
+          <button @click="showLoginModal = true" class="btn-login">登入</button>
+        </template>
+        <template class="member-feature" v-if="!isLoggedIn">
+          <button @click="showLoginModal = true" class="btn-login">註冊</button>
+        </template>
       </div>
     </nav>
 
@@ -19,22 +19,34 @@
       <div class="hero-content">
         <h1 class="hero-title">預訂您的下一頓美味</h1>
         <p class="hero-subtitle">全台 4,000+ 間頂級餐廳，一鍵即刻預定</p>
-        
+
         <div class="search-card">
           <div class="search-grid">
             <div class="input-group flex-2">
               <i class="fa-solid fa-magnifying-glass icon"></i>
-              <input v-model="searchQuery.keyword" type="text" placeholder="餐廳名稱、菜系..." class="input-field">
+              <input
+                v-model="searchQuery.keyword"
+                type="text"
+                placeholder="餐廳名稱、菜系..."
+                class="input-field"
+              />
             </div>
 
             <div class="input-group flex-1">
               <i class="fa-solid fa-calendar icon"></i>
-              <input v-model="searchQuery.date" type="date" class="input-field">
+              <input
+                v-model="searchQuery.date"
+                type="date"
+                class="input-field"
+              />
             </div>
 
             <div class="input-group flex-1">
               <i class="fa-solid fa-user-group icon"></i>
-              <select v-model="searchQuery.guests" class="input-field select-field">
+              <select
+                v-model="searchQuery.guests"
+                class="input-field select-field"
+              >
                 <option v-for="n in 10" :key="n" :value="n">{{ n }} 位</option>
               </select>
             </div>
@@ -58,7 +70,11 @@
       </div>
 
       <div class="cuisine-grid">
-        <div v-for="cuisine in cuisines" :key="cuisine.name" class="cuisine-card">
+        <div
+          v-for="cuisine in cuisines"
+          :key="cuisine.name"
+          class="cuisine-card"
+        >
           <div class="cuisine-icon">{{ cuisine.icon }}</div>
           <p class="cuisine-name">{{ cuisine.name }}</p>
         </div>
@@ -68,25 +84,30 @@
 </template>
 
 <script setup>
-import { ref, reactive } from 'vue';
+import { ref, reactive } from "vue";
 
 const isLoggedIn = ref(false);
 const showLoginModal = ref(false);
 
 const searchQuery = reactive({
-  keyword: '',
+  keyword: "",
   date: new Date().toISOString().substr(0, 10),
-  guests: 2
+  guests: 2,
 });
 
 const cuisines = [
-  { name: '義式', icon: '🍕' }, { name: '日式', icon: '🍣' },
-  { name: '法式', icon: '🍷' }, { name: '泰式', icon: '🍲' },
-  { name: '火鍋', icon: '🔥' }, { name: '甜點', icon: '🍰' }
+  { name: "義式", icon: "🍕" },
+  { name: "日式", icon: "🍣" },
+  { name: "法式", icon: "🍷" },
+  { name: "泰式", icon: "🍲" },
+  { name: "火鍋", icon: "🔥" },
+  { name: "甜點", icon: "🍰" },
 ];
 
 const performSearch = () => {
-  alert(`搜尋中：${searchQuery.keyword} / ${searchQuery.date} / ${searchQuery.guests}位`);
+  alert(
+    `搜尋中：${searchQuery.keyword} / ${searchQuery.date} / ${searchQuery.guests}位`
+  );
 };
 </script>
 
@@ -126,19 +147,20 @@ const performSearch = () => {
   letter-spacing: -0.025em;
   cursor: pointer;
 }
-/* .nav-links {
-  display: flex;
-  align-items: center;
-  gap: 1.5rem;
-} */
 .nav-item {
   color: var(--text-muted);
   font-weight: 500;
   text-decoration: none;
   transition: color 0.2s;
 }
-.nav-item:hover { color: var(--primary-color); }
-
+.nav-item:hover {
+  color: var(--primary-color);
+}
+.member-feature {
+  padding: 10px;
+  font-size: 16px;
+  font-weight: 500;
+}
 /* 按鈕樣式 */
 .btn-login {
   background: none;
@@ -158,7 +180,9 @@ const performSearch = () => {
   cursor: pointer;
   transition: background 0.2s;
 }
-.btn-register:hover { background-color: var(--primary-hover); }
+.btn-register:hover {
+  background-color: var(--primary-hover);
+}
 
 /* Hero Section */
 .hero {
@@ -194,14 +218,18 @@ const performSearch = () => {
   gap: 0.5rem;
 }
 @media (min-width: 1024px) {
-  .search-grid { flex-direction: row; }
+  .search-grid {
+    flex-direction: row;
+  }
 }
 
 .input-group {
   position: relative;
   flex: 1;
 }
-.flex-2 { flex: 2; }
+.flex-2 {
+  flex: 2;
+}
 
 .icon {
   position: absolute;
@@ -232,7 +260,9 @@ const performSearch = () => {
   cursor: pointer;
   transition: 0.3s;
 }
-.btn-search:hover { background-color: var(--primary-hover); }
+.btn-search:hover {
+  background-color: var(--primary-hover);
+}
 
 /* 菜系區塊樣式 */
 .cuisine-section {
@@ -246,16 +276,31 @@ const performSearch = () => {
   align-items: flex-end;
   margin-bottom: 2rem;
 }
-.section-title { font-size: 1.875rem; font-weight: 700; }
-.view-all { color: var(--primary-color); font-weight: 600; text-decoration: none; }
+.section-title {
+  font-size: 1.875rem;
+  font-weight: 700;
+}
+.view-all {
+  color: var(--primary-color);
+  font-weight: 600;
+  text-decoration: none;
+}
 
 .cuisine-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 1.5rem;
 }
-@media (min-width: 768px) { .cuisine-grid { grid-template-columns: repeat(3, 1fr); } }
-@media (min-width: 1024px) { .cuisine-grid { grid-template-columns: repeat(6, 1fr); } }
+@media (min-width: 768px) {
+  .cuisine-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+@media (min-width: 1024px) {
+  .cuisine-grid {
+    grid-template-columns: repeat(6, 1fr);
+  }
+}
 
 .cuisine-card {
   background: white;
@@ -270,7 +315,10 @@ const performSearch = () => {
   transform: translateY(-4px);
   box-shadow: var(--shadow-main);
 }
-.cuisine-icon { font-size: 2.25rem; margin-bottom: 1rem; }
+.cuisine-icon {
+  font-size: 2.25rem;
+  margin-bottom: 1rem;
+}
 
 /* 日期選擇器微調 */
 input[type="date"]::-webkit-calendar-picker-indicator {
