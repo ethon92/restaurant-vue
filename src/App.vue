@@ -1,7 +1,7 @@
 <script setup></script>
 
 <template>
-  <h1>這是App vue</h1>
+  <RouterView></RouterView>
 </template>
 
 <style scoped></style>
