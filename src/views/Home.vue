@@ -1,7 +1,4 @@
-<script setup>
-import AddFavoriteCard from '@/components/AddFavoriteCard.vue';
-
-</script>
+<script setup></script>
 
 
 <template>
