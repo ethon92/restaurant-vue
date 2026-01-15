@@ -10,16 +10,36 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
-// import { logout as logoutAPI } from '@/services/auth'
+import { onMounted, ref } from 'vue'
+import { useRouter } from 'vue-router'
+import { getProfile, logout as logoutAPI } from '@/services/auth'
 
+const router = useRouter()
 const user = ref({
-  email: 'test@example.com',
-  role: 'user'
+  email: '',
+  role: ''
 })
 
-const logout = () => {
-  console.log('登出')
-  alert('已登出（模擬）')
+const fetchProfile = async () => {
+  try {
+    const data = await getProfile()
+    user.value = data
+  } catch (error) {
+    alert('取得會員資料失敗')
+  }
 }
+
+const logout = async () => {
+  try {
+    await logoutAPI()
+    alert('已登出')
+    router.push('/login')
+  } catch (error) {
+    alert('登出失敗')
+  }
+}
+
+onMounted(() => {
+  fetchProfile()
+})
 </script>

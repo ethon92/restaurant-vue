@@ -21,20 +21,27 @@
 
 <script setup>
 import { ref } from 'vue'
-// import { login as loginAPI } from '@/services/auth'
+import { login as loginAPI } from '@/services/auth'
+import { useRouter } from 'vue-router'
 
 const email = ref('')
 const password = ref('')
+const router = useRouter()
 
 const login = async () => {
   try {
-    console.log('登入資料', email.value, password.value)
-    // await loginAPI(email.value, password.value)
-    alert('登入成功（模擬）')
+    console.log('登入成功', email.value, password.value)
+    await loginAPI({
+      email: email.value,
+      password: password.value,
+    });
+
+    alert("登入成功");
+    router.push('/profile')
   } catch (error) {
-    alert('登入失敗')
+    alert("登入失敗");
   }
-}
+};
 </script>
 
 <style scoped>

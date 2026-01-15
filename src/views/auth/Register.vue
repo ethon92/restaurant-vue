@@ -1,12 +1,11 @@
 <template>
   <div class="auth-container">
     <h2>會員註冊</h2>
-<form @submit.prevent="register"></form>
     <form @submit.prevent="register">
       <input v-model="email" type="email" placeholder="Email" required />
       <input v-model="password" type="password" placeholder="密碼" required />
       <input v-model="confirmPassword" type="password" placeholder="確認密碼" required />
-      <input v-model="birthday" type="date" required/>
+      <input v-model="birthday" type="date" required />
 
       <button type="submit">註冊</button>
     </form>
@@ -20,12 +19,15 @@
 
 <script setup>
 import { ref } from 'vue'
-// import { register as registerAPI } from '@/services/auth'
+import { register as registerAPI } from '@/services/auth'
+import { useRouter } from 'vue-router'
 
 const email = ref('')
 const password = ref('')
 const confirmPassword = ref('')
 const birthday = ref('')
+const router = useRouter()
+
 
 const register = async () => {
   if (password.value !== confirmPassword.value) {
@@ -35,8 +37,13 @@ const register = async () => {
 
   try {
     console.log('註冊資料', email.value, password.value)
-    // await registerAPI(...)
+    await registerAPI({
+      email: email.value,
+      password: password.value,
+      birthday: birthday.value,
+    })
     alert('註冊成功（模擬）')
+    router.push('/login')
   } catch (error) {
     alert('註冊失敗')
   }

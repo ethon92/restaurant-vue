@@ -3,12 +3,7 @@
     <h2>忘記密碼</h2>
 
     <form @submit.prevent="goVerify">
-      <input
-        v-model="email"
-        type="email"
-        placeholder="請輸入註冊 Email"
-        required
-      />
+      <input v-model="email" type="email" placeholder="請輸入註冊 Email" required />
       <button type="submit">下一步</button>
     </form>
 
@@ -25,10 +20,15 @@ import { useRouter } from 'vue-router'
 const email = ref('')
 const router = useRouter()
 
-const goVerify = () => {
-  router.push({
-    path: '/verify-identity',
-    query: { email: email.value }
-  })
+const goVerify = async () => {
+  try {
+    await verifyIdentity({ email: email.value })
+    router.push({
+      path: '/verify-identity',
+      query: { email: email.value }
+    })
+  } catch (error) {
+    alert('驗證信箱失敗')
+  }
 }
 </script>

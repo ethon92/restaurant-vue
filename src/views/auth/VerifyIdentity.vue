@@ -5,8 +5,7 @@
     <form @submit.prevent="verify">
       <input type="email" :value="email" disabled />
 
-      <input
-        v-model="birthday" type="date" required/>
+      <input v-model="birthday" type="date" required />
 
       <button type="submit">驗證</button>
     </form>
@@ -16,6 +15,7 @@
 <script setup>
 import { ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import { verifyIdentity } from '@/services/auth'
 
 const route = useRoute()
 const router = useRouter()
@@ -24,13 +24,14 @@ const email = route.query.email
 const birthday = ref('')
 
 const verify = async () => {
-  // 這裡之後要接後端 API
-  console.log(email, birthday.value)
-
-  // 假設驗證成功
-  router.push({
-    path: '/reset-password',
-    query: { email }
-  })
+  try {
+    await verifyIdentity({ email, birthday: birthday.value })
+    router.push({
+      path: '/reset-password',
+      query: { email }
+    })
+  } catch (error) {
+    alert('驗證失敗')
+  }
 }
 </script>
