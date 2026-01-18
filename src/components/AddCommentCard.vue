@@ -1,5 +1,5 @@
 <script setup>
-import { createComment } from '@/api/modules/feature';
+import { createComment } from '@/api/modules/feature'
 import { ref } from 'vue';
 
 const user_id = ref();
@@ -21,7 +21,7 @@ const AddComment = async()=>{
         rating : rating,value
     }
     try{
-        const result = await AddComment(comment_data)
+        const result = await createComment(comment_data)
         comment_content.value=''
         rating.value=''
         console.log(result)   
