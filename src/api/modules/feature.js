@@ -5,7 +5,7 @@ const commentApi = {
         return service({
             url:'/comments',
             method: 'post',
-            comment_data
+            data : comment_data
         })
     }
 }

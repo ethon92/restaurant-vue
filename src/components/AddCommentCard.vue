@@ -2,32 +2,29 @@
 import { createComment } from '@/api/modules/feature'
 import { ref } from 'vue';
 
-const user_id = ref();
-const restaurant_id = ref();
-const comment_content = ref('');
-const rating = ref();
+const userId = ref();
+const restaurantId = ref();
+const commentContent = ref('');
+const rate = ref();
 
 // 測試的預設資料
-// userId.value = 2;
-// restaurantId.value = 'C3_371020000A_000334';
+userId.value = 3;
+restaurantId.value = 'C3_371020000A_000334';
 
 const AddComment = async()=>{
-    const trimmedComment = comment_content.value.trim()
-
+    const trimmedComment = commentContent.value.trim()
     const comment_data = {
-        user_id :user_id.value,
-        restaurant_id :restaurant_id.value,
+        user_id :userId.value,
+        restaurant_id :restaurantId.value,
         comment_content : trimmedComment,
-        rating : rating.value
+        rating : rate.value
     }
     try{
         const result = await createComment(comment_data)
-        comment_content.value=''
-        rating.value=''
         console.log(result)   
     }
     catch(error){
-        console.log('msg:',error.response.comment_data)
+        console.log('msg:',error.response.data)
     }
 }
 </script>
@@ -37,7 +34,7 @@ const AddComment = async()=>{
     
     <div class="form-group">
       <label for="rating">評分：</label>
-      <select v-model="rating" id="rating" class="form-control">
+      <select v-model="rate" id="rating" class="form-control">
         <option disabled value="">請選擇分數</option>
         <option v-for="n in 5" :key="n" :value="n">{{ n }} 星</option>
       </select>
@@ -46,7 +43,7 @@ const AddComment = async()=>{
     <div class="form-group">
       <label for="comment">評論內容：</label>
       <textarea 
-        v-model="comment_content" 
+        v-model="commentContent" 
         id="comment" 
         placeholder="分享您的用餐體驗..."
         rows="4"
@@ -54,7 +51,7 @@ const AddComment = async()=>{
       ></textarea>
     </div>
 
-    <button @click="AddComment" :disabled="!comment_content.trim() || !rating" class="btn-submit">
+    <button @click="AddComment" :disabled="!commentContent.trim() || !rate" class="btn-submit">
       送出評論
     </button>
   </div>

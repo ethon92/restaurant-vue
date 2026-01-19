@@ -1,7 +1,10 @@
-<script setup></script>
+<script setup>
+import AddCommentCard from '@/components/AddCommentCard.vue';
+</script>
 
 <template>
-    <h1>這是home</h1>
+    <AddCommentCard></AddCommentCard>
+    <h1>home</h1>
 </template>
 
 <style scoped></style>
