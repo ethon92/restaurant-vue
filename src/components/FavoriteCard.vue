@@ -1,6 +1,6 @@
 <script setup>
 const props = defineProps({ restaurants: Array })
-const baseUrl = "http://localhost:8000/"
+const baseUrl = "http://localhost:8000/static"
 </script>
 
 
