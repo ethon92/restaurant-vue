@@ -85,63 +85,55 @@ onMounted(async () => {
 </script>
 
 <template>
-    <div class="search-system-container">
-        <div class="horizontal-layout">
-            
-            <div class="main-search-bar" :class="{ 'bar-active': isFiltersOpen }">
-                <span class="search-icon">🔍</span>
-                <input 
-                    v-model="searchQuery" 
-                    placeholder="搜尋餐廳名稱、食物、關鍵字..." 
-                    @keyup.enter="onSearch"
-                />
-                <span v-if="searchQuery" class="clear-text-icon" @click="searchQuery = ''">✕</span>
-                <button class="hamburger-btn" @click="toggleFilters">
+    <div class="search-system-wrapper">
+        <div v-if="isFiltersOpen" class="overlay-mask" @click="isFiltersOpen = false"></div>
+
+        <div class="search-container">
+            <div class="search-bar" :class="{ 'focused': isFiltersOpen }">
+                <span class="icon">🔍</span>
+                <input v-model="searchQuery" placeholder="搜尋名稱、縣市或標籤..." @focus="isFiltersOpen = true"
+                    @keyup.enter="onSearch" />
+                <button class="menu-btn" @click.stop="isFiltersOpen = !isFiltersOpen">
                     <span v-if="!isFiltersOpen">☰</span>
                     <span v-else>✕</span>
                 </button>
+                <button class="search-btn" @click="onSearch">搜尋</button>
             </div>
 
-            <Transition name="expand-right">
-                <div v-if="isFiltersOpen" class="advanced-drawer">
-                    <div class="drawer-content">
-                        
-                        <div class="filter-row">
-                            <span class="row-label">縣市</span>
-                            <div class="chip-group">
-                                <button 
-                                    v-for="city in cityOptions" :key="city"
-                                    class="chip-btn" :class="{ 'active': selectedCity.includes(city) }"
-                                    @click="toggleSelection(selectedCity, city)"
-                                >{{ city }}</button>
+            <Transition name="fade-slide">
+                <div v-if="isFiltersOpen" class="floating-panel">
+                    <div class="panel-inner">
+
+                        <div class="filter-group">
+                            <label>選擇縣市</label>
+                            <div class="chip-grid">
+                                <button v-for="city in cityOptions" :key="city" class="chip"
+                                    :class="{ active: selectedCity.includes(city) }"
+                                    @click="toggleSelection(selectedCity, city)">{{ city }}</button>
                             </div>
                         </div>
 
-                        <div class="filter-row">
-                            <span class="row-label">消費</span>
-                            <div class="price-slider-box">
-                                <input type="range" v-model.number="priceIndex" min="0" :max="priceLevels.length - 1" class="mini-range">
-                                <span class="price-text">{{ selectedPrice }}</span>
+                        <div class="filter-group">
+                            <div class="group-header">
+                                <label>人均消費</label>
+                                <span class="price-val">{{ selectedPrice }}</span>
+                            </div>
+                            <input type="range" v-model.number="priceIndex" min="0" :max="priceLevels.length - 1"
+                                class="custom-range">
+                        </div>
+
+                        <div class="filter-group">
+                            <label>熱門標籤</label>
+                            <div class="chip-grid">
+                                <button v-for="tag in tagOptions" :key="tag" class="chip"
+                                    :class="{ active: selectedTags.includes(tag) }"
+                                    @click="toggleSelection(selectedTags, tag)">{{ tag }}</button>
                             </div>
                         </div>
 
-                        <div class="filter-row">
-                            <span class="row-label">標籤</span>
-                            <div class="chip-group">
-                                <button 
-                                    v-for="tag in tagOptions" :key="tag"
-                                    class="chip-btn" :class="{ 'active': selectedTags.includes(tag) }"
-                                    @click="toggleSelection(selectedTags, tag)"
-                                >{{ tag }}</button>
-                            </div>
-                        </div>
-
-                        <div class="drawer-actions">
-                            <div class="main-actions">
-                                <button class="submit-btn" @click="onSearch">立即過濾</button>
-                                <button class="reset-btn" @click="clearFilters">清除過濾</button>
-                            </div>
-                            <button class="close-text-btn" @click="isFiltersOpen = false">隱藏進階搜尋 ◂</button>
+                        <div class="panel-footer">
+                            <button class="reset-link" @click="clearFilters">清除所有條件</button>
+                            <button class="apply-btn" @click="onSearch">查看結果</button>
                         </div>
                     </div>
                 </div>
@@ -151,199 +143,223 @@ onMounted(async () => {
 </template>
 
 <style scoped>
-.search-system-container {
-    padding: 30px 20px;
+.search-system-wrapper {
+    position: relative;
     display: flex;
     justify-content: center;
+    padding: 30px 0;
+    z-index: 1000;
 }
 
-.horizontal-layout {
-    display: flex;
-    align-items: flex-start;
-    gap: 20px;
-    max-width: 100%;
+.search-container {
+    position: relative;
+    width: 100%;
+    max-width: 650px;
 }
 
-/* --- 搜尋框 --- */
-.main-search-bar {
+/* 搜尋列 */
+.search-bar {
     display: flex;
     align-items: center;
     background: #fff;
-    padding: 14px 24px; 
+    padding: 8px 10px 8px 20px;
     border-radius: 50px;
-    box-shadow: 0 6px 20px rgba(0,0,0,0.06);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
     border: 1px solid #eee;
-    width: 450px; 
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    z-index: 10;
+    transition: 0.3s;
+    position: relative;
+    z-index: 1001;
 }
-.main-search-bar.bar-active {
-    border-color: hsl(28, 75%, 45%);
-    box-shadow: 0 6px 20px rgba(243, 131, 50, 0.1);
+
+.search-bar.focused {
+    border-color: #f38332;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
 }
-.main-search-bar input {
+
+.search-bar input {
+    flex: 1;
     border: none;
     outline: none;
-    flex: 1;
-    margin: 0 15px;
-    font-size: 1.1rem; 
-    background: transparent;
+    font-size: 1.1rem;
+    padding: 10px;
 }
-.clear-text-icon {
-    color: #ccc;
-    cursor: pointer;
-    margin-right: 10px;
-    font-size: 0.9rem;
-}
-.clear-text-icon:hover { color: #999; }
 
-.hamburger-btn {
+.menu-btn {
     background: #f5f5f5;
     border: none;
-    width: 40px; 
-    height: 40px;
+    width: 38px;
+    height: 38px;
     border-radius: 50%;
     cursor: pointer;
-    font-size: 1.1rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    margin: 0 10px;
+    color: #666;
 }
 
-/* --- 面板設定--- */
-.advanced-drawer {
+.search-btn {
+    background: #f38332;
+    color: white;
+    border: none;
+    padding: 10px 25px;
+    border-radius: 30px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+/* 懸浮面板 */
+.floating-panel {
+    position: absolute;
+    top: calc(100% + 15px);
+    left: 0;
+    width: 100%;
     background: #fff;
-    border-radius: 24px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+    border-radius: 20px;
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
     border: 1px solid #eee;
-    overflow: hidden;
-    white-space: nowrap;
+    z-index: 1000;
 }
 
-.drawer-content {
+.panel-inner {
     padding: 25px;
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-    width: 480px;
 }
 
-.filter-row {
-    display: flex;
-    align-items: flex-start;
-    gap: 15px;
+.filter-group {
+    margin-bottom: 20px;
 }
-.row-label {
-    font-size: 0.85rem;
+
+.filter-group label {
+    display: block;
+    font-size: 0.8rem;
     font-weight: bold;
     color: #bbb;
-    min-width: 40px;
-    padding-top: 6px;
+    text-transform: uppercase;
+    margin-bottom: 10px;
 }
-.chip-group {
+
+.group-header {
+    display: flex;
+    justify-content: space-between;
+}
+
+.price-val {
+    color: #f38332;
+    font-weight: bold;
+}
+
+.chip-grid {
     display: flex;
     flex-wrap: wrap;
     gap: 8px;
 }
 
-.chip-btn {
+.chip {
     padding: 6px 14px;
     border-radius: 20px;
-    border: 1px solid #f0f0f0;
-    background: #fcfcfc;
+    border: 1px solid #eee;
+    background: #fafafa;
     font-size: 0.85rem;
     cursor: pointer;
     transition: 0.2s;
-    color: #666;
 }
-.chip-btn:hover { background: #f5f5f5; }
-.chip-btn.active {
-    background: hsl(28, 75%, 45%);
+
+.chip.active {
+    background: #f38332;
     color: #fff;
-    border-color: hsl(28, 75%, 45%);
-    box-shadow: 0 4px 10px rgba(243, 131, 50, 0.2);
+    border-color: #f38332;
 }
 
-.price-slider-box {
-    display: flex;
-    align-items: center;
-    gap: 15px;
-    flex: 1;
-}
-.mini-range {
-    flex: 1;
-    accent-color: hsl(28, 75%, 45%);
-}
-.price-text {
-    font-weight: bold;
-    color: hsl(28, 75%, 45%);
-    font-size: 1rem;
+.custom-range {
+    width: 100%;
+    accent-color: #f38332;
+    margin-top: 10px;
 }
 
-/* --- 按鈕區 --- */
-.drawer-actions {
+/* 底部按鈕 */
+.panel-footer {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-top: 10px;
-    padding-top: 20px;
-    border-top: 1px solid #f8f8f8;
+    margin-top: 20px;
+    padding-top: 15px;
+    border-top: 1px solid #f5f5f5;
 }
 
-.main-actions {
-    display: flex;
-    gap: 12px;
-}
-
-.submit-btn {
-    background: hsl(28, 75%, 45%);
-    color: white;
-    border: none;
-    padding: 10px 24px;
-    border-radius: 12px;
-    font-weight: bold;
-    cursor: pointer;
-    transition: 0.2s;
-}
-.submit-btn:hover { filter: brightness(1.1); transform: translateY(-1px); }
-
-/* 清除按鈕 */
-.reset-btn {
-    background: #f5f5f5;
-    color: #888;
-    border: 1px solid #eee;
-    padding: 10px 20px;
-    border-radius: 12px;
-    font-weight: bold;
-    cursor: pointer;
-    transition: 0.2s;
-}
-.reset-btn:hover { background: #eee; color: #666; }
-
-.close-text-btn {
+.reset-link {
     background: none;
     border: none;
-    color: #ccc;
-    font-size: 0.8rem;
+    color: #999;
+    text-decoration: underline;
+    cursor: pointer;
+    font-size: 0.9rem;
+}
+
+.apply-btn {
+    background: #2d2d2d;
+    color: white;
+    border: none;
+    padding: 10px 25px;
+    border-radius: 10px;
+    font-weight: bold;
     cursor: pointer;
 }
-.close-text-btn:hover { color: #999; }
 
-/* --- 動畫 --- */
-.expand-right-enter-active, .expand-right-leave-active {
-    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-    max-width: 700px;
+/* 動畫與遮罩 */
+.fade-slide-enter-active,
+.fade-slide-leave-active {
+    transition: all 0.3s ease;
 }
-.expand-right-enter-from, .expand-right-leave-to {
-    max-width: 0;
+
+.fade-slide-enter-from,
+.fade-slide-leave-to {
     opacity: 0;
-    transform: translateX(-30px);
+    transform: translateY(-10px);
 }
 
-/* 手機版適配 */
+.overlay-mask {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.05);
+    z-index: 999;
+}
+
+/* 響應式微調 (Breakpoint: 768px) */
 @media (max-width: 768px) {
-    .horizontal-layout { flex-direction: column; align-items: center; }
-    .main-search-bar { width: 90vw; }
-    .drawer-content { width: 90vw; }
+    .search-box-container {
+        width: 95%;
+    }
+
+    .main-bar {
+        padding-left: 15px;
+    }
+
+    .main-bar input {
+        font-size: 1rem;
+    }
+
+    .btn-text {
+        display: none;
+    }
+
+    .submit-btn {
+        padding: 10px;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+    }
+
+    .submit-btn::before {
+        content: "🔍";
+        color: white;
+    }
+
+    .floating-panel {
+        width: 100vw;
+        left: 50%;
+        transform: translateX(-50%);
+        border-radius: 0 0 20px 20px;
+    }
+
+    .panel-body {
+        padding: 20px;
+    }
 }
 </style>
