@@ -1,21 +1,22 @@
-import Detail from '@/views/Detail.vue'
-import Home from '@/views/Home.vue'
 import { createRouter, createWebHistory } from 'vue-router'
+import Home from '@/views/Home.vue'
+import RestaurantDetail from '../views/RestaurantDetail.vue' 
 
 const router = createRouter({
   history: createWebHistory(),
-  routes: [{
-    path: '/',
-    component: Home,
-    name: 'home'
-  },
-  {
-  path: '/restaurant/:name',
-  name: 'restaurant-detail',
-  component: Detail,
-  props: true // 這行很重要，它會把網址的 :name 自動變成 DetailView 的 props
-  },
-],
+  routes: [
+    {
+      path: '/',
+      name: 'home',
+      component: Home
+    },
+    {
+      path: '/restaurant/:id',
+      name: 'RestaurantDetail',
+      component: RestaurantDetail, 
+      props: true 
+    }
+  ]
 })
 
 export default router
