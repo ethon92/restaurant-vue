@@ -15,7 +15,7 @@
 <script setup>
 import { ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { verifyIdentity } from '@/services/auth'
+import { verifyIdentity } from '@/api/modules/auth'
 
 const route = useRoute()
 const router = useRouter()

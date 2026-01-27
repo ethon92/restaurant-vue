@@ -16,13 +16,15 @@
 <script setup>
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
+import { forgotPassword } from '@/api/modules/auth'
+
 
 const email = ref('')
 const router = useRouter()
 
 const goVerify = async () => {
   try {
-    await verifyIdentity({ email: email.value })
+    await forgotPassword({ email: email.value })
     router.push({
       path: '/verify-identity',
       query: { email: email.value }

@@ -14,7 +14,7 @@
 <script setup>
 import { ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { resetPassword as resetPasswordAPI } from '@/services/auth'
+import { resetPassword as resetPasswordAPI } from '@/api/modules/auth'
 
 
 const route = useRoute()

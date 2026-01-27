@@ -16,7 +16,13 @@ const routes = [
     component: ForgotPassword,
     name: "forgot-password",
   },
-  { path: "/profile", component: Profile, name: "profile" },
+  // 未登入不能進 Profile
+  {
+    path: "/profile",
+    component: Profile,
+    name: "profile",
+    meta: { requiresAuth: true },
+  },
   {
     path: "/verify-identity",
     component: VerifyIdentity,
@@ -28,6 +34,14 @@ const routes = [
 const router = createRouter({
   history: createWebHistory(),
   routes,
+});
+
+const isAuthenticated = () => Boolean(localStorage.getItem("auth_email"));
+
+router.beforeEach((to) => {
+  if (to.meta?.requiresAuth && !isAuthenticated()) {
+    return { name: "login" };
+  }
 });
 
 export default router;

@@ -12,7 +12,7 @@
 <script setup>
 import { onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { getProfile, logout as logoutAPI } from '@/services/auth'
+import { getProfile, logout as logoutAPI } from '@/api/modules/auth'
 
 const router = useRouter()
 const user = ref({
@@ -22,8 +22,9 @@ const user = ref({
 
 const fetchProfile = async () => {
   try {
-    const data = await getProfile()
-    user.value = data
+    const email = localStorage.getItem("auth_email");
+    const res = await getProfile({ email });
+    user.value = res.data;
   } catch (error) {
     alert('取得會員資料失敗')
   }
@@ -32,6 +33,8 @@ const fetchProfile = async () => {
 const logout = async () => {
   try {
     await logoutAPI()
+    localStorage.removeItem("auth_email")
+    localStorage.removeItem("auth_token")
     alert('已登出')
     router.push('/login')
   } catch (error) {
