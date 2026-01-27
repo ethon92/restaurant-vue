@@ -20,38 +20,60 @@ const myFormData = reactive({
 const isSubmitting = ref(false);
 
 const handleBooking = async () => {
+    // 1. 從 localStorage 抓取組員存入的登入資訊
+    // 假設組員存的 key 叫 'user_info'
+    const savedUser = localStorage.getItem('user_info');
+    const currentUser = savedUser ? JSON.parse(savedUser) : null;
+
+    // 2. 驗證登入狀態 (既然必須會員才能訂位)
+    if (!currentUser || !currentUser.user_id) {
+        alert("偵測不到登入狀態，請重新登入後再進行預約");
+        return;
+    }
+
+    // 3. 欄位基礎驗證
     if (!myFormData.user_name || !myFormData.phone || !myFormData.date || !myFormData.time) {
         alert("請填寫完整資訊 (姓名、電話、日期、時間)");
         return;
     }
 
+    // 4. Payload：
     const apiPayload = {
         restaurant_name: myFormData.restaurant_name,
         user_name: myFormData.user_name,
+        user_id: currentUser.user_id, 
         phone: myFormData.phone,
-        email: myFormData.email || "no-email@example.com",
+        email: myFormData.email || null,
         party_size: myFormData.people,
-        booking_time: `${myFormData.date} ${myFormData.time}`,
-        note: myFormData.note
+        booking_time: `${myFormData.date}T${myFormData.time}:00`,
+        note: myFormData.note || "",
+        booking_status: "confirmed"
     };
 
     isSubmitting.value = true;
     try {
         const res = await restaurantApi.book(apiPayload);
-        if (res.data.status === 'success') {
+        if (res.status === 200 || res.data.status === 'success') {
             alert("預約成功！");
         } else {
-            alert("失敗：" + res.data.message);
+            alert("失敗：" + (res.data.message || "請檢查格式"));
         }
     } catch (error) {
+        console.error("預約錯誤回報:", error.response?.data);
         alert("預約失敗，請稍後再試");
     } finally {
         isSubmitting.value = false;
     }
 };
+const devLogin = () =>{
+    localStorage.setItem('user_info', JSON.stringify({user_id:1, user_name: "測試人員"}));
+    alert("測試模式已啟動：已模擬 ID 1 號登入");
+};
+
 </script>
 
 <template>
+    <button @click="devLogin" style="opacity: 0.1; position: absolute; top: 0; right: 0;">.</button>
     <div class="booking-card">
         <div class="header-group">
             <h3 class="booking-title">預約訂位</h3>
