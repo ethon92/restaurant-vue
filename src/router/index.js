@@ -7,6 +7,14 @@ import Profile from "@/views/auth/Profile.vue";
 import VerifyIdentity from "@/views/auth/VerifyIdentity.vue";
 import ResetPassword from "@/views/auth/ResetPassword.vue";
 
+// 先用 placeholder，之後合併再換成真正頁面
+const BookingRecordPlaceholder = {
+  template: "<div>Booking Record Page（待合併）</div>",
+};
+const FavoriteRestaurantPlaceholder = {
+  template: "<div>Favorite Restaurant Page（待合併）</div>",
+};
+
 const routes = [
   { path: "/", component: Home, name: "home" },
   { path: "/login", component: Login, name: "login" },
@@ -29,6 +37,18 @@ const routes = [
     name: "verify-identity",
   },
   { path: "/reset-password", component: ResetPassword, name: "reset-password" },
+
+  //合併再換成真正頁面
+  {
+    path: "/booking-record",
+    name: "booking-record",
+    component: BookingRecordPlaceholder,
+  },
+  {
+    path: "/favorite-restaurant",
+    name: "favorite-restaurant",
+    component: FavoriteRestaurantPlaceholder,
+  },
 ];
 
 const router = createRouter({
