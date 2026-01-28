@@ -4,10 +4,10 @@
     <form @submit.prevent="register">
       <input v-model.trim="name" type="text" placeholder="姓名" required />
       <input v-model="email" type="email" placeholder="Email" required />
-      <input v-model="password" type="password" placeholder="密碼" required />
-      <input v-model="confirmPassword" type="password" placeholder="確認密碼" required />
-      <input v-model="birthday" type="date" required />
 
+      <PasswordField v-model="password" placeholder="密碼" />
+      <PasswordField v-model="confirmPassword" placeholder="確認密碼" />
+      <input v-model="birthday" type="date" required />
       <button type="submit">註冊</button>
     </form>
 
@@ -20,16 +20,17 @@
 
 <script setup>
 import { ref } from 'vue'
+import PasswordField from "@/components/PasswordField.vue";
 import { register as registerAPI } from '@/api/modules/auth'
 import { useRouter } from 'vue-router'
 
 
 const name = ref("");
-const email = ref('')
-const password = ref('')
-const confirmPassword = ref('')
-const birthday = ref('')
-const router = useRouter()
+const email = ref('');
+const password = ref('');
+const confirmPassword = ref('');
+const birthday = ref('');
+const router = useRouter();
 
 
 const register = async () => {
@@ -61,3 +62,10 @@ const register = async () => {
   }
 }
 </script>
+
+<style scoped>
+.auth-container {
+  max-width: 400px;
+  margin: auto;
+}
+</style>1

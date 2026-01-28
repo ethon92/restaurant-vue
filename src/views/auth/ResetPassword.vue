@@ -3,26 +3,28 @@
     <h2>重設密碼</h2>
 
     <form @submit.prevent="resetPassword">
-      <input v-model="password" type="password" placeholder="新密碼" required />
-      <input v-model="confirmPassword" type="password" placeholder="確認新密碼" required />
-
+      <PasswordField v-model="password" placeholder="新密碼" />
+      <PasswordField v-model="confirmPassword" placeholder="確認新密碼" />
       <button type="submit">確認修改</button>
     </form>
   </div>
 </template>
 
 <script setup>
-import { ref } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
-import { resetPassword as resetPasswordAPI } from '@/api/modules/auth'
+import { ref } from 'vue';
+import PasswordField from "@/components/PasswordField.vue";
+import { useRoute, useRouter } from 'vue-router';
+import { resetPassword as resetPasswordAPI } from '@/api/modules/auth';
 
 
-const route = useRoute()
-const router = useRouter()
+const route = useRoute();
+const router = useRouter();
 
-const email = route.query.email
-const password = ref('')
-const confirmPassword = ref('')
+const email = route.query.email;
+const password = ref('');
+const confirmPassword = ref('');
+
+
 
 const resetPassword = async () => {
   if (password.value !== confirmPassword.value) {
@@ -42,3 +44,10 @@ const resetPassword = async () => {
   }
 }
 </script>
+
+<style scoped>
+.auth-container {
+  max-width: 400px;
+  margin: auto;
+}
+</style>

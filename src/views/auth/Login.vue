@@ -4,8 +4,7 @@
 
     <form @submit.prevent="login">
       <input v-model.trim="email" type="email" placeholder="Email" required />
-      <input v-model="password" type="password" placeholder="密碼" required />
-
+      <PasswordField v-model="password" placeholder="密碼" />
       <button type="submit">登入</button>
     </form>
 
@@ -21,6 +20,7 @@
 
 <script setup>
 import { ref } from 'vue'
+import PasswordField from "@/components/PasswordField.vue";
 import { login as loginAPI } from '@/api/modules/auth'
 import { useRouter } from 'vue-router'
 
