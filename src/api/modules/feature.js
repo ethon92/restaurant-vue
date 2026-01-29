@@ -16,5 +16,16 @@ const favoriteApi = {
     }
 }
 
+const commentApi = {
+    createComment(comment_data){
+        return service({
+            url:'/comments',
+            method: 'post',
+            data : comment_data
+        })
+    }
+}
+
 export const createFavorite = favoriteApi.createFavorite
 export const favoriteList = favoriteApi.favoriteList
+export const createComment = commentApi.createComment
