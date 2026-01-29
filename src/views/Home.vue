@@ -1,99 +1,85 @@
 <script setup>
-import { ref } from 'vue';
-import LobbySearch from '@/components/LobbySearch.vue';
+import { ref, onMounted } from 'vue';
 import Navbar from '@/components/Navbar.vue';
+import LobbySearch from '@/components/LobbySearch.vue';
+import RestaurantCarousel from '../components/HomeDetail/RestaurantCarousel.vue';
+import SearchResults from '../components/HomeDetail/SearchResults.vue';
+import restaurantApi from '@/api/modules/restaurant';
 
-// 初始化為空陣列
-const restaurants = ref([]);
+const recommendedRestaurants = ref([]);
+const searchResults = ref([]);
+const isSearching = ref(false);
 
-const isLoggedIn = ref(false);
-const showLoginModal = ref(false);
+const fetchRecommended = async () => {
+  try {
+    const res = await restaurantApi.getRestaurants(0, 2000); // 抓 100 筆抽 20 筆
+    if (res?.data) {
+      recommendedRestaurants.value = res.data.sort(() => Math.random() - 0.5).slice(0, 20);
+    }
+  } catch (e) { console.error(e); }
+};
+
+const handleSearch = (data) => {
+  searchResults.value = data;
+  isSearching.value = true;
+};
+
+onMounted(fetchRecommended);
 </script>
 
 <template>
   <div class="page-container">
-    <Navbar></Navbar>
+    <Navbar />
     <header class="hero">
       <div class="hero-content">
         <h1 class="hero-title">預訂您的下一頓美味</h1>
         <p class="hero-subtitle">全台 4,000+ 間頂級餐廳，一鍵即刻預定</p>
       </div>
     </header>
-    <div>
-      <LobbySearch @search-result="data => restaurants = data" />
-      <hr />
-      <div class="list-wrapper">
-        <div v-if="restaurants.length > 0">
 
-
-          <div v-for="r in restaurants" :key="r.ID" class="restaurant-card">
-            <h3>{{ r.Name }}</h3>
-            <p>📍 {{ r.Add }}</p>
-
-            <router-link :to="{ name: 'RestaurantDetail', params: { id: r.ID } }">
-              <button class="btn-detail">查看詳情與預約</button>
-            </router-link>
-          </div>
-
-        </div>
-
-        <div v-else class="no-data">
-          <p>目前沒有餐廳資料，請試著搜尋關鍵字（例如：金門）</p>
-        </div>
+    <section class="search-wrapper">
+      <div class="container">
+        <LobbySearch @search-result="handleSearch" />
       </div>
+    </section>
+
+    <div class="container">
+      <RestaurantCarousel title="熱門推薦" :list="recommendedRestaurants" />
+
+      <SearchResults v-if="isSearching" :results="searchResults" @close="isSearching = false" />
     </div>
   </div>
 </template>
 
 <style scoped>
-.restaurant-card {
-  border: 1px solid #ddd;
-  border-radius: 10px;
-  padding: 15px;
-  margin-bottom: 15px;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
-}
-
-.btn-detail {
-  background-color: #007bff;
-  color: white;
-  border: none;
-  padding: 8px 15px;
-  border-radius: 5px;
-  cursor: pointer;
-}
-
-.no-data {
-  text-align: center;
-  color: #999;
-  margin-top: 30px;
-}
-
-/* 基礎佈局 */
+/* 這裡只留下 Home 專用的 Hero 和基礎 Layout CSS 即可 */
 .page-container {
   min-height: 100vh;
-  background-color: var(--bg-light);
-  font-family: sans-serif;
+  background-color: #f9fafb;
 }
 
-/* Hero Section */
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
 .hero {
-  height: 500px;
+  height: 150px;
   display: flex;
   align-items: center;
   justify-content: center;
-  position: relative;
+  background-color: #fff;
 }
 
 .hero-title {
   font-size: 3rem;
   font-weight: 800;
-  margin-bottom: 1rem;
 }
 
-.hero-subtitle {
-  font-size: 1.25rem;
-  color: var(--text-muted);
-  margin-bottom: 3rem;
+.search-wrapper {
+  background-color: #fff;
+  padding: 30px 0;
+  border-bottom: 1px solid #eee;
 }
 </style>
