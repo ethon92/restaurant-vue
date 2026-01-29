@@ -25,6 +25,7 @@ const showLoginModal = ref(false);
       <div class="list-wrapper">
         <div v-if="restaurants.length > 0">
 
+
           <div v-for="r in restaurants" :key="r.ID" class="restaurant-card">
             <h3>{{ r.Name }}</h3>
             <p>📍 {{ r.Add }}</p>
