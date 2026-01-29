@@ -7,7 +7,7 @@ const restaurants = ref([]);
 </script>
 
 <template>
-  <div class="home-container">
+  <div>
     <h1>餐廳列表</h1>
 
     <LobbySearch @search-result="data => restaurants = data" />

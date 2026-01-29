@@ -1,8 +1,9 @@
 <script setup>
-import { ref, reactive, onMounted } from 'vue';
+import { ref, reactive, onMounted, computed } from 'vue';
 import restaurantApi from '@/api/modules/restaurant';
-import axios from 'axios';
 
+
+const todayStr = new Date().toISOString().split('T')[0];
 
 const props = defineProps({
     restaurantName: String
@@ -10,11 +11,11 @@ const props = defineProps({
 
 const myFormData = reactive({
     restaurant_name: props.restaurantName || '',
-    user_id: null, 
+    user_id: null,
     user_name: '',
     phone: '',
     email: '',
-    date: '',
+    date: todayStr,
     time: '',
     people: 2,
     note: '',
@@ -25,9 +26,9 @@ onMounted(() => {
     const savedUser = JSON.parse(sessionStorageStorage.getItem('user_info'));
 
     if (savedUser && savedUser.user_id) {
-        myFormData.user_id = savedUser.user_id;  
+        myFormData.user_id = savedUser.user_id;
         myFormData.user_name = savedUser.user_name || '';
-        myFormData.phone = savedUser.phone || '';   
+        myFormData.phone = savedUser.phone || '';
         myFormData.email = savedUser.email || '';
     }
 });
@@ -41,17 +42,40 @@ const handleBooking = async () => {
         return;
     }
 
-    if (!myFormData.user_name || myFormData.phone || myFormData.email) {
-        alert("請填寫預約姓名與電話和信箱")
+    const phoneRegex = /^09\d{8}$/;
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    if (!myFormData.user_name) {
+        alert("請輸入預約姓名");
         return;
     }
+
+    if (!phoneRegex.test(myFormData.phone)) {
+        alert("手機格式錯誤，請輸入正確的 10 位數字 (例如: 0912345678)");
+        return;
+    }
+
+    if (!emailRegex.test(myFormData.email)) {
+        alert("信箱格式錯誤");
+        return;
+    }
+
+    if (!myFormData.date || !myFormData.time) {
+        alert("請選擇預約日期與時間");
+        return;
+    }
+
+    const selectedDateTime = new Date(`${myFormData.date}T${myFormData.time}`);
+    if (selectedDateTime < new Date()) {
+        alert("預約時間不可早於現在，請重新選擇");
+        return;
 
     const apiPayload = {
         restaurant_name: myFormData.restaurant_name,
         user_id: myFormData.user_id,
         user_name: myFormData.user_name,
         phone: myFormData.phone,
-        email: myFormData.email,  
+        email: myFormData.email,
         party_size: myFormData.people,
         booking_time: `${myFormData.date}T${myFormData.time}:00`,
         note: myFormData.note || "",
@@ -60,8 +84,8 @@ const handleBooking = async () => {
 
     isSubmitting.value = true;
     try {
-        const res = await restaurantApi.book(apiPayload); 
-        
+        const res = await restaurantApi.book(apiPayload);
+
         if (res.data.status === 'success') {
             const serverData = res.data.data;
             alert(`預約成功！\n 訂位代號: ${serverData.booking_id}\n 聯絡人： ${serverData.user_name}`);
@@ -80,45 +104,42 @@ const handleBooking = async () => {
             <h3 class="booking-title">預約訂位</h3>
             <p class="restaurant-subtitle">{{ restaurantName }}</p>
         </div>
-        
+
         <div class="form-content">
             <div class="input-grid">
                 <div class="field">
                     <label>預約姓名 (會員)</label>
-                    <input 
-                        v-model="myFormData.user_name" 
-                        type="text" 
-                        placeholder="請輸入姓名"
-                    >
+                    <input v-model="myFormData.user_name" type="text" placeholder="請輸入姓名">
                 </div>
                 <div class="field">
                     <label>聯絡電話 (會員)</label>
-                    <input 
-                        v-model="myFormData.phone" 
-                        type="tel" 
-                        placeholder="請輸入預約人電話"
-                    >
+                    <input v-model="myFormData.phone" type="tel" placeholder="0912345678"
+                        :class="{ 'error-border': myFormData.phone && !/^09\d{8}$/.test(myFormData.phone) }">
+                    <span v-if="myFormData.phone && !/^09\d{8}$/.test(myFormData.phone)" class="error-text">
+                        格式應為 09xxxxxxxx
+                    </span>
                 </div>
             </div>
 
             <div class="field">
                 <label>電子信箱</label>
-                <input 
-                    v-model="myFormData.email" 
-                    type="email" 
-                    placeholder="example@gmail.com"
-                >
+                <input v-model="myFormData.email" type="email" placeholder="example@gmail.com"
+                    :class="{ 'input-error': myFormData.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(myFormData.email) }">
+                <p v-if="myFormData.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(myFormData.email)" class="error-msg">
+                    請輸入有效的電子信箱格式
+                </p>
             </div>
 
 
             <div class="input-grid">
                 <div class="field">
                     <label>預約日期</label>
-                    <input v-model="myFormData.date" type="date">
+                    <input v-model="myFormData.date" type="date" :min="todayStr">
                 </div>
                 <div class="field">
                     <label>預約時間</label>
-                    <input v-model="myFormData.time" type="time">
+                    <input v-model="myFormData.time" type="time" :class="{ 'input-error': isPastTime }">
+                    <p v-if="isPastTime" class="error-msg">預約時間不能早於當前時間</p>
                 </div>
             </div>
 
@@ -150,6 +171,20 @@ const handleBooking = async () => {
     box-shadow: 0 8px 30px rgba(0, 0, 0, 0.06);
     max-width: 340px;
     margin: 0 auto;
+}
+
+/* 錯誤時的輸入紅框 */
+.input-error {
+    border: 1px solid #ff4d4f !important;
+    background-color: #fff2f0 !important;
+}
+
+/* 錯誤提示 */
+.error-msg {
+    color: #ff4d4f;
+    font-size: 0.65rem;
+    margin: 2px 0 0 4px;
+    font-weight: 500;
 }
 
 .header-group {
