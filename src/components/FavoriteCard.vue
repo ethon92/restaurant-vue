@@ -11,7 +11,7 @@ const baseUrl = "http://localhost:8000/static"
             <div class="card m-2">
                 <img class="card-img-top" :src="baseUrl + restaurant.CoverImage" alt="餐廳照片">
                 <div class="card-body">
-                    <h5 class="card-title">{{ restaurant.RestaurantName }}</h5>
+                    <h5 class="card-title">{{ restaurant.Name }}</h5>
                     <p class="card-text">{{ restaurant.fav_note }}</p>
                 </div>
             </div>
