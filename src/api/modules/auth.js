@@ -6,6 +6,8 @@ export const forgotPassword = (payload) =>
   api.post("/auth/forgot-password", payload);
 export const verifyIdentity = (payload) =>
   api.post("/auth/verify-identity", payload);
+export const verifyPassword = (payload) =>
+  api.post("/auth/verify-password", payload);
 export const resetPassword = (payload) =>
   api.post("/auth/reset-password", payload);
 export const getProfile = (payload = {}) => api.post("/auth/profile", payload);

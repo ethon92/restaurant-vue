@@ -23,10 +23,12 @@ import { ref } from 'vue'
 import PasswordField from "@/components/PasswordField.vue";
 import { login as loginAPI } from '@/api/modules/auth'
 import { useRouter } from 'vue-router'
+import { useAuthStore } from "@/stores/auth";
 
 const email = ref('')
 const password = ref('')
 const router = useRouter()
+const auth = useAuthStore();
 
 
 const login = async () => {
@@ -44,11 +46,12 @@ const login = async () => {
       email: email.value,
       password: password.value,
     });
-    // 先用 email 當登入旗標
-    localStorage.setItem("auth_email", res.data.user.email);
-    console.log('登入成功', email.value, password.value)
+    const user = res.data.user; // 後端 log in 回傳的 user
+    auth.setSession({ userId: user.id, me: user }); // ✅ 存 userId 到 localStorage
+
     alert("登入成功");
-    router.push('/profile')
+    router.push("/profile");
+
   } catch (error) {
     console.log("login error:", error?.response?.data);
     alert("登入失敗");

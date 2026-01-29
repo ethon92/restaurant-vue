@@ -56,7 +56,7 @@ const router = createRouter({
   routes,
 });
 
-const isAuthenticated = () => Boolean(localStorage.getItem("auth_email"));
+const isAuthenticated = () => Boolean(localStorage.getItem("auth_user_id"));
 
 router.beforeEach((to) => {
   if (to.meta?.requiresAuth && !isAuthenticated()) {

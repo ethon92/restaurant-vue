@@ -106,20 +106,20 @@
 <script setup>
 import { onMounted, reactive, ref } from "vue";
 import { useRouter } from 'vue-router'
-import { getProfile, updateProfile, logout as logoutAPI } from '@/api/modules/auth'
+import { updateProfile, verifyPassword } from '@/api/modules/auth'
 import PasswordField from "@/components/PasswordField.vue";
-
+import { useAuthStore } from "@/stores/auth";
 
 const memberSinceText = "2026年1月";
 
 const router = useRouter()
-const activeTab = ref("booking"); // 預設顯示「訂位」
+const auth = useAuthStore();
 
+const activeTab = ref("booking"); // 預設顯示「訂位」
 const saving = ref(false);
 const errorMsg = ref("");
 const okMsg = ref("");
 const currentPassword = ref("");
-
 
 const form = reactive({
   name: "",
@@ -128,35 +128,32 @@ const form = reactive({
 });
 
 
-// const user = ref({
-//  email: '',
-//  role: ''
-//}) 
-
-const fetchProfile = async () => {
+const loadProfileFromStore = async () => {
   errorMsg.value = "";
   okMsg.value = "";
+
+  // ✅ 1) 用 Pinia 判斷登入，不直接讀 localStorage
+  if (!auth.isLoggedIn) {
+    router.push("/login");
+    return;
+  }
+
   try {
-    const email = localStorage.getItem("auth_email");
-    if (!email) {
-      router.push("/login");
-      return;
+    // ✅ 2) 確保 me 有資料（沒有就打 /auth/profile）
+    if (!auth.me) {
+      await auth.fetchMe();
     }
-
-    const res = await getProfile({ email });
-    const data = res.data;
-
-    form.name = data?.name ?? "";
-    form.email = data?.email ?? email;
-    form.birthday = data?.birthday ?? "";
+    // ✅ 3) 把 store 的 me 同步到可編輯的 form
+    form.name = auth.me?.name ?? "";
+    form.email = auth.me?.email ?? "";
+    form.birthday = auth.me?.birthday ?? "";
   } catch (e) {
     errorMsg.value = "取得會員資料失敗";
   }
 };
 
-onMounted(fetchProfile);
+onMounted(loadProfileFromStore);
 
-// ⚠️ 這裡先保留「儲存」的連接點：你之後做後端 update API 再接上
 const onSave = async () => {
   errorMsg.value = "";
   okMsg.value = "";
@@ -175,34 +172,80 @@ const onSave = async () => {
   saving.value = true;
   try {
     await updateProfile({
-      email: form.email,       // 用 email 當查找條件
+      user_id: auth.userId,       // 用 user_id 當查找條件
       name: form.name,
+      email: form.email,
       birthday: form.birthday || null, // date input 是字串，空就送 null
       current_password: currentPassword.value, // 送到後端驗證
     });
 
     okMsg.value = "已儲存";
     currentPassword.value = ""; // ✅ 存完清空比較安全
+
+    // ✅ 4) 更新後讓 store 的 me 也跟著更新（或直接重新 fetch）
+    // 方案 A：直接更新 store.me（快）
+    if (auth.me) {
+      auth.$patch({
+        me: {
+          ...auth.me,
+          name: form.name,
+          birthday: form.birthday,
+        },
+      });
+    } else {
+      // 方案 B：重新抓一次（穩）
+      await auth.fetchMe();
+    }
   } catch (e) {
     const detail = e?.response?.data?.detail;
-    if (detail === "Password incorrect") errorMsg.value = "目前密碼錯誤";
-    else errorMsg.value = detail || "儲存失敗";
+    if (detail === "Password incorrect") {
+      errorMsg.value = "目前密碼錯誤";
+      alert("目前密碼錯誤");
+    } else {
+      errorMsg.value = detail || "儲存失敗";
+    }
   } finally {
     saving.value = false;
   }
 };
 
 const onLogout = async () => {
+  // ✅ 5) 建議用 store.logout 統一清狀態
   try {
-    await logoutAPI();
+    await auth.logout(); // ✅ 會清 localStorage + me
   } catch (e) { }
-  localStorage.removeItem("auth_email");
   router.push("/login");
 };
 
-const goResetPassword = () => {
-  // 你目前 reset-password 是透過 query email
-  router.push({ path: "/reset-password", query: { email: form.email } });
+const goResetPassword = async () => {
+  errorMsg.value = "";
+  okMsg.value = "";
+
+  if (!currentPassword.value) {
+    errorMsg.value = "請先輸入目前密碼才能修改密碼";
+    alert("請先輸入目前密碼"); // 你想要用 alert 的話
+    return;
+  }
+
+  try {
+    await verifyPassword({
+      user_id: auth.userId,
+      current_password: currentPassword.value,
+    });
+
+    // ✅ 驗證成功才允許跳轉
+    router.push({ path: "/reset-password", query: { email: form.email } });
+  } catch (e) {
+    const detail = e?.response?.data?.detail;
+
+    if (detail === "Password incorrect") {
+      errorMsg.value = "目前密碼錯誤";
+      alert("目前密碼錯誤");
+    } else {
+      errorMsg.value = detail || "驗證失敗";
+      alert(errorMsg.value);
+    }
+  }
 };
 
 </script>
