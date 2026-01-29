@@ -1,54 +1,42 @@
-import request from '../index'; 
+import service from "../index";
+
 
 export default {
-  /**
-   * 1. 取得餐廳列表
-   */
+  /* 1. 取得餐廳列表 */
   getRestaurants(skip = 0, limit = 20) {
-    return request.get('/api/restaurants', {
+    return service.get('/api/restaurants', {
       params: { skip, limit }
     });
   },
 
-  /**
-   * 2. 連動搜尋 API
-   */
+  /* 2. 連動搜尋 API */
   searchRestaurants(filters) {
-    return request.get('/api/search', {
+    return service.get('/api/search', {
       params: filters,
       paramsSerializer: {
-        indexes: null
+        indexes: null 
       }
-    });
+      });
   },
 
-  /**
-   * 3. 取得餐廳詳情
-   */
+  /* 3. 取得餐廳詳情 */
   getDetail(id) {
-    return request.get(`/api/restaurant/${id}`);
+    return service.get(`/api/restaurant/${id}`);
   },
 
-  /**
-   * 4. 提交預約
-   * @param {Object} bookingData */
+  /* 4. 提交預約 */
 
 book(bookingData) {
-  return request.post('/api/reservations', bookingData);
+  return service.post('/api/reservations', bookingData);
 },
 
-  /**
-   * 5. [新功能] 取消/刪除預約
-   * @param {number} id - 預約 ID
-   */
+  /*5. [新功能] 取消/刪除預約 */
   deleteReservation(id) {
-    return request.delete(`/api/reservation/${id}`);
+    return service.delete(`/api/reservation/${id}`);
   },
 
-  /**
-   * 6. [新功能] 取得所有預約
-   */
+  /* 6. [新功能] 取得所有預約 */
   getAllReservations() {
-    return request.get('/api/reservations');
+    return service.get('/api/reservations');
   }
 };
