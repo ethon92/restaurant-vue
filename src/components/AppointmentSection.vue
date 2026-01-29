@@ -20,10 +20,17 @@ const myFormData = reactive({
     people: 2,
     note: '',
 });
+
+const isPastTime = computed(() => {
+    if (!myFormData.date || !myFormData.time) return false;
+    const selectedDateTime = new Date(`${myFormData.date}T${myFormData.time}`);
+    return selectedDateTime < new Date();
+});
+
 // SessionStorage
 onMounted(() => {
     // 1. 從 SessionStorage 拿 ID
-    const savedUser = JSON.parse(sessionStorageStorage.getItem('user_info'));
+    const savedUser = JSON.parse(sessionStorage.getItem('user_info'));
 
     if (savedUser && savedUser.user_id) {
         myFormData.user_id = savedUser.user_id;
@@ -69,7 +76,8 @@ const handleBooking = async () => {
     if (selectedDateTime < new Date()) {
         alert("預約時間不可早於現在，請重新選擇");
         return;
-
+    }
+    
     const apiPayload = {
         restaurant_name: myFormData.restaurant_name,
         user_id: myFormData.user_id,
