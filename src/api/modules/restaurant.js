@@ -33,9 +33,9 @@ export default {
    * 4. 提交預約
    * @param {Object} bookingData */
 
-  book(bookingData) {
-    return request.post('/api/book', bookingData);
-  },
+book(bookingData) {
+  return request.post('/api/reservations', bookingData);
+},
 
   /**
    * 5. [新功能] 取消/刪除預約

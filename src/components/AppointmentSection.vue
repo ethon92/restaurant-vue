@@ -1,6 +1,8 @@
 <script setup>
-import { ref, reactive } from 'vue';
+import { ref, reactive, onMounted } from 'vue';
 import restaurantApi from '@/api/modules/restaurant';
+import axios from 'axios';
+
 
 const props = defineProps({
     restaurantName: String
@@ -8,6 +10,7 @@ const props = defineProps({
 
 const myFormData = reactive({
     restaurant_name: props.restaurantName || '',
+    user_id: null, 
     user_name: '',
     phone: '',
     email: '',
@@ -16,34 +19,39 @@ const myFormData = reactive({
     people: 2,
     note: '',
 });
+// SessionStorage
+onMounted(() => {
+    // 1. 從 SessionStorage 拿 ID
+    const savedUser = JSON.parse(sessionStorageStorage.getItem('user_info'));
+
+    if (savedUser && savedUser.user_id) {
+        myFormData.user_id = savedUser.user_id;  
+        myFormData.user_name = savedUser.user_name || '';
+        myFormData.phone = savedUser.phone || '';   
+        myFormData.email = savedUser.email || '';
+    }
+});
 
 const isSubmitting = ref(false);
 
 const handleBooking = async () => {
-    // 1. 從 localStorage 抓取組員存入的登入資訊
-    // 假設組員存的 key 叫 'user_info'
-    const savedUser = localStorage.getItem('user_info');
-    const currentUser = savedUser ? JSON.parse(savedUser) : null;
-
-    // 2. 驗證登入狀態 (既然必須會員才能訂位)
-    if (!currentUser || !currentUser.user_id) {
-        alert("偵測不到登入狀態，請重新登入後再進行預約");
+    // 防呆：沒 ID
+    if (!myFormData.user_id) {
+        alert("請先登入會員");
         return;
     }
 
-    // 3. 欄位基礎驗證
-    if (!myFormData.user_name || !myFormData.phone || !myFormData.date || !myFormData.time) {
-        alert("請填寫完整資訊 (姓名、電話、日期、時間)");
+    if (!myFormData.user_name || myFormData.phone || myFormData.email) {
+        alert("請填寫預約姓名與電話和信箱")
         return;
     }
 
-    // 4. Payload：
     const apiPayload = {
         restaurant_name: myFormData.restaurant_name,
+        user_id: myFormData.user_id,
         user_name: myFormData.user_name,
-        user_id: currentUser.user_id, 
         phone: myFormData.phone,
-        email: myFormData.email || null,
+        email: myFormData.email,  
         party_size: myFormData.people,
         booking_time: `${myFormData.date}T${myFormData.time}:00`,
         note: myFormData.note || "",
@@ -52,51 +60,56 @@ const handleBooking = async () => {
 
     isSubmitting.value = true;
     try {
-        const res = await restaurantApi.book(apiPayload);
-        if (res.status === 200 || res.data.status === 'success') {
-            alert("預約成功！");
-        } else {
-            alert("失敗：" + (res.data.message || "請檢查格式"));
+        const res = await restaurantApi.book(apiPayload); 
+        
+        if (res.data.status === 'success') {
+            const serverData = res.data.data;
+            alert(`預約成功！\n 訂位代號: ${serverData.booking_id}\n 聯絡人： ${serverData.user_name}`);
         }
     } catch (error) {
-        console.error("預約錯誤回報:", error.response?.data);
-        alert("預約失敗，請稍後再試");
+        console.error("預約錯誤:", error.response?.data);
+        alert(error.response?.data?.detail || "預約失敗");
     } finally {
         isSubmitting.value = false;
     }
 };
-const devLogin = () =>{
-    localStorage.setItem('user_info', JSON.stringify({user_id:1, user_name: "測試人員"}));
-    alert("測試模式已啟動：已模擬 ID 1 號登入");
-};
-
 </script>
-
 <template>
-    <button @click="devLogin" style="opacity: 0.1; position: absolute; top: 0; right: 0;">.</button>
     <div class="booking-card">
         <div class="header-group">
             <h3 class="booking-title">預約訂位</h3>
             <p class="restaurant-subtitle">{{ restaurantName }}</p>
         </div>
-
+        
         <div class="form-content">
             <div class="input-grid">
                 <div class="field">
-                    <label>預約姓名</label>
-                    <input v-model="myFormData.user_name" type="text" placeholder="您的姓名">
+                    <label>預約姓名 (會員)</label>
+                    <input 
+                        v-model="myFormData.user_name" 
+                        type="text" 
+                        placeholder="請輸入姓名"
+                    >
                 </div>
-
                 <div class="field">
-                    <label>聯絡電話</label>
-                    <input v-model="myFormData.phone" type="tel" placeholder="電話號碼">
+                    <label>聯絡電話 (會員)</label>
+                    <input 
+                        v-model="myFormData.phone" 
+                        type="tel" 
+                        placeholder="請輸入預約人電話"
+                    >
                 </div>
             </div>
 
             <div class="field">
                 <label>電子信箱</label>
-                <input v-model="myFormData.email" type="email" placeholder="example@mail.com">
+                <input 
+                    v-model="myFormData.email" 
+                    type="email" 
+                    placeholder="example@gmail.com"
+                >
             </div>
+
 
             <div class="input-grid">
                 <div class="field">
@@ -119,14 +132,12 @@ const devLogin = () =>{
 
             <div class="field">
                 <label>備註需求</label>
-                <textarea v-model="myFormData.note" placeholder="如有特殊需求請告知..." rows="2"></textarea>
+                <textarea v-model="myFormData.note" rows="2"></textarea>
             </div>
 
             <button class="submit-btn" @click="handleBooking" :disabled="isSubmitting">
-                {{ isSubmitting ? '處理中' : '確認預約' }}
+                {{ isSubmitting ? '正在連線資料庫...' : '確認預約' }}
             </button>
-
-            <p class="booking-hint">送出後，餐廳將與您聯繫確認</p>
         </div>
     </div>
 </template>
@@ -161,7 +172,7 @@ const devLogin = () =>{
 .form-content {
     display: flex;
     flex-direction: column;
-    gap: 12px; 
+    gap: 12px;
 }
 
 .field {
@@ -178,9 +189,10 @@ const devLogin = () =>{
     text-transform: uppercase;
 }
 
-input, textarea {
-    width: 100%; 
-    box-sizing: border-box; 
+input,
+textarea {
+    width: 100%;
+    box-sizing: border-box;
     padding: 10px 12px;
     border: 1px solid #f0f0f0;
     border-radius: 8px;
@@ -207,8 +219,10 @@ input, textarea {
 }
 
 .compact-range {
-    -webkit-appearance: none; /* Chrome, Safari, Edge */
-    -moz-appearance: none;    /* 舊版 Firefox */
+    -webkit-appearance: none;
+    /* Chrome, Safari, Edge */
+    -moz-appearance: none;
+    /* 舊版 Firefox */
     appearance: none;
     width: 100%;
     height: 4px;
@@ -227,12 +241,12 @@ input, textarea {
     background: hsl(28, 75%, 45%);
     border-radius: 50%;
     border: 2px solid #fff;
-    box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
     transition: transform 0.2s ease;
 }
 
 .compact-range::-webkit-slider-thumb:hover {
-    transform: scale(1.2); 
+    transform: scale(1.2);
 }
 
 /* 按鈕優化 */
@@ -253,9 +267,10 @@ input, textarea {
     color: #ccc;
     text-align: center;
 }
+
 @media (max-width: 350px) {
     .input-grid {
-        grid-template-columns: 1fr; 
+        grid-template-columns: 1fr;
     }
 }
 </style>
