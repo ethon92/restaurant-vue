@@ -1,3 +1,4 @@
+import service from '../index';
 import request from '../index'; 
 
 export default {
@@ -52,3 +53,15 @@ book(bookingData) {
     return request.get('/api/reservations');
   }
 };
+
+// 取得訂位歷史紀錄API
+const bookingRecordApi = {
+    fetchBookingRecord(userId) {
+        return service({
+            url: `/booking-record/${userId}`,
+            method: 'get'
+        })
+    }
+}
+
+export const fetchBookingRecord = bookingRecordApi.fetchBookingRecord
