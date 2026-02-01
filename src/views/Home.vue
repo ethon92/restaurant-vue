@@ -10,7 +10,7 @@ const handleSearch = (searchParams) => {
   console.log('Home 接收到搜尋條件，準備跳轉:', searchParams);
 
   router.push({
-    name: 'search', // 確保與 router/index.js 中的 name 一致
+    name: 'Search', 
     query: searchParams
   });
 };
