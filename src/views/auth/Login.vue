@@ -50,7 +50,8 @@ const login = async () => {
     auth.setSession({ userId: user.id, me: user }); // ✅ 存 userId 到 localStorage
 
     alert("登入成功");
-    router.push("/profile");
+    // 登入成功之後，將網址推送至訂位紀錄頁面
+    router.push("/profile/booking-record");
 
   } catch (error) {
     console.log("login error:", error?.response?.data);
