@@ -1,22 +1,21 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue';
-import restaurantApi from '@/api/modules/restaurant';
+import restaurantApi from '@/api/modules/restaurant'; // 僅用於取得選項資料
 
-const emit = defineEmits(['search-result', 'loading']);
+const emit = defineEmits(['search-submit']);
 
 const allData = ref([]);
-const isLoading = ref(false);
 const isFiltersOpen = ref(false);
 
-// 搜尋條件
+
 const searchQuery = ref('');
-const selectedCity = ref([]);
+const selectedCity = ref([]); 
 const priceLevels = ['全部', '$', '$$', '$$$'];
 const priceIndex = ref(0);
-const selectedPrice = computed(() => priceLevels[priceIndex.value]);
+const selectedPrice = computed(() => priceLevels[priceIndex.value]); // [2]
 const selectedTags = ref([]);
 
-// 提取選項邏輯
+
 const cityOptions = computed(() => {
     if (allData.value.length === 0) return [];
     return [...new Set(allData.value.map(r => r.City).filter(Boolean))];
@@ -30,6 +29,7 @@ const tagOptions = computed(() => {
     });
     return [...new Set(allTags)].filter(t => t.length > 0).slice(0, 15);
 });
+// -----------------------------
 
 // 清除過濾功能
 const clearFilters = () => {
@@ -37,7 +37,8 @@ const clearFilters = () => {
     selectedCity.value = [];
     priceIndex.value = 0;
     selectedTags.value = [];
-    onSearch();
+    // 清除後可以選擇是否直接觸發搜尋，或者等待使用者按按鈕
+    // onSearch(); 
 };
 
 const toggleFilters = () => {
@@ -53,36 +54,34 @@ const toggleSelection = (arrayRef, item) => {
     }
 };
 
-const onSearch = async () => {
-    isLoading.value = true;
-    emit('loading', true);
-    try {
-        const filters = {
-            q: searchQuery.value,
-            city: selectedCity.value,
-            price_level: selectedPrice.value,
-            tags: selectedTags.value
-        };
-        const res = await restaurantApi.searchRestaurants(filters);
-        emit('search-result', res.data);
-    } catch (error) {
-        console.error("搜尋錯誤：", error);
-    } finally {
-        isLoading.value = false;
-        emit('loading', false);
-    }
+const onSearch = () => {
+    const finalCity = selectedCity.value === '全部' ? undefined : selectedCity.value;
+    const finalPrice = selectedPrice.value === '全部' ? undefined : selectedPrice.value;
+
+    const params = {
+        q: searchQuery.value || undefined, 
+        city: finalCity,
+        price_level: finalPrice, 
+        tags: selectedTags.value 
+    };
+
+    // 3. 發送事件 (通知 Home.vue 跳轉)
+    emit('search-submit', params);
 };
 
+// 初始化：僅載入供「選項」使用的資料
 onMounted(async () => {
     try {
         const res = await restaurantApi.getRestaurants(0, 4322);
         allData.value = res.data;
-        emit('search-result', res.data.slice(0, 20));
+        // ❌ 移除 emit('search-result')
     } catch (error) {
-        console.error("載入失敗：", error);
+        console.error("載入選項失敗：", error);
     }
 });
 </script>
+
+
 
 <template>
     <div class="search-system-wrapper">

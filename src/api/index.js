@@ -5,4 +5,5 @@ const service = axios.create({
     timeout: 10000 // 請求逾時時間(毫秒)
 });
 
+
 export default service;

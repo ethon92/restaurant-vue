@@ -9,6 +9,8 @@ import ForgotPassword from "@/views/auth/ForgotPassword.vue";
 import Profile from "@/views/auth/Profile.vue";
 import VerifyIdentity from "@/views/auth/VerifyIdentity.vue";
 import ResetPassword from "@/views/auth/ResetPassword.vue";
+import SearchPage from '@/views/SearchPage.vue';
+
 
 const router = createRouter({
   history: createWebHistory(),
@@ -25,6 +27,11 @@ const router = createRouter({
       props: true,
     },
     {
+      path:'/search',
+      component: SearchPage,
+      name: 'Search',
+    },
+    {
       path: "/favorite-restaurant",
       component: FavoriteRestaurant,
       name: "favoriteRestaurant",
@@ -34,8 +41,14 @@ const router = createRouter({
       component: BookingRecordPage,
       name: "bookingRecord",
     },
-    { path: "/login", component: Login, name: "login" },
-    { path: "/register", component: Register, name: "register" },
+    { path: "/login", 
+      component: Login, 
+      name: "login" 
+    },
+    { path: "/register", 
+      component: Register, 
+      name: "register" 
+    },
     {
       path: "/forgot-password",
       component: ForgotPassword,
@@ -60,6 +73,7 @@ const router = createRouter({
     },
   ],
 });
+
 
 const isAuthenticated = () => Boolean(localStorage.getItem("auth_user_id"));
 
