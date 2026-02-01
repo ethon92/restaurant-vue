@@ -12,7 +12,11 @@ let markerLayer = null;
 
 onMounted(() => {
   map = L.map(mapElement.value).setView([25.03, 121.56], 13);
+<<<<<<< HEAD
 
+=======
+  
+>>>>>>> 4260cb9 (feat: 實作餐廳搜尋頁面，整合 Leaflet 地圖與左側列表連動)
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution: '© OpenStreetMap contributors'
   }).addTo(map);
@@ -31,6 +35,7 @@ onMounted(() => {
   });
 });
 
+<<<<<<< HEAD
 
 // 當父組件傳入的新餐廳要更新地圖上的點
 watch(() => props.restaurants, (newRestaurants) => {
@@ -57,6 +62,32 @@ newRestaurants.forEach(res => {
     }
 });
 
+=======
+
+// 當父組件傳入的新餐廳要更新地圖上的點
+watch(() => props.restaurants, (newRestaurants) => {
+  if (!markerLayer) return;
+  
+  markerLayer.clearLayers(); 
+  
+  newRestaurants.forEach(res => {
+    
+    const lat = res.Py || res.Py;
+    const lng = res.Px || res.Px;
+
+    if (lat && lng) {
+      const marker = L.marker([lat, lng])
+        .bindPopup(`
+          <div style="font-family: sans-serif;">
+            <strong style="font-size: 14px;">${res.name}</strong><br>
+            <span style="color: #666;">${res.address}</span><br>
+            <a href="${res.google_map_url}" target="_blank" style="display:block; margin-top:5px; color:#007bff; text-decoration:none;">在 Google Map 開啟</a>
+          </div>
+        `);
+      markerLayer.addLayer(marker);
+    }
+  });
+>>>>>>> 4260cb9 (feat: 實作餐廳搜尋頁面，整合 Leaflet 地圖與左側列表連動)
 }, { deep: true });
 
 // 6. 實作 flyTo 給父組件
@@ -65,7 +96,11 @@ defineExpose({
     if (map) {
       map.flyTo([lat, lng], 16, {
         animate: true,
+<<<<<<< HEAD
         duration: 1.5
+=======
+        duration: 1.5 
+>>>>>>> 4260cb9 (feat: 實作餐廳搜尋頁面，整合 Leaflet 地圖與左側列表連動)
       });
     }
   }
@@ -80,9 +115,15 @@ defineExpose({
 #map-container {
   width: 100%;
   height: 100%;
+<<<<<<< HEAD
   z-index: 1;
 
   min-height: 400px;
+=======
+  z-index: 1; 
+
+  min-height: 400px; 
+>>>>>>> 4260cb9 (feat: 實作餐廳搜尋頁面，整合 Leaflet 地圖與左側列表連動)
 }
 
 
