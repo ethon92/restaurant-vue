@@ -11,19 +11,16 @@ let map = null;
 let markerLayer = null;
 
 onMounted(() => {
+  // 初始化地圖，中心點設在台北
   map = L.map(mapElement.value).setView([25.03, 121.56], 13);
-<<<<<<< HEAD
-
-=======
   
->>>>>>> 4260cb9 (feat: 實作餐廳搜尋頁面，整合 Leaflet 地圖與左側列表連動)
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution: '© OpenStreetMap contributors'
   }).addTo(map);
 
   markerLayer = L.layerGroup().addTo(map);
 
-  // 監聽地圖縮放或拖移結束
+  // 監聽地圖縮放或拖移結束，回傳經緯度範圍給父組件
   map.on('moveend', () => {
     const bounds = map.getBounds();
     emit('bounds-changed', {
@@ -35,17 +32,14 @@ onMounted(() => {
   });
 });
 
-<<<<<<< HEAD
-
-// 當父組件傳入的新餐廳要更新地圖上的點
+// 當父組件傳入的新餐廳資料更新時，重繪地圖標記
 watch(() => props.restaurants, (newRestaurants) => {
   if (!markerLayer) return;
-
-  markerLayer.clearLayers();
-
-  // RestaurantMap.vue 內的 watch
-newRestaurants.forEach(res => {
-    // 修正：全部改為大寫
+  
+  markerLayer.clearLayers(); 
+  
+  newRestaurants.forEach(res => {
+    // 統一使用大寫欄位名稱，與後端 RestaurantSchema 對接
     const lat = res.Py;
     const lng = res.Px;
 
@@ -53,54 +47,26 @@ newRestaurants.forEach(res => {
       const marker = L.marker([lat, lng])
         .bindPopup(`
           <div style="font-family: sans-serif;">
-            <strong style="font-size: 14px;">${res.Name}</strong><br>
-            <span style="color: #666;">${res.Add}</span><br>
-            <a href="${res.GoogleMap}" target="_blank" style="... ">在 Google Map 開啟</a>
-          </div>
-        `);
-      markerLayer.addLayer(marker);
-    }
-});
-
-=======
-
-// 當父組件傳入的新餐廳要更新地圖上的點
-watch(() => props.restaurants, (newRestaurants) => {
-  if (!markerLayer) return;
-  
-  markerLayer.clearLayers(); 
-  
-  newRestaurants.forEach(res => {
-    
-    const lat = res.Py || res.Py;
-    const lng = res.Px || res.Px;
-
-    if (lat && lng) {
-      const marker = L.marker([lat, lng])
-        .bindPopup(`
-          <div style="font-family: sans-serif;">
-            <strong style="font-size: 14px;">${res.name}</strong><br>
-            <span style="color: #666;">${res.address}</span><br>
-            <a href="${res.google_map_url}" target="_blank" style="display:block; margin-top:5px; color:#007bff; text-decoration:none;">在 Google Map 開啟</a>
+            <strong style="font-size: 14px; color: #333;">${res.Name || '未知餐廳'}</strong><br>
+            <span style="color: #666; font-size: 12px;">${res.Add || '暫無地址'}</span><br>
+            <a href="${res.GoogleMap || '#'}" target="_blank" 
+               style="display:block; margin-top:8px; color:#f38332; text-decoration:none; font-weight:bold;">
+               在 Google Map 開啟
+            </a>
           </div>
         `);
       markerLayer.addLayer(marker);
     }
   });
->>>>>>> 4260cb9 (feat: 實作餐廳搜尋頁面，整合 Leaflet 地圖與左側列表連動)
 }, { deep: true });
 
-// 6. 實作 flyTo 給父組件
+// 實作 flyTo 方法，讓父組件（SearchPage）可以控制地圖移動
 defineExpose({
   flyTo: (lat, lng) => {
     if (map) {
       map.flyTo([lat, lng], 16, {
         animate: true,
-<<<<<<< HEAD
-        duration: 1.5
-=======
         duration: 1.5 
->>>>>>> 4260cb9 (feat: 實作餐廳搜尋頁面，整合 Leaflet 地圖與左側列表連動)
       });
     }
   }
@@ -115,19 +81,18 @@ defineExpose({
 #map-container {
   width: 100%;
   height: 100%;
-<<<<<<< HEAD
-  z-index: 1;
-
-  min-height: 400px;
-=======
   z-index: 1; 
-
   min-height: 400px; 
->>>>>>> 4260cb9 (feat: 實作餐廳搜尋頁面，整合 Leaflet 地圖與左側列表連動)
 }
 
-
+/* 移除 Leaflet 容器選取時的藍色外框 */
 :deep(.leaflet-container) {
   outline: 0;
+}
+
+/* 自定義 Popup 樣式優化 */
+:deep(.leaflet-popup-content-wrapper) {
+  border-radius: 8px;
+  padding: 5px;
 }
 </style>

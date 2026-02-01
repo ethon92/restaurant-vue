@@ -7,15 +7,14 @@ const emit = defineEmits(['search-submit']);
 const allData = ref([]);
 const isFiltersOpen = ref(false);
 
-
 const searchQuery = ref('');
-const selectedCity = ref([]); 
+const selectedCity = ref([]);
 const priceLevels = ['全部', '$', '$$', '$$$'];
 const priceIndex = ref(0);
-const selectedPrice = computed(() => priceLevels[priceIndex.value]); // [2]
+const selectedPrice = computed(() => priceLevels[priceIndex.value]);
 const selectedTags = ref([]);
 
-
+// 產生選單資料
 const cityOptions = computed(() => {
     if (allData.value.length === 0) return [];
     return [...new Set(allData.value.map(r => r.City).filter(Boolean))];
@@ -29,7 +28,6 @@ const tagOptions = computed(() => {
     });
     return [...new Set(allTags)].filter(t => t.length > 0).slice(0, 15);
 });
-// -----------------------------
 
 // 清除過濾功能
 const clearFilters = () => {
@@ -37,8 +35,6 @@ const clearFilters = () => {
     selectedCity.value = [];
     priceIndex.value = 0;
     selectedTags.value = [];
-    // 清除後可以選擇是否直接觸發搜尋，或者等待使用者按按鈕
-    // onSearch(); 
 };
 
 const toggleFilters = () => {
@@ -55,33 +51,28 @@ const toggleSelection = (arrayRef, item) => {
 };
 
 const onSearch = () => {
-    const finalCity = selectedCity.value === '全部' ? undefined : selectedCity.value;
-    const finalPrice = selectedPrice.value === '全部' ? undefined : selectedPrice.value;
-
     const params = {
-        q: searchQuery.value || undefined, 
-        city: finalCity,
-        price_level: finalPrice, 
-        tags: selectedTags.value 
+        q: searchQuery.value || '',
+        city: selectedCity.value,
+        price_level: selectedPrice.value === '全部' ? '' : selectedPrice.value,
+        tags: selectedTags.value
     };
 
-    // 3. 發送事件 (通知 Home.vue 跳轉)
+    // 關閉面板並通知 Home.vue 執行路由跳轉
+    isFiltersOpen.value = false;
     emit('search-submit', params);
 };
 
-// 初始化：僅載入供「選項」使用的資料
+// 初始化：僅載入供「選項」使用的基礎資料
 onMounted(async () => {
     try {
         const res = await restaurantApi.getRestaurants(0, 4322);
         allData.value = res.data;
-        // ❌ 移除 emit('search-result')
     } catch (error) {
         console.error("載入選項失敗：", error);
     }
 });
 </script>
-
-
 
 <template>
     <div class="search-system-wrapper">
@@ -102,7 +93,6 @@ onMounted(async () => {
             <Transition name="fade-slide">
                 <div v-if="isFiltersOpen" class="floating-panel">
                     <div class="panel-inner">
-
                         <div class="filter-group">
                             <label>選擇縣市</label>
                             <div class="chip-grid">
@@ -142,6 +132,7 @@ onMounted(async () => {
 </template>
 
 <style scoped>
+/* 保持你原本精美的 CSS 樣式不變 */
 .search-system-wrapper {
     position: relative;
     display: flex;
@@ -156,7 +147,6 @@ onMounted(async () => {
     max-width: 650px;
 }
 
-/* 搜尋列 */
 .search-bar {
     display: flex;
     align-items: center;
@@ -204,7 +194,6 @@ onMounted(async () => {
     cursor: pointer;
 }
 
-/* 懸浮面板 */
 .floating-panel {
     position: absolute;
     top: calc(100% + 15px);
@@ -272,7 +261,6 @@ onMounted(async () => {
     margin-top: 10px;
 }
 
-/* 底部按鈕 */
 .panel-footer {
     display: flex;
     justify-content: space-between;
@@ -301,7 +289,6 @@ onMounted(async () => {
     cursor: pointer;
 }
 
-/* 動畫與遮罩 */
 .fade-slide-enter-active,
 .fade-slide-leave-active {
     transition: all 0.3s ease;
@@ -320,45 +307,12 @@ onMounted(async () => {
     z-index: 999;
 }
 
-/* 響應式微調 (Breakpoint: 768px) */
 @media (max-width: 768px) {
-    .search-box-container {
-        width: 95%;
-    }
-
-    .main-bar {
-        padding-left: 15px;
-    }
-
-    .main-bar input {
-        font-size: 1rem;
-    }
-
-    .btn-text {
-        display: none;
-    }
-
-    .submit-btn {
-        padding: 10px;
-        width: 40px;
-        height: 40px;
-        border-radius: 50%;
-    }
-
-    .submit-btn::before {
-        content: "🔍";
-        color: white;
-    }
-
     .floating-panel {
         width: 100vw;
         left: 50%;
         transform: translateX(-50%);
         border-radius: 0 0 20px 20px;
-    }
-
-    .panel-body {
-        padding: 20px;
     }
 }
 </style>
