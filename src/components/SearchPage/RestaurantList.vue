@@ -1,34 +1,3 @@
-<template>
-  <div class="list-container">
-    <div v-if="data.length === 0" class="empty-state">
-      <p>在此區域內找不到餐廳，請移動地圖試試</p>
-    </div>
-
-    <div 
-      v-for="item in data" 
-      :key="item.id" 
-      class="restaurant-card"
-      @click="$emit('select-restaurant', item)"
-    >
-      <div class="card-image">
-        <img :src="item.CoverImage || 'https://via.placeholder.com/150?text=No+Image'" alt="restaurant">
-      </div>
-
-      <div class="card-content">
-        <h5 class="title">{{ item.name }}</h5>
-        <p class="address"><i class="bi bi-geo-alt"></i> {{ item.address }}</p>
-        
-        <div class="footer">
-          <span class="badge bg-info text-dark">{{ item.category || '一般餐廳' }}</span>
-          <button class="btn btn-primary btn-sm btn-book" @click.stop="goBooking(item.id)">
-            立即預約
-          </button>
-        </div>
-      </div>
-    </div>
-  </div>
-</template>
-
 <script setup>
 import { useRouter } from 'vue-router';
 
@@ -36,11 +5,51 @@ const props = defineProps(['data']);
 const emit = defineEmits(['select-restaurant']);
 const router = useRouter();
 
+const getImageUrl = (path) => {
+  if (!path) return 'https://via.placeholder.com/150?text=No+Image';
+  if (path.startsWith('http')) return path;
+
+  // 對接後端 static 路徑
+  const baseUrl = 'http://127.0.0.1:8000';
+  const cleanPath = path.startsWith('/') ? path : `/` + path;
+  return `${baseUrl}/static${cleanPath}`;
+};
+
 const goBooking = (id) => {
   // 跳轉到預約頁面
   router.push(`/booking/${id}`);
 };
 </script>
+
+<template>
+  <div class="list-container">
+    <div v-if="data.length === 0" class="empty-state">
+      <p>在此區域內找不到餐廳，請移動地圖試試</p>
+    </div>
+
+    <div v-for="item in data" :key="item.ID" class="restaurant-card" @click="$emit('select-restaurant', item)">
+      <div class="card-image">
+    <img 
+      :src="getImageUrl(item.CoverImage)" 
+      @error="(e) => e.target.src = 'https://via.placeholder.com/150?text=Error'"
+      alt="restaurant"
+    >
+  </div>
+
+      <div class="card-content">
+        <h5 class="title">{{ item.Name }}</h5>
+        <p class="address"><i class="bi bi-geo-alt"></i> {{ item.Add }}</p>
+
+        <div class="footer">
+          <span class="badge bg-info text-dark">{{ item.TagsStr || '一般餐廳' }}</span>
+          <button class="btn btn-primary btn-sm btn-book" @click.stop="goBooking(item.ID)">
+            立即預約
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
 
 <style scoped>
 .list-container {
@@ -61,7 +70,7 @@ const goBooking = (id) => {
 
 .restaurant-card:hover {
   transform: translateY(-3px);
-  box-shadow: 0 8px 15px rgba(0,0,0,0.1);
+  box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
   border-color: #007bff;
 }
 

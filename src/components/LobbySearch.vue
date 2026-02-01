@@ -1,6 +1,6 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue';
-import restaurantApi from '@/api/modules/restaurant'; // 僅用於取得選項資料
+import restaurantApi from '@/api/modules/restaurant'; 
 
 const emit = defineEmits(['search-submit']);
 
@@ -132,7 +132,6 @@ onMounted(async () => {
 </template>
 
 <style scoped>
-/* 保持你原本精美的 CSS 樣式不變 */
 .search-system-wrapper {
     position: relative;
     display: flex;

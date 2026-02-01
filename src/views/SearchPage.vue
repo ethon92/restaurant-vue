@@ -19,7 +19,6 @@ const handleSelect = (item) => {
     console.log("嘗試定位餐廳:", target.Name); 
     
     if (mapRef.value) {
-        // 統一使用大寫欄位 Px, Py
         const lat = target.Py; 
         const lng = target.Px;
         
@@ -31,7 +30,6 @@ const handleSelect = (item) => {
     }
 };
 
-// 當地圖傳回新範圍時觸發 (目前僅記錄，可依需求擴充)
 const handleMapMove = (bounds) => {
     console.log("地圖範圍改變:", bounds);
 };
@@ -84,7 +82,7 @@ onMounted(() => {
     performSearch();
 });
 
-// 監聽 URL 參數變化 (當使用者在 Navbar 重新搜尋時)
+// 監聽 URL 參數變化
 watch(() => route.query, () => {
     performSearch();
 }, { deep: true });

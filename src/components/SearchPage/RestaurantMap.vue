@@ -11,7 +11,6 @@ let map = null;
 let markerLayer = null;
 
 onMounted(() => {
-  // 初始化地圖，中心點設在台北
   map = L.map(mapElement.value).setView([25.03, 121.56], 13);
   
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -39,7 +38,6 @@ watch(() => props.restaurants, (newRestaurants) => {
   markerLayer.clearLayers(); 
   
   newRestaurants.forEach(res => {
-    // 統一使用大寫欄位名稱，與後端 RestaurantSchema 對接
     const lat = res.Py;
     const lng = res.Px;
 
@@ -60,7 +58,7 @@ watch(() => props.restaurants, (newRestaurants) => {
   });
 }, { deep: true });
 
-// 實作 flyTo 方法，讓父組件（SearchPage）可以控制地圖移動
+// flyTo 讓父組件（SearchPage）可以控制地圖移動
 defineExpose({
   flyTo: (lat, lng) => {
     if (map) {
@@ -90,7 +88,6 @@ defineExpose({
   outline: 0;
 }
 
-/* 自定義 Popup 樣式優化 */
 :deep(.leaflet-popup-content-wrapper) {
   border-radius: 8px;
   padding: 5px;
