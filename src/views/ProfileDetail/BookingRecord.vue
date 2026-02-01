@@ -23,8 +23,7 @@ onMounted(() => bookingRecord())
 
 
 <template>
-    <div class="container m-3">
-        <h1 class="text-center">訂位歷史紀錄</h1>
+    <div class="container">
         <table class="table table-striped">
             <thead>
                 <tr>
