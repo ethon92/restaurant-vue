@@ -3,7 +3,6 @@ import { ref } from 'vue';
 import PasswordField from "@/components/PasswordField.vue";
 import { updateProfile, verifyPassword } from '@/api/modules/auth'
 
-const props = defineProps({form: Object, errorMsg: String, okMsg: String})
 const saving = ref(false);
 const currentPassword = ref("");
 

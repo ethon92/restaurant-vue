@@ -1,17 +1,18 @@
 <script setup>
 import { favoriteList, updateFavorite } from '@/api/modules/feature';
 import FavoriteCard from '@/components/ProfileDetail/FavoriteCard.vue';
+import { useAuthStore } from '@/stores/auth';
 import { onMounted, ref } from 'vue';
 
-// 傳入使用者id
-const props = defineProps({ me: Object })
+// 從pinia引入useAuthStore，以獲取userId
+const authStore = useAuthStore();
 const favoriteData = ref();
 
 
 // 獲取收藏餐廳清單
 const fetchFavoriteRestaurant = async () => {
     try {
-        const response = await favoriteList(props.me.id);
+        const response = await favoriteList(authStore.me.id);
         favoriteData.value = response.data.results;
         console.log(response.data)
     } catch (error) {

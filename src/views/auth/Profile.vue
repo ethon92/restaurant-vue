@@ -71,7 +71,7 @@ onMounted(loadProfileFromStore);
     </nav>
     <!-- Content -->
     <section class="tab-content">
-      <RouterView :me="auth.me"></RouterView>
+      <RouterView></RouterView>
     </section>
   </div>
 </template>
