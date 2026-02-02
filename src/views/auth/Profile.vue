@@ -23,6 +23,7 @@ const form = reactive({
   name: "",
   email: "",
   birthday: "", // YYYY-MM-DD
+  phone: "",  // 09xxxxxxxx
 });
 
 /**
@@ -54,6 +55,7 @@ const loadProfileFromStore = async () => {
     form.name = auth.me?.name ?? "";
     form.email = auth.me?.email ?? "";
     form.birthday = auth.me?.birthday ?? "";
+    form.phone = auth.me?.phone ?? "";
   } catch (e) {
     errorMsg.value = "取得會員資料失敗";
   }

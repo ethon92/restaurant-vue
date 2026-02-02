@@ -40,6 +40,12 @@ const onSave = async () => {
         errorMsg.value = "請先輸入目前密碼才能儲存";
         return;
     }
+    //  檢查手機格式（允許空）
+    if (form.phone && !/^09\d{8}$/.test(form.phone)) {
+        errorMsg.value = "手機格式不正確（需為 09 開頭共 10 碼）";
+        return;
+    }
+
 
     saving.value = true;
     try {
@@ -48,6 +54,7 @@ const onSave = async () => {
             user_id: auth.userId,       // 用 user_id 當查找條件
             name: form.name,
             email: form.email,
+            phone: form.phone || null, // 手機（空就送 null）
             birthday: form.birthday || null, // date input 是字串，空就送 null
             current_password: currentPassword.value, // 送到後端驗證
         });
@@ -63,6 +70,7 @@ const onSave = async () => {
                     ...auth.me,
                     name: form.name,
                     birthday: form.birthday,
+                    phone: form.phone,
                 },
             });
         } else {
@@ -154,6 +162,12 @@ const onLogout = async () => {
             <label class="label">
                 電子郵件地址（不可修改）
                 <input v-model="form.email" class="input" type="email" readonly />
+            </label>
+            <label class="label">
+
+                手機號碼
+                <input v-model.trim="form.phone" class="input" type="tel" inputmode="numeric" maxlength="10"
+                    placeholder="例如：0912345678" />
             </label>
 
             <label class="label">
