@@ -1,17 +1,36 @@
 <script setup>
-import { ref } from 'vue';
+import { ref, inject } from 'vue';
+import { useRouter } from "vue-router";
+import { useAuthStore } from "@/stores/auth";
 import PasswordField from "@/components/PasswordField.vue";
 import { updateProfile, verifyPassword } from '@/api/modules/auth'
 
-const props = defineProps({form: Object, errorMsg: String, okMsg: String})
+
+/**
+ * ✅ 從 Profile.vue 注入同一份狀態（共享）
+ * - form：reactive 物件（可直接 form.name / form.email）
+ * - errorMsg / okMsg：ref（要用 .value）
+ */
+const form = inject("profileForm");
+const errorMsg = inject("profileErrorMsg");
+const okMsg = inject("profileOkMsg");
+
+const router = useRouter();
+const auth = useAuthStore();
+
+/** 儲存按鈕 loading */
 const saving = ref(false);
+/** 目前密碼：敏感操作前驗證 */
 const currentPassword = ref("");
 
+/**
+ * 儲存個人資料（需要先驗證目前密碼）
+ */
 const onSave = async () => {
     errorMsg.value = "";
     okMsg.value = "";
 
-    // 先做最基本檢查
+    // 先做最基本檢查：名字不能空
     if (!form.name) {
         errorMsg.value = "名字不能為空";
         return;
@@ -24,6 +43,7 @@ const onSave = async () => {
 
     saving.value = true;
     try {
+        // 呼叫後端更新資料
         await updateProfile({
             user_id: auth.userId,       // 用 user_id 當查找條件
             name: form.name,
@@ -50,7 +70,9 @@ const onSave = async () => {
             await auth.fetchMe();
         }
     } catch (e) {
+        // 後端錯誤訊息通常放在 response.data.detail
         const detail = e?.response?.data?.detail;
+
         if (detail === "Password incorrect") {
             errorMsg.value = "目前密碼錯誤";
             alert("目前密碼錯誤");
@@ -62,13 +84,18 @@ const onSave = async () => {
     }
 };
 
+
+/**
+ * 修改密碼前：先做 re-auth（再驗一次目前密碼）
+ * 驗證成功才跳去 reset-password
+ */
 const goResetPassword = async () => {
     errorMsg.value = "";
     okMsg.value = "";
 
     if (!currentPassword.value) {
         errorMsg.value = "請先輸入目前密碼才能修改密碼";
-        alert("請先輸入目前密碼"); // 你想要用 alert 的話
+        alert("請先輸入目前密碼");
         return;
     }
 
@@ -93,11 +120,14 @@ const goResetPassword = async () => {
     }
 };
 
+/**
+ * 登出：統一交給 store.logout 清掉 localStorage + me
+ */
 const onLogout = async () => {
-    // ✅ 5) 建議用 store.logout 統一清狀態
     try {
         await auth.logout(); // ✅ 會清 localStorage + me
     } catch (e) { }
+
     router.push("/login");
 };
 </script>
@@ -144,6 +174,7 @@ const onLogout = async () => {
                 </button>
             </div>
 
+            <!-- ✅ errorMsg/okMsg 是 ref，所以 template 直接用即可 -->
             <p v-if="errorMsg" class="error">{{ errorMsg }}</p>
             <p v-if="okMsg" class="ok">{{ okMsg }}</p>
 

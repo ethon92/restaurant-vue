@@ -1,22 +1,41 @@
 <script setup>
-import { onMounted, reactive, ref } from "vue";
+import { onMounted, reactive, ref, provide } from "vue";
 import { useRouter } from 'vue-router'
 import { useAuthStore } from "@/stores/auth";
+import Navbar from '@/components/Navbar.vue';
 
 const memberSinceText = "2026年1月";
 const router = useRouter()
 const auth = useAuthStore();
 
+/** Tabs：目前在哪個分頁 */
 const activeTab = ref("booking"); // 預設顯示「訂位」
+
+/** 共用訊息（成功/失敗提示） */
 const errorMsg = ref("");
 const okMsg = ref("");
+
+/**
+ * 共用表單資料（可編輯）
+ * 之後 AccountDetail 要 v-model 這些欄位，所以要放 reactive
+ */
 const form = reactive({
-    name: "",
-    email: "",
-    birthday: "", // YYYY-MM-DD
+  name: "",
+  email: "",
+  birthday: "", // YYYY-MM-DD
 });
 
+/**
+ * ✅ 把這三個共用變數提供給子頁（RouterView 裡的 child components）
+ * 任何 Profile 底下的子頁都可以 inject 拿到同一份狀態
+ */
+provide("profileForm", form);
+provide("profileErrorMsg", errorMsg);
+provide("profileOkMsg", okMsg);
+
+
 const loadProfileFromStore = async () => {
+  // 每次載入先清訊息
   errorMsg.value = "";
   okMsg.value = "";
 
@@ -46,6 +65,7 @@ onMounted(loadProfileFromStore);
 
 <template>
   <div class="profile-page">
+    <navbar />
     <!-- Header -->
     <section class="profile-header">
       <div class="avatar">
@@ -54,6 +74,7 @@ onMounted(loadProfileFromStore);
       </div>
 
       <div class="header-text">
+        <!-- form.name 來自共用 reactive -->
         <h1 class="title">{{ form.name || "您好：" }}</h1>
         <div class="sub">
           <span class="dot">•</span>
@@ -64,13 +85,17 @@ onMounted(loadProfileFromStore);
 
     <!-- Tabs -->
     <nav class="tabs">
-      <RouterLink class="tab" :class="{ active: activeTab === 'booking' }" @click="activeTab = 'booking'" :to="{'name': 'bookingRecord'}">訂位紀錄</RouterLink>
-      <RouterLink class="tab" :class="{ active: activeTab === 'favorite' }" @click="activeTab = 'favorite'" :to="{'name': 'favoriteRestaurant'}">珍藏餐廳</RouterLink>
-      <RouterLink class="tab" :class="{ active: activeTab === 'account' }" @click="activeTab = 'account'" :to="{'name': 'accountDetail'}">帳戶詳細資料</RouterLink>
+      <RouterLink class="tab" :class="{ active: activeTab === 'booking' }" @click="activeTab = 'booking'"
+        :to="{ 'name': 'bookingRecord' }">訂位紀錄</RouterLink>
+      <RouterLink class="tab" :class="{ active: activeTab === 'favorite' }" @click="activeTab = 'favorite'"
+        :to="{ 'name': 'favoriteRestaurant' }">珍藏餐廳</RouterLink>
+      <RouterLink class="tab" :class="{ active: activeTab === 'account' }" @click="activeTab = 'account'"
+        :to="{ 'name': 'accountDetail' }">帳戶詳細資料</RouterLink>
       <!-- <RouterLink class="tab" :class="{ active: activeTab === 'comment' }" @click="activeTab = 'comment'">我的評論</RouterLink> -->
     </nav>
-    <!-- Content -->
+    <!-- Content：這裡會顯示子頁（AccountDetail / BookingRecord / FavoriteRestaurant) -->
     <section class="tab-content">
+      <!-- ✅ 子頁會用 inject 拿到 profileForm/profileErrorMsg/profileOkMsg -->
       <RouterView :me="auth.me"></RouterView>
     </section>
   </div>
