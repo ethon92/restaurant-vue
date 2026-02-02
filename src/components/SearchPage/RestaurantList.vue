@@ -36,8 +36,13 @@ const goBooking = (id) => {
       </div>
 
       <div class="card-content">
-        <h5 class="title">{{ item.Name }}</h5>
+        <div class="header-row">
+          <h5 class="title">{{ item.Name }}</h5>
+          <span v-if="item.PriceLevel" class="price-level">{{ item.PriceLevel }}</span>
+        </div>
+
         <p class="address"><i class="bi bi-geo-alt"></i> {{ item.Add }}</p>
+
 
         <div class="footer">
           <span class="custom-tag">{{ item.TagsStr || '一般餐廳' }}</span>
@@ -93,11 +98,29 @@ const goBooking = (id) => {
   flex-grow: 1;
 }
 
+.header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 4px;
+}
+
 .title {
-  margin: 0 0 5px 0;
+  margin: 0;
   font-size: 1.1rem;
   font-weight: 600;
+  flex: 1;
   color: #333;
+}
+
+.price-level {
+  color: #2e7d32;
+  font-weight: 700;
+  font-size: 0.9rem;
+  letter-spacing: 1px;
+  background: #e8f5e9;
+  padding: 2px 8px;
+  border-radius: 6px;
 }
 
 .address {
@@ -132,9 +155,9 @@ const goBooking = (id) => {
   color: #ffffff;
   padding: 10px 42px;
   border-radius: 20px;
-  border:none;
+  border: none;
   outline: none;
-  box-shadow: none;         
+  box-shadow: none;
   font-size: 1rem;
   font-weight: 600;
 }

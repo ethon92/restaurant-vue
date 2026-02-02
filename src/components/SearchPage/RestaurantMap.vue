@@ -2,13 +2,16 @@
 import { onMounted, ref, watch } from 'vue';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
+import 'leaflet.markercluster/dist/MarkerCluster.css';
+import 'leaflet.markercluster/dist/MarkerCluster.Default.css';
+import 'leaflet.markercluster';
 
 const props = defineProps(['restaurants']);
 const emit = defineEmits(['bounds-changed']);
 const mapElement = ref(null);
 
 let map = null;
-let markerLayer = null;
+let clusterGroup = null;
 
 onMounted(() => {
   map = L.map(mapElement.value).setView([25.03, 121.56], 13);
@@ -17,7 +20,11 @@ onMounted(() => {
     attribution: '© OpenStreetMap contributors'
   }).addTo(map);
 
-  markerLayer = L.layerGroup().addTo(map);
+  clusterGroup = L.markerClusterGroup({
+    showCoverageOnHover: false, 
+    chunkedLoading: true
+  });
+  map.addLayer(clusterGroup);
 
   // 監聽地圖縮放或拖移結束，回傳經緯度範圍給父組件
   map.on('moveend', () => {
@@ -33,9 +40,10 @@ onMounted(() => {
 
 // 當父組件傳入的新餐廳資料更新時，重繪地圖標記
 watch(() => props.restaurants, (newRestaurants) => {
-  if (!markerLayer) return;
-  
-  markerLayer.clearLayers(); 
+  if (!clusterGroup) return;
+
+  clusterGroup.clearLayers();
+  const newMarkers = [];
   
   newRestaurants.forEach(res => {
     const lat = res.Py;
@@ -53,9 +61,10 @@ watch(() => props.restaurants, (newRestaurants) => {
             </a>
           </div>
         `);
-      markerLayer.addLayer(marker);
+      newMarkers.push(marker);
     }
   });
+  clusterGroup.addLayers(newMarkers);
 }, { deep: true });
 
 // flyTo 讓父組件（SearchPage）可以控制地圖移動
@@ -69,6 +78,17 @@ defineExpose({
     }
   }
 });
+
+const onMapMoveEnd = () => {
+  const bounds = mapInstance.getBounds ();
+  const coords ={
+    min_lat: bounds.getSouth(),
+    max_lat: bounds.getNorth(),
+    min_lng: bounds.getWest(), 
+    max_lng: bounds.getEast()
+  };
+  emit ('bounds-changed', coords);
+}
 </script>
 
 <template>
