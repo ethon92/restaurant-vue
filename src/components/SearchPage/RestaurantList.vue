@@ -1,6 +1,6 @@
 <script setup>
+import RestaurantDetail from '@/views/RestaurantDetail.vue';
 import { useRouter } from 'vue-router';
-
 const props = defineProps(['data']);
 const emit = defineEmits(['select-restaurant']);
 const router = useRouter();
@@ -16,8 +16,10 @@ const getImageUrl = (path) => {
 };
 
 const goBooking = (id) => {
-  // 跳轉到預約頁面
-  router.push(`/booking/${id}`);
+  router.push({ 
+    name: 'RestaurantDetail', 
+    params: { id: id } 
+  });
 };
 </script>
 
