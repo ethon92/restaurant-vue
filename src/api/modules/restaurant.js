@@ -1,42 +1,45 @@
 
 import service from "../index";
 
-
 export default {
   /* 1. 取得餐廳列表 */
   getRestaurants(skip = 0, limit = 20) {
-    return service.get('/api/restaurants', {
-      params: { skip, limit }
+    return service.get("/api/restaurants", {
+      params: { skip, limit },
     });
   },
 
   /* 2. 連動搜尋 API */
   searchRestaurants(filters) {
-    return service.get('/api/search', {
+    return service.get("/api/search", {
       params: filters,
       paramsSerializer: {
-        indexes: null 
-      }
-      });
+        indexes: null,
+      },
+    });
   },
 
   /* 3. 取得餐廳詳情 */
   getDetail(id) {
     return service.get(`/api/restaurant/${id}`);
   },
+  // 4.地圖範圍
+  getRestaurantsInBounds: (coords) => {
+    return service.get("/api/restaurants/map-search", { params: coords });
+  },
 
-  /* 4. 提交預約 */
+  /* 5. 提交預約 */
 
-book(bookingData) {
-  return service.post('/api/reservations', bookingData);
-},
+  book(bookingData) {
+    return service.post("/api/reservations", bookingData);
+  },
 
-  /*5. [新功能] 取消/刪除預約 */
+  /*6. [新功能] 取消/刪除預約 */
   deleteReservation(id) {
     return service.delete(`/api/reservation/${id}`);
   },
 
-  /* 6. [新功能] 取得所有預約 */
+  /* 7. [新功能] 取得所有預約 */
   getAllReservations() {
     return service.get('/api/reservations');
   }
