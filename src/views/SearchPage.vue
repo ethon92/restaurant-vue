@@ -1,14 +1,14 @@
 <script setup>
 import { ref, onMounted, watch } from 'vue';
 import { useRoute } from 'vue-router';
-import axios from 'axios'; 
 import RestaurantList from '@/components/SearchPage/RestaurantList.vue';
 import RestaurantMap from '@/components/SearchPage/RestaurantMap.vue'; 
+import { useRestaurantSearch } from '@/composables/useRestaurantSearch';
 
 const route = useRoute();
-const restaurants = ref([]);
-const isLoading = ref(false);
 const mapRef = ref(null);
+
+const { restaurants, isLoading, searchRestaurants} =useRestaurantSearch();
 
 // 處理列表點擊，叫地圖飛過去 (子組件聯動)
 const handleSelect = (item) => {
@@ -36,47 +36,13 @@ const handleMapMove = (bounds) => {
 
 // 執行搜尋邏輯
 const performSearch = async () => {
-    isLoading.value = true;
-    try {
-        let rawTags = route.query.tags;
-        let tagsArray = [];
-        
-        if (Array.isArray(rawTags)) {
-            tagsArray = rawTags;
-        } else if (rawTags) {
-            tagsArray = [rawTags]; 
-        }
-
-        const apiParams = {
-            q: route.query.q,
-            city: route.query.city,
-            price_level: route.query.price_level,
-            tags: tagsArray 
-        };
-
-        const res = await axios.get('http://localhost:8000/api/search', {
-            params: apiParams,
-            paramsSerializer: {
-                indexes: null 
-            }
-        });
-
-        // 過濾掉完全沒有座標的餐廳，避免地圖渲染出錯
-        restaurants.value = res.data; 
-        
-        // 搜尋完後自動定位到第一筆
-        if (restaurants.value.length > 0 && mapRef.value) {
-            setTimeout(() => {
-                handleSelect(restaurants.value[0]); 
-            }, 500);
-        }
-
-    } catch (err) {
-        console.error("搜尋發生錯誤:", err);
-    } finally {
-        isLoading.value = false;
+    await searchRestaurants(route.query);
+    if (restaurants.value.length > 0 && mapRef.value) {
+      setTimeout(()=>{
+        handleSelect(restaurants.value);
+      }, 500);
     }
-};
+  };
 
 onMounted(() => {
     performSearch();
@@ -127,8 +93,9 @@ watch(() => route.query, () => {
 }
 
 .sidebar {
-  width: 800px;
-  min-width: 600px; 
+  width: 40%;;
+  min-width: 400px; 
+  max-width: 700px;
   display: flex;
   flex-direction: column;
   background-color: #ffffff;
