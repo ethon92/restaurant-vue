@@ -127,8 +127,8 @@ watch(() => route.query, () => {
 }
 
 .sidebar {
-  width: 400px;
-  min-width: 320px; 
+  width: 800px;
+  min-width: 600px; 
   display: flex;
   flex-direction: column;
   background-color: #ffffff;

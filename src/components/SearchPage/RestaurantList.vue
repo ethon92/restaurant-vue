@@ -16,9 +16,9 @@ const getImageUrl = (path) => {
 };
 
 const goBooking = (id) => {
-  router.push({ 
-    name: 'RestaurantDetail', 
-    params: { id: id } 
+  router.push({
+    name: 'RestaurantDetail',
+    params: { id: id }
   });
 };
 </script>
@@ -31,20 +31,17 @@ const goBooking = (id) => {
 
     <div v-for="item in data" :key="item.ID" class="restaurant-card" @click="$emit('select-restaurant', item)">
       <div class="card-image">
-    <img 
-      :src="getImageUrl(item.CoverImage)" 
-      @error="(e) => e.target.src = 'https://via.placeholder.com/150?text=Error'"
-      alt="restaurant"
-    >
-  </div>
+        <img :src="getImageUrl(item.CoverImage)"
+          @error="(e) => e.target.src = 'https://via.placeholder.com/150?text=Error'" alt="restaurant">
+      </div>
 
       <div class="card-content">
         <h5 class="title">{{ item.Name }}</h5>
         <p class="address"><i class="bi bi-geo-alt"></i> {{ item.Add }}</p>
 
         <div class="footer">
-          <span class="badge bg-info text-dark">{{ item.TagsStr || '一般餐廳' }}</span>
-          <button class="btn btn-primary btn-sm btn-book" @click.stop="goBooking(item.ID)">
+          <span class="custom-tag">{{ item.TagsStr || '一般餐廳' }}</span>
+          <button class="custom-book" @click.stop="goBooking(item.ID)">
             立即預約
           </button>
         </div>
@@ -56,7 +53,7 @@ const goBooking = (id) => {
 <style scoped>
 .list-container {
   padding: 15px;
-  background-color: #fcfcfc;
+  background-color: #fdf3e4;
 }
 
 .restaurant-card {
@@ -67,18 +64,18 @@ const goBooking = (id) => {
   margin-bottom: 16px;
   cursor: pointer;
   transition: transform 0.2s, box-shadow 0.2s;
-  border: 1px solid #eee;
+  border: 1px solid #fbea98;
 }
 
 .restaurant-card:hover {
   transform: translateY(-3px);
   box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
-  border-color: #007bff;
+  border-color: #f38332;
 }
 
 .card-image {
-  width: 120px;
-  height: 120px;
+  width: 180px;
+  height: 160px;
   flex-shrink: 0;
 }
 
@@ -89,7 +86,7 @@ const goBooking = (id) => {
 }
 
 .card-content {
-  padding: 12px;
+  padding: 18px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -105,6 +102,7 @@ const goBooking = (id) => {
 
 .address {
   font-size: 0.85rem;
+  font-weight: 600;
   color: #666;
   margin-bottom: 8px;
   /* 限制地址長度，超出顯示省略號 */
@@ -120,10 +118,27 @@ const goBooking = (id) => {
   align-items: center;
 }
 
-.btn-book {
+.custom-tag {
+  background-color: #c6851c;
+  color: #fcfcfc;
+  padding: 4px 12px;
   border-radius: 20px;
-  padding: 4px 15px;
+  font-size: 0.8rem;
+  font-weight: 600;
 }
+
+.custom-book {
+  background-color: #865120;
+  color: #ffffff;
+  padding: 10px 42px;
+  border-radius: 20px;
+  border:none;
+  outline: none;
+  box-shadow: none;         
+  font-size: 1rem;
+  font-weight: 600;
+}
+
 
 .empty-state {
   text-align: center;
