@@ -46,9 +46,15 @@
     <div :style="{ marginTop: '16px', opacity: isOtpVerified ? 1 : 0.6 }">
       <label style="display:block; font-weight: 700; margin-bottom: 6px;">新密碼</label>
       <PasswordField v-model="newPassword" placeholder="請輸入新密碼" :disabled="!isOtpVerified" />
+      <p v-if="newPasswordRuleError" style="color:#dc2626;font-weight:700;">
+        {{ newPasswordRuleError }}
+      </p>
 
       <label style="display:block; font-weight: 700; margin: 12px 0 6px;">確認新密碼</label>
       <PasswordField v-model="confirmPassword" placeholder="再次輸入新密碼" :disabled="!isOtpVerified" />
+      <p v-if="newPasswordMismatch" style="color:#dc2626;font-weight:700;">
+        {{ newPasswordMismatch }}
+      </p>
 
       <button type="button" @click="resetPassword" :disabled="loading || !canSubmit"
         style="margin-top: 12px; height: 40px; padding: 0 12px; width: 100%;">
@@ -71,7 +77,7 @@
  * 3) resetPassword：OTP 已驗證 → 設定新密碼
  */
 
-import { ref, computed, onUnmounted } from "vue";
+import { ref, computed, onUnmounted, watch } from "vue";
 import { useRouter } from "vue-router";
 import PasswordField from "@/components/PasswordField.vue";
 import {
@@ -115,16 +121,44 @@ onUnmounted(() => {
   if (timer) clearInterval(timer);
 });
 
+/** 密碼輸入輔助訊息 */
+const confirmTouched = ref(false);
+
+const newPasswordRuleError = computed(() => getPasswordRuleError(newPassword.value));
+
+const newPasswordMismatch = computed(() => {
+  if (!confirmTouched.value) return "";
+  if (!confirmPassword.value) return "請再次輸入確認密碼";
+  return newPassword.value === confirmPassword.value ? "" : "兩次密碼不一致";
+});
+
+watch(confirmPassword, (val) => {
+  if (val !== "") confirmTouched.value = true;
+});
+
+
 /** 是否可送出重設 */
 const canSubmit = computed(() => {
   return (
     isOtpVerified.value &&
     newPassword.value &&
     confirmPassword.value &&
+    !getPasswordRuleError(newPassword.value) &&
     newPassword.value === confirmPassword.value &&
     newPassword.value.length >= 6
   );
 });
+
+/** 密碼規則：6-15 碼，至少 1 英文 + 1 數字，只允許英數*/
+const PASSWORD_RULE = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{6,15}$/;
+
+function getPasswordRuleError(pwd) {
+  if (!pwd) return "請輸入密碼";
+  if (!PASSWORD_RULE.test(pwd)) {
+    return "密碼需為 6–15 碼，且包含英文 + 數字（僅限英數）";
+  }
+  return "";
+}
 
 /** 1) 發送 OTP */
 const sendOtp = async () => {

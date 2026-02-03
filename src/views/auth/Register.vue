@@ -22,11 +22,14 @@
           <!-- PasswordField 可顯示/隱藏密碼 -->
           密碼
           <PasswordField v-model="form.password" placeholder="請輸入密碼" />
+          <p v-if="passwordRuleError" class="error">{{ passwordRuleError }}</p>
         </label>
 
         <label class="label">
           確認密碼
           <PasswordField v-model="form.confirmPassword" placeholder="請再次輸入密碼" />
+          <p v-if="passwordMismatch" class="error">{{ passwordMismatch }}</p>
+
         </label>
 
         <label class="label">
@@ -59,7 +62,7 @@
  * 3) 呼叫後端 /auth/register
  * 4) 成功後導回 /login
  */
-import { reactive, ref } from 'vue'
+import { computed, watch, reactive, ref } from 'vue'
 import PasswordField from "@/components/PasswordField.vue";
 import { register as registerAPI } from '@/api/modules/auth'
 
@@ -84,6 +87,27 @@ const form = reactive({
   confirmPassword: "",
   birthday: "", // YYYY-MM-DD
 });
+
+// 使用者是否有碰過「確認密碼」欄位（避免一開始就跳錯）
+const confirmTouched = ref(false);
+
+// 1) 密碼規則錯誤（即時）
+const passwordRuleError = computed(() => getPasswordRuleError(form.password));
+
+// 2) 確認密碼是否一致（即時）
+const passwordMismatch = computed(() => {
+  if (!confirmTouched.value) return "";
+  if (!form.confirmPassword) return "請再次輸入確認密碼";
+  return form.password === form.confirmPassword ? "" : "兩次密碼不一致";
+});
+
+// 只要使用者開始輸入 confirm，就當作 touched
+watch(
+  () => form.confirmPassword,
+  (val) => {
+    if (val !== "") confirmTouched.value = true;
+  }
+);
 
 /** 前端驗證：避免打 API 才發現錯誤 */
 const validate = () => {
@@ -110,9 +134,31 @@ const validate = () => {
     errorMsg.value = "請選擇生日";
     return false;
   }
+  const ruleErr = getPasswordRuleError(form.password);
+  if (ruleErr) {
+    errorMsg.value = ruleErr;
+    return false;
+  }
+
+  if (form.password !== form.confirmPassword) {
+    errorMsg.value = "兩次密碼不一致";
+    return false;
+  }
 
   return true;
 };
+
+/** 密碼規則：6-15 碼，至少 1 英文 + 1 數字，只允許英數*/
+const PASSWORD_RULE = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{6,15}$/;
+
+function getPasswordRuleError(pwd) {
+  if (!pwd) return "請輸入密碼";
+  if (!PASSWORD_RULE.test(pwd)) {
+    return "密碼需為 6–15 碼，且包含英文 + 數字（僅限英數）";
+  }
+  return "";
+}
+
 
 /** 註冊主流程 */
 const onRegister = async () => {
