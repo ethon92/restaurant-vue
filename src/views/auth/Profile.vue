@@ -98,7 +98,7 @@ onMounted(loadProfileFromStore);
     <!-- Content：這裡會顯示子頁（AccountDetail / BookingRecord / FavoriteRestaurant) -->
     <section class="tab-content">
       <!-- ✅ 子頁會用 inject 拿到 profileForm/profileErrorMsg/profileOkMsg -->
-      <RouterView :me="auth.me"></RouterView>
+      <RouterView></RouterView>
     </section>
   </div>
 </template>
