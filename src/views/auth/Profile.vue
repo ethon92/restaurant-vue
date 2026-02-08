@@ -27,8 +27,10 @@ const form = reactive({
 });
 
 /**
- * ✅ 把這三個共用變數提供給子頁（RouterView 裡的 child components）
- * 任何 Profile 底下的子頁都可以 inject 拿到同一份狀態
+ * Profile 這層負責「拉一次會員資料」並把可編輯 form 提供給子頁
+ * 好處：
+ * - 子頁（AccountDetail/BookingRecord/...）不用各自再打一次 /auth/profile
+ * - 所有子頁看到的是同一份狀態（資料一致）
  */
 provide("profileForm", form);
 provide("profileErrorMsg", errorMsg);
@@ -67,7 +69,7 @@ onMounted(loadProfileFromStore);
 
 <template>
   <div class="profile-page">
-    <navbar />
+    <Navbar />
     <!-- Header -->
     <section class="profile-header">
       <div class="avatar">

@@ -1,26 +1,34 @@
 <template>
-  <div class="auth-container">
-    <h2>會員登入</h2>
+  <AuthLayout title="會員登入" subtitle="登入後即可查看訂位、收藏與個人資料" icon="🔑">
+    <form class="form" @submit.prevent="login">
+      <label class="label">
+        Email
+        <input v-model.trim="email" class="input" type="email" placeholder="your@email.com" required />
+      </label>
 
-    <form @submit.prevent="login">
-      <input v-model.trim="email" type="email" placeholder="Email" required />
-      <PasswordField v-model="password" placeholder="密碼" />
-      <button type="submit">登入</button>
+      <label class="label">
+        密碼
+        <PasswordField v-model="password" placeholder="請輸入密碼" />
+      </label>
+
+      <button class="btn btn-primary" type="submit">
+        登入 <span aria-hidden="true">→</span>
+      </button>
     </form>
 
-    <p>
-      <router-link to="/forgot-password">忘記密碼？</router-link>
-    </p>
-    <p>
-      還沒有帳號？
-      <router-link to="/register">前往註冊</router-link>
-    </p>
-  </div>
+    <template #footer>
+      <div class="help-row">
+        <RouterLink class="link" to="/forgot-password">忘記密碼？</RouterLink>
+        <RouterLink class="link" to="/register">前往註冊</RouterLink>
+      </div>
+    </template>
+  </AuthLayout>
 </template>
 
 <script setup>
 import { ref } from 'vue'
 import PasswordField from "@/components/PasswordField.vue";
+import AuthLayout from "@/layouts/AuthLayout.vue";
 import { login as loginAPI } from '@/api/modules/auth'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from "@/stores/auth";
@@ -46,8 +54,19 @@ const login = async () => {
       email: email.value,
       password: password.value,
     });
-    const user = res.data.user; // 後端 log in 回傳的 user
-    auth.setSession({ userId: user.id, me: user }); // ✅ 存 userId 到 localStorage
+    /**
+     * ✅ 後端 /auth/login 回傳格式（約定）
+     * res.data.user = { id, email, role, name?, birthday?, phone? }
+     * 至少要有 id）
+    */
+    const user = res.data.user;
+    /**
+     * ✅ setSession 會做兩件事：
+     * 1) 存 userId 到 Pinia state
+     * 2) 同步 localStorage：key = "auth_user_id"
+     *    -> router.beforeEach 用這個 key 判斷 requiresAuth
+     */
+    auth.setSession({ userId: user.id, me: user });
 
     alert("登入成功");
     // 登入成功之後，將網址推送至訂位紀錄頁面
@@ -61,9 +80,4 @@ const login = async () => {
 
 </script>
 
-<style scoped>
-.auth-container {
-  max-width: 400px;
-  margin: auto;
-}
-</style>
+<style scoped></style>

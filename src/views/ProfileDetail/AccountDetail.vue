@@ -3,17 +3,24 @@ import { ref, inject } from 'vue';
 import { useRouter } from "vue-router";
 import { useAuthStore } from "@/stores/auth";
 import PasswordField from "@/components/PasswordField.vue";
-import { updateProfile, verifyPassword } from '@/api/modules/auth'
+import { updateProfile } from '@/api/modules/auth'
 
 
 /**
  * ✅ 從 Profile.vue 注入同一份狀態（共享）
  * - form：reactive 物件（可直接 form.name / form.email）
  * - errorMsg / okMsg：ref（要用 .value）
+ * ⚠️ 防呆：如果此頁不是掛在 Profile 子路由下（沒有 provide），就會拿不到注入值
  */
-const form = inject("profileForm");
-const errorMsg = inject("profileErrorMsg");
-const okMsg = inject("profileOkMsg");
+const form = inject("profileForm", null)
+const errorMsg = inject("profileErrorMsg", ref(""));
+const okMsg = inject("profileOkMsg", ref(""));
+
+if (!form) {
+    console.warn(
+        "[AccountDetail] profileForm not provided. Make sure this page is under /profile route."
+    );
+}
 
 const router = useRouter();
 const auth = useAuthStore();
@@ -193,7 +200,6 @@ const onLogout = async () => {
             <p v-if="okMsg" class="ok">{{ okMsg }}</p>
 
             <p class="hint">
-                考慮加上電話欄位
             </p>
         </div>
     </div>

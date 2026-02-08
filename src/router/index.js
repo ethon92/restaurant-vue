@@ -11,8 +11,6 @@ import VerifyIdentity from "@/views/auth/VerifyIdentity.vue";
 import ResetPassword from "@/views/auth/ResetPassword.vue";
 import AccountDetail from "@/views/ProfileDetail/AccountDetail.vue";
 
-
-
 const router = createRouter({
   history: createWebHistory(),
   routes: [
@@ -71,6 +69,11 @@ const router = createRouter({
   ],
 });
 
+/**
+ * Router Guard
+ * ✅ 目前用 localStorage 的 "auth_user_id" 當登入旗標
+ * 這個 key 由 Pinia store 的 setSession 寫入（src/stores/auth.js）
+ */
 const isAuthenticated = () => Boolean(localStorage.getItem("auth_user_id"));
 
 router.beforeEach((to) => {
