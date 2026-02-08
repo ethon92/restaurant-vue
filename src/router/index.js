@@ -40,7 +40,7 @@ const router = createRouter({
     },
     {
       path: "/booking-record",
-      component: BookingRecordPage,
+      component: BookingRecord,
       name: "bookingRecord",
     },
     { path: "/login", 
