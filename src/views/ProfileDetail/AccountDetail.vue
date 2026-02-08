@@ -1,9 +1,9 @@
 <script setup>
-import { ref, inject } from 'vue';
+import { ref, inject } from "vue";
 import { useRouter } from "vue-router";
 import { useAuthStore } from "@/stores/auth";
 import PasswordField from "@/components/PasswordField.vue";
-import { updateProfile } from '@/api/modules/auth'
+import { updateProfile } from "@/api/modules/auth";
 
 
 /**
@@ -12,14 +12,12 @@ import { updateProfile } from '@/api/modules/auth'
  * - errorMsg / okMsg：ref（要用 .value）
  * ⚠️ 防呆：如果此頁不是掛在 Profile 子路由下（沒有 provide），就會拿不到注入值
  */
-const form = inject("profileForm", null)
+const form = inject("profileForm", null);
 const errorMsg = inject("profileErrorMsg", ref(""));
 const okMsg = inject("profileOkMsg", ref(""));
 
 if (!form) {
-    console.warn(
-        "[AccountDetail] profileForm not provided. Make sure this page is under /profile route."
-    );
+    console.warn("[AccountDetail] profileForm not provided. Make sure this page is under /profile route.");
 }
 
 const router = useRouter();
@@ -27,7 +25,7 @@ const auth = useAuthStore();
 
 /** 儲存按鈕 loading */
 const saving = ref(false);
-/** 目前密碼：敏感操作前驗證 */
+/** 目前密碼：敏感操作（儲存個資）前驗證 */
 const currentPassword = ref("");
 
 /**
@@ -101,39 +99,12 @@ const onSave = async () => {
 
 
 /**
- * 修改密碼前：先做 re-auth（再驗一次目前密碼）
- * 驗證成功才跳去 reset-password
+ * ✅ 修改密碼：導到已登入的 ChangePassword（/profile/change-password）
  */
-const goResetPassword = async () => {
-    errorMsg.value = "";
-    okMsg.value = "";
-
-    if (!currentPassword.value) {
-        errorMsg.value = "請先輸入目前密碼才能修改密碼";
-        alert("請先輸入目前密碼");
-        return;
-    }
-
-    try {
-        await verifyPassword({
-            user_id: auth.userId,
-            current_password: currentPassword.value,
-        });
-
-        // ✅ 驗證成功才允許跳轉
-        router.push({ path: "/reset-password", query: { email: form.email } });
-    } catch (e) {
-        const detail = e?.response?.data?.detail;
-
-        if (detail === "Password incorrect") {
-            errorMsg.value = "目前密碼錯誤";
-            alert("目前密碼錯誤");
-        } else {
-            errorMsg.value = detail || "驗證失敗";
-            alert(errorMsg.value);
-        }
-    }
+const goChangePassword = () => {
+    router.push({ name: "changePassword" });
 };
+
 
 /**
  * 登出：統一交給 store.logout 清掉 localStorage + me
@@ -186,7 +157,7 @@ const onLogout = async () => {
                 <PasswordField v-model="currentPassword" placeholder="請輸入目前密碼" />
             </label>
             <div class="row">
-                <button class="ghost" type="button" @click="goResetPassword">
+                <button class="ghost" type="button" @click="goChangePassword">
                     修改密碼
                 </button>
 
@@ -198,9 +169,6 @@ const onLogout = async () => {
             <!-- ✅ errorMsg/okMsg 是 ref，所以 template 直接用即可 -->
             <p v-if="errorMsg" class="error">{{ errorMsg }}</p>
             <p v-if="okMsg" class="ok">{{ okMsg }}</p>
-
-            <p class="hint">
-            </p>
         </div>
     </div>
 </template>

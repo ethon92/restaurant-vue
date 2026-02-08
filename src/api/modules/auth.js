@@ -25,23 +25,11 @@ export const register = (payload) => api.post("/auth/register", payload);
 export const forgotPassword = (payload) =>
   api.post("/auth/forgot-password", payload);
 
-/** POST /auth/verify-identity（傳統忘記密碼：第二步，生日/其他驗證）
- * payload: { email, birthday }
- */
-export const verifyIdentity = (payload) =>
-  api.post("/auth/verify-identity", payload);
-
 /** POST /auth/verify-password（敏感操作前 re-auth）
  * payload: { user_id, current_password }
  */
 export const verifyPassword = (payload) =>
   api.post("/auth/verify-password", payload);
-
-/** POST /auth/reset-password（傳統忘記密碼：第三步）
- * payload: { email, password }
- */
-export const resetPassword = (payload) =>
-  api.post("/auth/reset-password", payload);
 
 /** POST /auth/profile
  * 你目前設計是「後端吃 user_id」，所以 store 會傳 { user_id }
@@ -53,6 +41,15 @@ export const getProfile = (payload = {}) => api.post("/auth/profile", payload);
  * payload: { user_id, name, phone?, birthday?, current_password }
  */
 export const updateProfile = (payload) => api.put("/auth/profile", payload);
+
+/** POST /auth/change-password（已登入修改密碼）
+ * payload: { user_id, current_password, new_password }
+ * ✅ 與 ForgotPassword OTP 流程分開：
+ * - ForgotPassword（未登入）：/auth/forgot-password/*
+ * - ChangePassword（已登入）：/auth/change-password
+ */
+export const changePassword = (payload) =>
+  api.post("/auth/change-password", payload);
 
 /** POST /auth/logout */
 export const logout = () => api.post("/auth/logout");

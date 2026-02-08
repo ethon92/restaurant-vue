@@ -7,9 +7,8 @@ import Login from "@/views/auth/Login.vue";
 import Register from "@/views/auth/Register.vue";
 import ForgotPassword from "@/views/auth/ForgotPassword.vue";
 import Profile from "@/views/auth/Profile.vue";
-import VerifyIdentity from "@/views/auth/VerifyIdentity.vue";
-import ResetPassword from "@/views/auth/ResetPassword.vue";
 import AccountDetail from "@/views/ProfileDetail/AccountDetail.vue";
+import ChangePassword from "@/views/ProfileDetail/ChangePassword.vue";
 
 const router = createRouter({
   history: createWebHistory(),
@@ -54,17 +53,12 @@ const router = createRouter({
           component: AccountDetail,
           name: "accountDetail",
         },
+        {
+          path: "change-password",
+          component: ChangePassword,
+          name: "changePassword",
+        },
       ],
-    },
-    {
-      path: "/verify-identity",
-      component: VerifyIdentity,
-      name: "verify-identity",
-    },
-    {
-      path: "/reset-password",
-      component: ResetPassword,
-      name: "reset-password",
     },
   ],
 });
