@@ -1,4 +1,6 @@
 <script setup>
+import { useAuthStore } from '@/stores/auth';
+const authStore = useAuthStore()
 
 </script>
 
@@ -9,12 +11,8 @@
         </div>
         <div class="navbar-content">
             <div class="member-feature">會員專區</div>
-            <template v-if="!isLoggedIn">
-                <button @click="showLoginModal = true" class="btn-login">登入</button>
-            </template>
-            <template class="member-feature" v-if="!isLoggedIn">
-                <button @click="showLoginModal = true" class="btn-login">註冊</button>
-            </template>
+            <RouterLink :to="{'name': 'login'}" class="btn-login">登入</RouterLink>
+            <RouterLink :to="{'name': 'register'}" class="btn-login member-feature">註冊</RouterLink>
         </div>
     </nav>
 </template>
@@ -75,6 +73,7 @@
     color: var(--text-muted);
     font-weight: 500;
     cursor: pointer;
+    text-decoration: none;
 }
 
 .btn-register {

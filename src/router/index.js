@@ -1,15 +1,20 @@
 import { createRouter, createWebHistory } from "vue-router";
 import Home from "@/views/Home.vue";
 import RestaurantDetail from "../views/RestaurantDetail.vue";
-import BookingRecordPage from "@/views/BookingRecordPage.vue";
-import FavoriteRestaurant from "@/views/FavoriteRestaurant.vue";
+import BookingRecord from "@/views/ProfileDetail/BookingRecord.vue";
+import FavoriteRestaurant from "@/views/ProfileDetail/FavoriteRestaurant.vue";
 import Login from "@/views/auth/Login.vue";
 import Register from "@/views/auth/Register.vue";
 import ForgotPassword from "@/views/auth/ForgotPassword.vue";
 import Profile from "@/views/auth/Profile.vue";
 import VerifyIdentity from "@/views/auth/VerifyIdentity.vue";
 import ResetPassword from "@/views/auth/ResetPassword.vue";
+<<<<<<< HEAD
 import SearchPage from '@/views/SearchPage.vue';
+=======
+import AccountDetail from "@/views/ProfileDetail/AccountDetail.vue";
+
+>>>>>>> feature/profile
 
 
 const router = createRouter({
@@ -26,6 +31,7 @@ const router = createRouter({
       component: RestaurantDetail,
       props: true,
     },
+<<<<<<< HEAD
     {
       path:'/search',
       component: SearchPage,
@@ -49,6 +55,10 @@ const router = createRouter({
       component: Register, 
       name: "register" 
     },
+=======
+    { path: "/login", component: Login, name: "login" },
+    { path: "/register", component: Register, name: "register" },
+>>>>>>> feature/profile
     {
       path: "/forgot-password",
       component: ForgotPassword,
@@ -60,6 +70,23 @@ const router = createRouter({
       component: Profile,
       name: "profile",
       meta: { requiresAuth: true },
+      children: [
+        {
+          path: "booking-record",
+          component: BookingRecord,
+          name: "bookingRecord",
+        },
+        {
+          path: "favorite-restaurant",
+          component: FavoriteRestaurant,
+          name: "favoriteRestaurant",
+        },
+        {
+          path: "account-detail",
+          component: AccountDetail,
+          name: "accountDetail",
+        },
+      ],
     },
     {
       path: "/verify-identity",
