@@ -4,7 +4,7 @@ import { ref } from 'vue'
 const props = defineProps({
     restaurants: {
         type: Array,
-    }
+    },
 })
 const emit = defineEmits(['edit-note', 'delete-fav', 'go-explore'])
 const baseUrl = "http://localhost:8000/static"
@@ -16,10 +16,10 @@ const tempNote = ref("")
 const saveNote = () => {
     // 取得 HTML 元素
     const modalElement = document.getElementById('editNoteModal')
-    
+
     // 抓取已經存在的 Modal 實例
     const modal = bootstrap.Modal.getInstance(modalElement)
-    
+
     // 呼叫 hide() 方法，讓對話框消失
     if (modal) {
         modal.hide()
@@ -36,7 +36,7 @@ const saveNote = () => {
 const openEditModal = (restaurant) => {
     editingRestaurant.value = restaurant
     tempNote.value = restaurant.fav_note || ""
-    
+
     // 手動觸發 Bootstrap Modal (若沒用實體化，可用 data-bs-toggle)
     const modalElement = document.getElementById('editNoteModal')
     // 抓取已經存在的 Modal 實例
@@ -53,36 +53,34 @@ const handleDelete = (id) => {
 
 <template>
     <!-- 顯示收藏餐廳列表 -->
-    <div v-if="restaurants && restaurants.length > 0" class="row row-cols-1 row-cols-md-3 row-cols-lg-4 g-4">
-        <div class="col" v-for="restaurant in restaurants" :key="restaurant.fav_id">
-
-            <div class="card h-100 shadow-sm border-0 restaurant-card position-relative">
-
-                <button type="button" class="btn-close-custom" @click.stop="handleDelete(restaurant.fav_id)"
-                    title="刪除此收藏">
-                    <i class="bi bi-x-lg"></i>
-                </button>
-
-                <div class="img-wrapper">
-                    <img class="card-img-top" :src="baseUrl + restaurant.CoverImage" :alt="restaurant.Name">
-                </div>
-
-                <div class="card-body d-flex flex-column">
-                    <h5 class="card-title fw-bold text-dark">{{ restaurant.Name }}</h5>
-
-                    <div class="card-text text-secondary mb-3 flex-grow-1 note-text">
-                        <i class="bi bi-pencil-square me-1"></i>
-                        {{ restaurant.fav_note || "尚無備註..." }}
+    <div v-if="restaurants && restaurants.length > 0">
+        <TransitionGroup name="staggered-list" tag="div" class="row row-cols-1 row-cols-md-3 row-cols-lg-4 g-4" appear>
+            <div class="col" v-for="(restaurant, index) in restaurants" :key="restaurant.fav_id"
+                :style="{ '--delay': index }">
+                <div class="card h-100 shadow-sm border-0 restaurant-card position-relative">
+                    <button type="button" class="btn-close-custom" @click.stop="handleDelete(restaurant.fav_id)"
+                        title="刪除此收藏">
+                        <i class="bi bi-x-lg"></i>
+                    </button>
+                    <div class="img-wrapper">
+                        <img class="card-img-top" :src="baseUrl + restaurant.CoverImage" :alt="restaurant.Name">
                     </div>
+                    <div class="card-body d-flex flex-column">
+                        <h5 class="card-title fw-bold text-dark">{{ restaurant.Name }}</h5>
 
-                    <div class="mt-auto pt-3 border-top">
-                        <button class="btn btn-outline-primary btn-sm w-100" @click="openEditModal(restaurant)">
-                            修改備註
-                        </button>
+                        <div class="card-text text-secondary mb-3 flex-grow-1 note-text">
+                            <i class="bi bi-pencil-square me-1"></i>
+                            {{ restaurant.fav_note || "尚無備註..." }}
+                        </div>
+                        <div class="mt-auto pt-3 border-top">
+                            <button class="btn btn-outline-primary btn-sm w-100" @click="openEditModal(restaurant)">
+                                修改備註
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
+        </TransitionGroup>
     </div>
     <!-- 若使用者還未收藏餐廳 -->
     <div v-else class="d-flex flex-column align-items-center justify-content-center py-5 text-center empty-state">
@@ -91,10 +89,7 @@ const handleDelete = (id) => {
         </div>
         <h4 class="text-secondary fw-bold">目前沒有收藏餐廳</h4>
         <p class="text-muted mb-4">快去探索美味餐廳，將它們加入收藏清單吧！</p>
-
-        <button class="btn btn-primary px-4 rounded-pill" @click="handleGoExplore">
-            去探索餐廳
-        </button>
+        <RouterLink :to="{ 'name': 'home' }" class="btn btn-primary px-4 rounded-pill">去探索餐廳</RouterLink>
     </div>
     <!-- 修改餐廳備註modal -->
     <div class="modal fade" id="editNoteModal" tabindex="-1">
@@ -111,13 +106,8 @@ const handleDelete = (id) => {
                     </div>
                     <div class="mb-3 text-start">
                         <label for="noteInput" class="form-label fw-bold">我的備註</label>
-                        <textarea 
-                            v-model="tempNote" 
-                            class="form-control" 
-                            id="noteInput" 
-                            rows="4" 
-                            placeholder="請輸入對這間餐廳的評價或筆記..."
-                        ></textarea>
+                        <textarea v-model="tempNote" class="form-control" id="noteInput" rows="4"
+                            placeholder="請輸入對這間餐廳的評價或筆記..."></textarea>
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -131,7 +121,6 @@ const handleDelete = (id) => {
 
 
 <style scoped>
-/* TODO: 美化頁面 */
 .restaurant-card {
     transition: transform 0.2s, box-shadow 0.2s;
     background-color: #fff;
@@ -206,7 +195,7 @@ const handleDelete = (id) => {
 .modal-content {
     border-radius: 15px;
     border: none;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
 }
 
 .modal-header {
@@ -218,5 +207,40 @@ const handleDelete = (id) => {
 .form-control:focus {
     border-color: #0d6efd;
     box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.1);
+}
+
+/* --- 交錯動畫核心邏輯 --- */
+
+/* 進場前狀態 */
+.staggered-list-enter-from {
+    opacity: 0;
+    transform: translateY(50px) scale(0.9);
+}
+
+/* 進場中狀態 */
+.staggered-list-enter-active {
+    transition: all 0.6s cubic-bezier(0.25, 1, 0.5, 1);
+    /* 重點：利用 CSS 變數計算延遲時間 */
+    /* 每增加一個 index，延遲 0.1 秒 */
+    transition-delay: calc(var(--delay) * 0.1s);
+}
+
+/* 離場狀態 */
+.staggered-list-leave-to {
+    opacity: 0;
+    transform: scale(0.5);
+}
+
+.staggered-list-leave-active {
+    transition: all 0.4s ease;
+    position: absolute;
+    /* 離場時絕對定位，讓其餘卡片滑動補位 */
+    width: inherit;
+    /* 保持寬度一致 */
+}
+
+/* 移動動畫 (當其他卡片被刪除時) */
+.staggered-list-move {
+    transition: transform 0.5s ease;
 }
 </style>
