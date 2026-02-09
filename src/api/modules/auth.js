@@ -13,3 +13,13 @@ export const resetPassword = (payload) =>
 export const getProfile = (payload = {}) => api.post("/auth/profile", payload);
 export const updateProfile = (payload) => api.put("/auth/profile", payload);
 export const logout = () => api.post("/auth/logout");
+
+// OTP 忘記密碼（Email 驗證）
+export const sendForgotPasswordOtp = (payload) =>
+  api.post("/auth/forgot-password/send-otp", payload);
+
+export const verifyForgotPasswordOtp = (payload) =>
+  api.post("/auth/forgot-password/verify-otp", payload);
+
+export const resetPasswordByOtp = (payload) =>
+  api.post("/auth/forgot-password/reset", payload);
