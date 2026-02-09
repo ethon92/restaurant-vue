@@ -51,12 +51,32 @@ const toggleSelection = (arrayRef, item) => {
 };
 
 const onSearch = () => {
-    const params = {
-        q: searchQuery.value || '',
-        city: selectedCity.value,
-        price_level: selectedPrice.value === '全部' ? '' : selectedPrice.value,
-        tags: selectedTags.value
-    };
+    const params = {};
+    if (searchQuery.value && searchQuery.value.trim() !== '') {
+        params.q = searchQuery.value.trim();
+    }
+
+    if (selectedCity.value.length>0) {
+        params.city = [...selectedCity.value];
+    }
+
+    if (selectedPrice.value && selectedPrice.value !== '全部' && selectedPrice.value !== '') {
+        params.price_level = selectedPrice.value;
+    }
+
+    if (selectedTags.value.length > 0) {
+        params.tags = [...selectedTags.value];
+    }
+
+    console.log("LobbySearch 發送參數:", params);
+
+
+    // const params = {
+    //     q: searchQuery.value || '',
+    //     city: selectedCity.value,
+    //     price_level: selectedPrice.value === '全部' ? '' : selectedPrice.value,
+    //     tags: selectedTags.value
+    // };
 
     // 關閉面板並通知 Home.vue 執行路由跳轉
     isFiltersOpen.value = false;

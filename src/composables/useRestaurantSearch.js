@@ -40,22 +40,21 @@ export function useRestaurantSearch() {
     }
   };
 
-  const searchByBounds = async (bounds) => {
-    isLoading.value = true;
+  const searchByBounds = async (combinedParams) => {
     try {
-      const res = await restaurantApi.getRestaurantsInBounds(bounds);
+      const res = await restaurantApi.getRestaurantsInBounds(combinedParams);
+      
       if (res.data && Array.isArray(res.data)) {
         restaurants.value = res.data;
       }
-      console.log(`範圍內顯示 ${restaurants.value.length} 筆資料`);
+      console.log(`範圍內顯示 ${restaurants.value.length} 筆資料 (含關鍵字/城市過濾)`);
     } catch (err) {
       console.error("地圖範圍搜尋失敗:", err);
     } finally {
-        setTimeout(()=>{
-            isLoading.value = false;
-        }, 200);
+      setTimeout(() => {
+        isLoading.value = false;
+      }, 200);
     }
-
   };
 
   return {

@@ -41,8 +41,15 @@ const handleSelect = (item) => {
 
 // 呼叫searchByBounds
 const handleMapMove = async (bounds) => {
-  console.log("地圖範圍改變:", bounds);
-  await searchByBounds(bounds);
+  console.log("地圖範圍改變，合併當前參數中...", route.query);
+  const combinedParams = {
+    ...bounds,                        
+    q: route.query.q || '',           
+    city: route.query.city || null,   
+    price_level: route.query.price_level || null,
+    tags: route.query.tags || null
+  };
+  await searchByBounds(combinedParams);
 }
 
 // 執行搜尋邏輯
