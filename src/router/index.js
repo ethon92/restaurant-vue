@@ -10,6 +10,7 @@ import Profile from "@/views/auth/Profile.vue";
 import VerifyIdentity from "@/views/auth/VerifyIdentity.vue";
 import ResetPassword from "@/views/auth/ResetPassword.vue";
 import SearchPage from '@/views/SearchPage.vue';
+import UserComment from "@/views/UserComment.vue";
 
 
 const router = createRouter({
@@ -35,6 +36,11 @@ const router = createRouter({
       path: "/favorite-restaurant",
       component: FavoriteRestaurant,
       name: "favoriteRestaurant",
+    },
+    {
+      path: "/User-Comments",
+      component: UserComment,
+      name: "userComments"
     },
     {
       path: "/booking-record",
