@@ -5,6 +5,8 @@ import restaurantApi from '@/api/modules/restaurant';
 import FaqSection from '@/components/FaqSection.vue';
 import InfoMetaItem from '@/components/RestaurantDetail/InfoMetaItem.vue';
 import DetailCard from '@/components/RestaurantDetail/DetailCard.vue';
+import Navbar from '@/components/Navbar.vue';
+import TheFooter from '@/components/TheFooter.vue';
 
 
 const props = defineProps({
@@ -58,6 +60,7 @@ onMounted(async () => {
 </script>
 
 <template>
+  <Navbar></Navbar>
   <div class="detail-container">
     
     <div v-if="isLoading" class="loading-state">
@@ -111,6 +114,7 @@ onMounted(async () => {
 
     </div>
   </div>
+  <TheFooter></TheFooter>
 </template>
 
 <style scoped>
