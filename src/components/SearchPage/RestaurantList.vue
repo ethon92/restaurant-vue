@@ -1,5 +1,4 @@
 <script setup>
-import RestaurantDetail from '@/views/RestaurantDetail.vue';
 import { useRouter } from 'vue-router';
 const props = defineProps(['data']);
 const emit = defineEmits(['select-restaurant']);
@@ -45,7 +44,13 @@ const goBooking = (id) => {
 
 
         <div class="footer">
-          <span class="custom-tag">{{ item.TagsStr || '一般餐廳' }}</span>
+          <div class="tags-wrapper">
+            <template v-if="item.TagsStr">
+              <span v-for="(tag, index) in item.TagsStr.split(',')" :key="index" class="custom-tag">{{ tag.trim()
+                }}</span>
+            </template>
+            <span v-else class="custom-tag">一般餐廳</span>
+          </div>
           <button class="custom-book" @click.stop="goBooking(item.ID)">
             立即預約
           </button>
@@ -137,16 +142,28 @@ const goBooking = (id) => {
 
 .footer {
   display: flex;
+  align-items: flex-start;
   justify-content: space-between;
   align-items: center;
+  padding: 10px 0
+}
+
+.tags-wrapper {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  flex: 1;
+  margin-right: 10px;
 }
 
 .custom-tag {
   background-color: #c6851c;
   color: #fcfcfc;
-  padding: 4px 12px;
-  border-radius: 20px;
+  padding: 2px 10px;
+  border-radius: 15px;
   font-size: 0.8rem;
+  white-space: nowrap;
+  display: inline-block;
   font-weight: 600;
 }
 

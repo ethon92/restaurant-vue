@@ -26,7 +26,7 @@ const tagOptions = computed(() => {
         const tags = r.TagsStr ? r.TagsStr.split(',') : [];
         allTags.push(...tags.map(t => t.trim()));
     });
-    return [...new Set(allTags)].filter(t => t.length > 0).slice(0, 15);
+    return [...new Set(allTags)].filter(t => t.length > 0);
 });
 
 // 清除過濾功能
@@ -70,14 +70,6 @@ const onSearch = () => {
 
     console.log("LobbySearch 發送參數:", params);
 
-
-    // const params = {
-    //     q: searchQuery.value || '',
-    //     city: selectedCity.value,
-    //     price_level: selectedPrice.value === '全部' ? '' : selectedPrice.value,
-    //     tags: selectedTags.value
-    // };
-
     // 關閉面板並通知 Home.vue 執行路由跳轉
     isFiltersOpen.value = false;
     emit('search-submit', params);
@@ -103,7 +95,7 @@ onMounted(async () => {
                 <span class="icon">🔍</span>
                 <input v-model="searchQuery" placeholder="搜尋名稱、縣市或標籤..." @focus="isFiltersOpen = true"
                     @keyup.enter="onSearch" />
-                <button class="menu-btn" @click.stop="isFiltersOpen = !isFiltersOpen">
+                <button class="menu-btn" @click.stop="toggleFilters">
                     <span v-if="!isFiltersOpen">☰</span>
                     <span v-else>✕</span>
                 </button>
