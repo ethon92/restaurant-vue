@@ -1,10 +1,9 @@
 <script setup>
-import { ref, inject } from "vue";
+import { ref, inject, computed, nextTick } from "vue";
 import { useRouter } from "vue-router";
 import { useAuthStore } from "@/stores/auth";
 import PasswordField from "@/components/PasswordField.vue";
 import { updateProfile } from "@/api/modules/auth";
-
 
 /**
  * ✅ 從 Profile.vue 注入同一份狀態（共享）
@@ -13,12 +12,26 @@ import { updateProfile } from "@/api/modules/auth";
  * ⚠️ 防呆：如果此頁不是掛在 Profile 子路由下（沒有 provide），就會拿不到注入值
  */
 const form = inject("profileForm", null);
+const display = inject("profileDisplay", null);
+const isEditing = inject("profileIsEditing", ref(false));
+const startEdit = inject("profileStartEdit", () => { });
+const cancelEdit = inject("profileCancelEdit", () => { });
+
 const errorMsg = inject("profileErrorMsg", ref(""));
 const okMsg = inject("profileOkMsg", ref(""));
+
+const canEdit = computed(() => !!isEditing.value);
+
+const cancelEditLocal = () => {
+    cancelEdit();
+    currentPassword.value = "";
+};
+
 
 if (!form) {
     console.warn("[AccountDetail] profileForm not provided. Make sure this page is under /profile route.");
 }
+
 
 const router = useRouter();
 const auth = useAuthStore();
@@ -28,6 +41,54 @@ const saving = ref(false);
 /** 目前密碼：敏感操作（儲存個資）前驗證 */
 const currentPassword = ref("");
 
+/** 欄位級錯誤訊息（誰錯就填誰） */
+const fieldErrors = ref({
+    name: "",
+    phone: "",
+    currentPassword: "",
+});
+
+/** 每次驗證前清空 */
+const clearFieldErrors = () => {
+    fieldErrors.value = { name: "", phone: "", currentPassword: "" };
+};
+
+/** 用 ref 綁到 input DOM，才能 scroll/focus */
+const nameInputRef = ref(null);
+const phoneInputRef = ref(null);
+const pwdInputRef = ref(null);
+
+/**
+ * 讓畫面跳到特定欄位並 focus
+ * - scrollIntoView：捲到欄位可見位置
+ * - focus：游標直接進去
+ */
+const focusField = async (key) => {
+    await nextTick(); // 等 DOM 更新（例如錯誤訊息/紅框 class 出現）
+    const map = {
+        name: nameInputRef.value,              // 原生 input
+        phone: phoneInputRef.value,            // 原生 input
+        currentPassword: pwdInputRef.value,    // PasswordField 元件 ref
+    };
+    const el = map[key];
+    if (!el) return;
+
+    // ✅ 元件 ref 會是 component instance：它有 $el（DOM），也可能 expose focus()
+    const dom = el?.$el ? el.$el : el;
+
+    if (dom?.scrollIntoView) {
+        dom.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
+
+    // ✅ 如果有 expose focus() 就呼叫（PasswordField 會提供）
+    if (typeof el.focus === "function") {
+        el.focus();
+    } else if (typeof dom.focus === "function") {
+        dom.focus();
+    }
+};
+
+
 /**
  * 儲存個人資料（需要先驗證目前密碼）
  */
@@ -35,19 +96,27 @@ const onSave = async () => {
     errorMsg.value = "";
     okMsg.value = "";
 
+    // ✅ 清欄位錯誤
+    clearFieldErrors();
+
     // 先做最基本檢查：名字不能空
     if (!form.name) {
-        errorMsg.value = "名字不能為空";
+        fieldErrors.value.name = "名字不能為空";
+        await focusField("name");
         return;
     }
+
+    // 檢查手機格式（允許空）
+    if (form.phone && !/^09\d{8}$/.test(form.phone)) {
+        fieldErrors.value.phone = "手機格式不正確（需為 09 開頭共 10 碼）";
+        await focusField("phone");
+        return;
+    }
+
     // 儲存前必須輸入目前密碼
     if (!currentPassword.value) {
-        errorMsg.value = "請先輸入目前密碼才能儲存";
-        return;
-    }
-    //  檢查手機格式（允許空）
-    if (form.phone && !/^09\d{8}$/.test(form.phone)) {
-        errorMsg.value = "手機格式不正確（需為 09 開頭共 10 碼）";
+        fieldErrors.value.currentPassword = "請先輸入目前密碼才能儲存";
+        await focusField("currentPassword");
         return;
     }
 
@@ -65,6 +134,17 @@ const onSave = async () => {
         });
 
         okMsg.value = "已儲存";
+        // ✅ 儲存成功：把「已儲存資料」同步到 display（header/預覽就更新）
+        if (display) {
+            display.name = form.name;
+            display.email = form.email;
+            display.birthday = form.birthday;
+            display.phone = form.phone;
+        }
+
+        // ✅ 關閉編輯模式
+        isEditing.value = false;
+
         currentPassword.value = ""; // ✅ 存完清空比較安全
 
         // ✅ 4) 更新後讓 store 的 me 也跟著更新（或直接重新 fetch）
@@ -83,12 +163,12 @@ const onSave = async () => {
             await auth.fetchMe();
         }
     } catch (e) {
-        // 後端錯誤訊息通常放在 response.data.detail
         const detail = e?.response?.data?.detail;
 
         if (detail === "Password incorrect") {
-            errorMsg.value = "目前密碼錯誤";
-            alert("目前密碼錯誤");
+            // 綁在「目前密碼」那格，如過輸入錯誤跳過去 focus + 紅框
+            fieldErrors.value.currentPassword = "目前密碼錯誤";
+            await focusField("currentPassword");
         } else {
             errorMsg.value = detail || "儲存失敗";
         }
@@ -124,38 +204,68 @@ const onLogout = async () => {
     <div class="card">
         <div class="card-head">
             <h2>關於我</h2>
-            <button class="primary" type="button" @click="onSave" :disabled="saving">
-                {{ saving ? "儲存中..." : "儲存" }}
-            </button>
-        </div>
 
+            <div class="row">
+                <!-- 非編輯：顯示 修改 -->
+                <button v-if="!canEdit" class="ghost" type="button" @click="startEdit">
+                    修改
+                </button>
+
+                <!-- ✅ 編輯狀態：顯示「取消」+「儲存」 -->
+                <template v-else>
+                    <button class="ghost" type="button" @click="cancelEditLocal" :disabled="saving">
+                        取消
+                    </button>
+
+                    <button class="primary" type="button" @click="onSave" :disabled="saving">
+                        {{ saving ? "儲存中..." : "儲存" }}
+                    </button>
+                </template>
+            </div>
+        </div>
         <p class="muted">你在這裡輸入的資訊會在之後預約時分享給餐廳。</p>
 
         <div class="form">
             <label class="label">
                 名字
-                <input v-model.trim="form.name" class="input" type="text" placeholder="請輸入名字" />
+                <input v-if="!canEdit" :value="display?.name || ''" class="input" type="text" readonly />
+                <input v-else ref="nameInputRef" v-model.trim="form.name" class="input"
+                    :class="{ 'input-error': fieldErrors.name }" type="text" placeholder="請輸入名字"
+                    @input="fieldErrors.name = ''" />
+                <p v-if="fieldErrors.name" class="field-error">{{ fieldErrors.name }}</p>
+
             </label>
 
             <label class="label">
                 電子郵件地址（不可修改）
-                <input v-model="form.email" class="input" type="email" readonly />
+                <input :value="display?.email || ''" class="input" type="email" readonly />
             </label>
-            <label class="label">
 
+            <label class="label">
                 手機號碼
-                <input v-model.trim="form.phone" class="input" type="tel" inputmode="numeric" maxlength="10"
-                    placeholder="例如：0912345678" />
+                <input v-if="!canEdit" :value="display?.phone || ''" class="input" type="tel" readonly />
+                <input v-else ref="phoneInputRef" v-model.trim="form.phone" class="input"
+                    :class="{ 'input-error': fieldErrors.phone }" type="tel" inputmode="numeric" maxlength="10"
+                    placeholder="例如：0912345678" @input="fieldErrors.phone = ''" />
+                <p v-if="fieldErrors.phone" class="field-error">{{ fieldErrors.phone }}</p>
+
             </label>
 
             <label class="label">
                 生日
-                <input v-model="form.birthday" class="input" type="date" />
+                <input v-if="!canEdit" :value="display?.birthday || ''" class="input" type="text" readonly />
+                <input v-else v-model="form.birthday" class="input" type="date" />
             </label>
-            <label class="label">
+
+            <label v-if="canEdit" class="label">
                 目前密碼（儲存前驗證）
-                <PasswordField v-model="currentPassword" placeholder="請輸入目前密碼" />
+                <PasswordField v-model="currentPassword" ref="pwdInputRef" placeholder="請輸入目前密碼"
+                    :error="!!fieldErrors.currentPassword" @input="fieldErrors.currentPassword = ''" />
+                <p v-if="fieldErrors.currentPassword" class="field-error">
+                    {{ fieldErrors.currentPassword }}
+                </p>
             </label>
+
             <div class="row">
                 <button class="ghost" type="button" @click="goChangePassword">
                     修改密碼
@@ -166,7 +276,6 @@ const onLogout = async () => {
                 </button>
             </div>
 
-            <!-- ✅ errorMsg/okMsg 是 ref，所以 template 直接用即可 -->
             <p v-if="errorMsg" class="error">{{ errorMsg }}</p>
             <p v-if="okMsg" class="ok">{{ okMsg }}</p>
         </div>
@@ -280,5 +389,19 @@ const onLogout = async () => {
     margin-top: 10px;
     color: #9ca3af;
     font-size: 12px;
+}
+
+/* 紅框與欄位錯誤文字 */
+
+.input-error {
+    border-color: #dc2626 !important;
+    box-shadow: 0 0 0 4px rgba(220, 38, 38, 0.12);
+}
+
+.field-error {
+    margin: 6px 0 0;
+    color: #dc2626;
+    font-weight: 700;
+    font-size: 13px;
 }
 </style>

@@ -4,7 +4,7 @@ import { useRouter } from 'vue-router'
 import { useAuthStore } from "@/stores/auth";
 import Navbar from '@/components/Navbar.vue';
 
-const memberSinceText = "2026年1月";
+
 const router = useRouter()
 const auth = useAuthStore();
 
@@ -26,6 +26,36 @@ const form = reactive({
   phone: "",  // 09xxxxxxxx
 });
 
+/** 顯示用資料（不會跟著輸入即時變動）*/
+const display = reactive({
+  name: "",
+  email: "",
+  birthday: "",
+  phone: "",
+});
+
+/** 是否為編輯模式（預設 false：只能看不能改）*/
+const isEditing = ref(false);
+
+/** 一鍵開始編輯：把 display 複製到 form（開始改）*/
+const startEdit = () => {
+  errorMsg.value = "";
+  okMsg.value = "";
+  form.name = display.name;
+  form.email = display.email;
+  form.birthday = display.birthday;
+  form.phone = display.phone;
+  isEditing.value = true;
+};
+
+/** 取消編輯：不動 display，直接退出 */
+
+const cancelEdit = () => {
+  errorMsg.value = "";
+  okMsg.value = "";
+  isEditing.value = false;
+};
+
 /**
  * Profile 這層負責「拉一次會員資料」並把可編輯 form 提供給子頁
  * 好處：
@@ -35,6 +65,11 @@ const form = reactive({
 provide("profileForm", form);
 provide("profileErrorMsg", errorMsg);
 provide("profileOkMsg", okMsg);
+provide("profileDisplay", display);
+provide("profileIsEditing", isEditing);
+provide("profileStartEdit", startEdit);
+provide("profileCancelEdit", cancelEdit);
+
 
 
 const loadProfileFromStore = async () => {
@@ -58,6 +93,12 @@ const loadProfileFromStore = async () => {
     form.email = auth.me?.email ?? "";
     form.birthday = auth.me?.birthday ?? "";
     form.phone = auth.me?.phone ?? "";
+
+    // ✅ 塞 display（header/預覽都用它）
+    display.name = form.name;
+    display.email = form.email;
+    display.birthday = form.birthday;
+    display.phone = form.phone;
   } catch (e) {
     errorMsg.value = "取得會員資料失敗";
   }
@@ -79,10 +120,8 @@ onMounted(loadProfileFromStore);
 
       <div class="header-text">
         <!-- form.name 來自共用 reactive -->
-        <h1 class="title">{{ form.name || "您好：" }}</h1>
+        <h1 class="title">{{ display.name ? `${display.name} 您好` : "您好" }}</h1>
         <div class="sub">
-          <span class="dot">•</span>
-          <span class="sub-item">會員起始日期：{{ memberSinceText }}</span>
         </div>
       </div>
     </section>
