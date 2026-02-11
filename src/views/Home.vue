@@ -2,6 +2,7 @@
 import { useRouter } from 'vue-router';
 import LobbySearch from '@/components/LobbySearch.vue';
 import Navbar from '@/components/Navbar.vue';
+import TheFooter from '@/components/TheFooter.vue';
 
 const router = useRouter();
 
@@ -31,6 +32,7 @@ const handleSearch = (searchParams) => {
       <hr />
     </div>
   </div>
+  <TheFooter></TheFooter>
 </template>
 
 <style scoped>
