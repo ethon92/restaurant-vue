@@ -1,9 +1,10 @@
 <script setup>
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed, onMounted, watch } from 'vue';
 import restaurantApi from '@/api/modules/restaurant'; 
+import { useRoute } from 'vue-router';
 
 const emit = defineEmits(['search-submit']);
-
+const route = useRoute();
 const allData = ref([]);
 const isFiltersOpen = ref(false);
 
@@ -13,6 +14,34 @@ const priceLevels = ['全部', '$', '$$', '$$$'];
 const priceIndex = ref(0);
 const selectedPrice = computed(() => priceLevels[priceIndex.value]);
 const selectedTags = ref([]);
+
+// 同步URL 參數到變數
+const syncInternalState =()=>{
+    const {q, city, price_level, tags} = route.query;
+
+    searchQuery.value=q||'';
+
+    if (city) {
+        selectedCity.value = Array.isArray(city) ? city : [city];
+    } else {
+        selectedCity.value = [];
+    }
+    if (price_level) {
+        const index = priceLevels.indexOf(price_level);
+        priceIndex.value = index !== -1 ? index : 0;
+    } else {
+        priceIndex.value = 0;
+    }
+    if (tags) {
+        selectedTags.value = Array.isArray(tags) ? tags : [tags];
+    } else {
+        selectedTags.value = [];
+    }
+};
+
+watch(() => route.query, () => {
+    syncInternalState();
+}, { immediate: true });
 
 // 產生選單資料
 const cityOptions = computed(() => {
@@ -35,6 +64,7 @@ const clearFilters = () => {
     selectedCity.value = [];
     priceIndex.value = 0;
     selectedTags.value = [];
+    onSearch();
 };
 
 const toggleFilters = () => {
