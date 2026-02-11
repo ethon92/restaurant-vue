@@ -1,4 +1,5 @@
 <template>
+  <Navbar />
   <AuthLayout title="會員登入" subtitle="登入後即可查看訂位、收藏與個人資料" icon="🔑">
     <form class="form" @submit.prevent="login">
       <label class="label">
@@ -12,7 +13,7 @@
       </label>
 
       <button class="btn btn-primary" type="submit">
-        {{ loading ? "登入中..." : "登入 →" }} <span aria-hidden="true">→</span>
+        {{ loading ? "登入中..." : "登入 " }} <span aria-hidden="true">→</span>
       </button>
     </form>
 
@@ -32,6 +33,7 @@ import AuthLayout from "@/layouts/AuthLayout.vue";
 import { login as loginAPI } from '@/api/modules/auth'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from "@/stores/auth";
+import Navbar from '@/components/Navbar.vue';
 
 const email = ref('')
 const password = ref('')

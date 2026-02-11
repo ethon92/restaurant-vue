@@ -114,7 +114,7 @@ onMounted(loadProfileFromStore);
     <!-- Header -->
     <section class="profile-header">
       <div class="avatar">
-        <span class="avatar-icon">👤</span>
+        <span class="avatar-icon">🐷</span>
         <button class="avatar-btn" type="button" title="更換大頭貼（還沒加上功能）">📷</button>
       </div>
 
