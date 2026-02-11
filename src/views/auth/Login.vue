@@ -69,8 +69,8 @@ const login = async () => {
     auth.setSession({ userId: user.id, me: user });
 
     alert("登入成功");
-    // 登入成功之後，將網址推送至訂位紀錄頁面
-    router.push("/profile/booking-record");
+    // 登入成功之後，將網址推送至首頁
+    router.push("/");
 
   } catch (error) {
     console.log("login error:", error?.response?.data);
