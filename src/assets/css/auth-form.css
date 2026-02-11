@@ -192,3 +192,17 @@
 .alert-error {
   color: #dc2626;
 }
+
+/* ChangePassword / 通用：表單按鈕列 */
+.actions {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+/* 讓兩顆按鈕在小螢幕也好看 */
+.actions .btn {
+  flex: 1;
+  min-width: 120px;
+}

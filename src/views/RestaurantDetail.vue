@@ -8,6 +8,8 @@ import DetailCard from '@/components/RestaurantDetail/DetailCard.vue';
 import AddFavoriteCard from '@/components/AddFavoriteCard.vue';
 import { useAuthStore } from '@/stores/auth';
 import { deleteFavoriteRestaurant, getFavorite } from '@/api/modules/feature';
+import Navbar from '@/components/Navbar.vue';
+import TheFooter from '@/components/TheFooter.vue';
 
 
 const props = defineProps({
@@ -99,6 +101,7 @@ onMounted(async () => {
 </script>
 
 <template>
+  <Navbar></Navbar>
   <div class="detail-container">
 
     <div v-if="isLoading" class="loading-state">
@@ -161,6 +164,7 @@ onMounted(async () => {
 
     </div>
   </div>
+  <TheFooter></TheFooter>
 </template>
 
 <style scoped>

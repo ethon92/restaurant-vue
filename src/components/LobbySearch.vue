@@ -1,14 +1,13 @@
 <script setup>
-import { ref, computed, onMounted } from 'vue';
-import restaurantApi from '@/api/modules/restaurant';
+import { ref, computed, onMounted, watch } from 'vue';
+import restaurantApi from '@/api/modules/restaurant'; 
+import { useRoute } from 'vue-router';
 
-const emit = defineEmits(['search-result', 'loading']);
-
+const emit = defineEmits(['search-submit']);
+const route = useRoute();
 const allData = ref([]);
-const isLoading = ref(false);
 const isFiltersOpen = ref(false);
 
-// 搜尋條件
 const searchQuery = ref('');
 const selectedCity = ref([]);
 const priceLevels = ['全部', '$', '$$', '$$$'];
@@ -16,7 +15,35 @@ const priceIndex = ref(0);
 const selectedPrice = computed(() => priceLevels[priceIndex.value]);
 const selectedTags = ref([]);
 
-// 提取選項邏輯
+// 同步URL 參數到變數
+const syncInternalState =()=>{
+    const {q, city, price_level, tags} = route.query;
+
+    searchQuery.value=q||'';
+
+    if (city) {
+        selectedCity.value = Array.isArray(city) ? city : [city];
+    } else {
+        selectedCity.value = [];
+    }
+    if (price_level) {
+        const index = priceLevels.indexOf(price_level);
+        priceIndex.value = index !== -1 ? index : 0;
+    } else {
+        priceIndex.value = 0;
+    }
+    if (tags) {
+        selectedTags.value = Array.isArray(tags) ? tags : [tags];
+    } else {
+        selectedTags.value = [];
+    }
+};
+
+watch(() => route.query, () => {
+    syncInternalState();
+}, { immediate: true });
+
+// 產生選單資料
 const cityOptions = computed(() => {
     if (allData.value.length === 0) return [];
     return [...new Set(allData.value.map(r => r.City).filter(Boolean))];
@@ -28,7 +55,7 @@ const tagOptions = computed(() => {
         const tags = r.TagsStr ? r.TagsStr.split(',') : [];
         allTags.push(...tags.map(t => t.trim()));
     });
-    return [...new Set(allTags)].filter(t => t.length > 0).slice(0, 15);
+    return [...new Set(allTags)].filter(t => t.length > 0);
 });
 
 // 清除過濾功能
@@ -53,33 +80,38 @@ const toggleSelection = (arrayRef, item) => {
     }
 };
 
-const onSearch = async () => {
-    isLoading.value = true;
-    emit('loading', true);
-    try {
-        const filters = {
-            q: searchQuery.value,
-            city: selectedCity.value,
-            price_level: selectedPrice.value,
-            tags: selectedTags.value
-        };
-        const res = await restaurantApi.searchRestaurants(filters);
-        emit('search-result', res.data);
-    } catch (error) {
-        console.error("搜尋錯誤：", error);
-    } finally {
-        isLoading.value = false;
-        emit('loading', false);
+const onSearch = () => {
+    const params = {};
+    if (searchQuery.value && searchQuery.value.trim() !== '') {
+        params.q = searchQuery.value.trim();
     }
+
+    if (selectedCity.value.length>0) {
+        params.city = [...selectedCity.value];
+    }
+
+    if (selectedPrice.value && selectedPrice.value !== '全部' && selectedPrice.value !== '') {
+        params.price_level = selectedPrice.value;
+    }
+
+    if (selectedTags.value.length > 0) {
+        params.tags = [...selectedTags.value];
+    }
+
+    console.log("LobbySearch 發送參數:", params);
+
+    // 關閉面板並通知 Home.vue 執行路由跳轉
+    isFiltersOpen.value = false;
+    emit('search-submit', params);
 };
 
+// 初始化：僅載入供「選項」使用的基礎資料
 onMounted(async () => {
     try {
         const res = await restaurantApi.getRestaurants(0, 4322);
         allData.value = res.data;
-        emit('search-result', res.data.slice(0, 20));
     } catch (error) {
-        console.error("載入失敗：", error);
+        console.error("載入選項失敗：", error);
     }
 });
 </script>
@@ -93,7 +125,7 @@ onMounted(async () => {
                 <span class="icon">🔍</span>
                 <input v-model="searchQuery" placeholder="搜尋名稱、縣市或標籤..." @focus="isFiltersOpen = true"
                     @keyup.enter="onSearch" />
-                <button class="menu-btn" @click.stop="isFiltersOpen = !isFiltersOpen">
+                <button class="menu-btn" @click.stop="toggleFilters">
                     <span v-if="!isFiltersOpen">☰</span>
                     <span v-else>✕</span>
                 </button>
@@ -103,7 +135,6 @@ onMounted(async () => {
             <Transition name="fade-slide">
                 <div v-if="isFiltersOpen" class="floating-panel">
                     <div class="panel-inner">
-
                         <div class="filter-group">
                             <label>選擇縣市</label>
                             <div class="chip-grid">
@@ -157,7 +188,6 @@ onMounted(async () => {
     max-width: 650px;
 }
 
-/* 搜尋列 */
 .search-bar {
     display: flex;
     align-items: center;
@@ -205,7 +235,6 @@ onMounted(async () => {
     cursor: pointer;
 }
 
-/* 懸浮面板 */
 .floating-panel {
     position: absolute;
     top: calc(100% + 15px);
@@ -273,7 +302,6 @@ onMounted(async () => {
     margin-top: 10px;
 }
 
-/* 底部按鈕 */
 .panel-footer {
     display: flex;
     justify-content: space-between;
@@ -302,7 +330,6 @@ onMounted(async () => {
     cursor: pointer;
 }
 
-/* 動畫與遮罩 */
 .fade-slide-enter-active,
 .fade-slide-leave-active {
     transition: all 0.3s ease;
@@ -321,45 +348,12 @@ onMounted(async () => {
     z-index: 999;
 }
 
-/* 響應式微調 (Breakpoint: 768px) */
 @media (max-width: 768px) {
-    .search-box-container {
-        width: 95%;
-    }
-
-    .main-bar {
-        padding-left: 15px;
-    }
-
-    .main-bar input {
-        font-size: 1rem;
-    }
-
-    .btn-text {
-        display: none;
-    }
-
-    .submit-btn {
-        padding: 10px;
-        width: 40px;
-        height: 40px;
-        border-radius: 50%;
-    }
-
-    .submit-btn::before {
-        content: "🔍";
-        color: white;
-    }
-
     .floating-panel {
         width: 100vw;
         left: 50%;
         transform: translateX(-50%);
         border-radius: 0 0 20px 20px;
-    }
-
-    .panel-body {
-        padding: 20px;
     }
 }
 </style>
