@@ -9,6 +9,12 @@ const favoriteApi = {
             data
         })
     },
+    getFavorite(userId, restaurantId){
+        return service({
+            url: `/favorite/${userId}/${restaurantId}`,
+            method: 'get'
+        })
+    },
     favoriteList(userId){
         return service({
             url: `/favorite/${userId}`,
@@ -27,6 +33,12 @@ const favoriteApi = {
             url: `/favorite/${favId}`,
             method: 'delete',
         })
+    },
+    deleteFavoriteRestaurant(userId, restaurantId) {
+        return service({
+            url: `/favorite/${userId}/${restaurantId}`,
+            method: 'delete'
+        })
     }
 }
 
@@ -44,4 +56,6 @@ export const createFavorite = favoriteApi.createFavorite
 export const favoriteList = favoriteApi.favoriteList
 export const updateFavorite = favoriteApi.updateFavorite
 export const deleteFavorite = favoriteApi.deleteFavorite
+export const deleteFavoriteRestaurant = favoriteApi.deleteFavoriteRestaurant
+export const getFavorite = favoriteApi.getFavorite
 export const createComment = commentApi.createComment

@@ -1,25 +1,18 @@
 <template>
-  <div class="auth-container">
-    <h2>忘記密碼（Email 驗證）</h2>
+  <AuthLayout title="忘記密碼" subtitle="輸入註冊 Email 收取驗證碼，完成後即可重設密碼" icon="📧">
 
-    <!-- 顯示錯誤 -->
-    <p v-if="errorMsg" style="color: #dc2626; font-weight: 700;">
-      {{ errorMsg }}
-    </p>
-    <p v-if="okMsg" style="color: #16a34a; font-weight: 700;">
-      {{ okMsg }}
-    </p>
+    <!-- 顯示錯誤/成功（統一用 auth-form.css class） -->
+    <p v-if="errorMsg" class="msg-error">{{ errorMsg }}</p>
+    <p v-if="okMsg" class="msg-ok">{{ okMsg }}</p>
 
     <!-- Step 1：輸入 Email + 發送 OTP -->
-    <div style="margin-top: 12px;">
-      <label style="display:block; font-weight: 700; margin-bottom: 6px;">Email</label>
+    <div class="form">
+      <label class="label">Email</label>
 
-      <div style="display:flex; gap: 8px; align-items:center;">
-        <input v-model.trim="email" type="email" placeholder="請輸入註冊 Email" :disabled="isOtpVerified"
-          style="flex:1; height: 40px; padding: 0 10px;" />
+      <div class="row">
+        <input v-model.trim="email" class="input" type="email" placeholder="請輸入註冊 Email" :disabled="isOtpVerified" />
 
-        <button type="button" @click="sendOtp" :disabled="loading || countdown > 0 || !email"
-          style="height: 40px; padding: 0 12px;">
+        <button class="btn btn-ghost" type="button" @click="sendOtp" :disabled="loading || countdown > 0 || !email">
           <span v-if="loading">傳送中...</span>
           <span v-else-if="countdown > 0">重送 ({{ countdown }}s)</span>
           <span v-else>發送驗證碼</span>
@@ -28,44 +21,41 @@
     </div>
 
     <!-- Step 2：輸入 OTP + 驗證 -->
-    <div :style="{ marginTop: '16px', opacity: isEmailChecked ? 1 : 0.6 }">
+    <label class="label" :style="{ opacity: isEmailChecked ? 1 : 0.6 }">
+      驗證碼（6 碼）
+      <div class="row">
+        <input v-model.trim="otp" class="input" type="text" maxlength="6" placeholder="例如：123456"
+          :disabled="!isEmailChecked || isOtpVerified" />
 
-      <label style="display:block; font-weight: 700; margin-bottom: 6px;">驗證碼（6 碼）</label>
-
-      <div style="display:flex; gap: 8px; align-items:center;">
-        <input v-model.trim="otp" type="text" maxlength="6" placeholder="例如：123456"
-          :disabled="!isEmailChecked || isOtpVerified" style="flex:1; height: 40px; padding: 0 10px;" />
-        <button type="button" @click="verifyOtp" :disabled="loading || !isEmailChecked || isOtpVerified"
-          style="height: 40px; padding: 0 12px;">
+        <button type="button" class="button" @click="verifyOtp" :disabled="loading || !isEmailChecked || isOtpVerified">
           {{ isOtpVerified ? "已驗證" : "驗證" }}
         </button>
       </div>
-    </div>
+    </label>
 
     <!-- Step 3：重設密碼 -->
-    <div :style="{ marginTop: '16px', opacity: isOtpVerified ? 1 : 0.6 }">
-      <label style="display:block; font-weight: 700; margin-bottom: 6px;">新密碼</label>
-      <PasswordField v-model="newPassword" placeholder="請輸入新密碼" :disabled="!isOtpVerified" />
-      <p v-if="newPasswordRuleError" style="color:#dc2626;font-weight:700;">
+    <div :style="{ opacity: isOtpVerified ? 1 : 0.6 }">
+      <label class="label">新密碼</label>
+      <PasswordField v-model="newPassword" placeholder="請輸入新密碼6–15 碼，英文+數字" :disabled="!isOtpVerified" />
+      <p v-if="newPasswordRuleError" class="alert alert-error">
         {{ newPasswordRuleError }}
       </p>
 
-      <label style="display:block; font-weight: 700; margin: 12px 0 6px;">確認新密碼</label>
-      <PasswordField v-model="confirmPassword" placeholder="再次輸入新密碼" :disabled="!isOtpVerified" />
-      <p v-if="newPasswordMismatch" style="color:#dc2626;font-weight:700;">
-        {{ newPasswordMismatch }}
-      </p>
+      <label class="label">確認新密碼
+        <PasswordField v-model="confirmPassword" placeholder="再次輸入新密碼" :disabled="!isOtpVerified" />
+      </label>
+      <p v-if="newPasswordMismatch" class="alert alert-error">{{ newPasswordMismatch }}</p>
 
-      <button type="button" @click="resetPassword" :disabled="loading || !canSubmit"
-        style="margin-top: 12px; height: 40px; padding: 0 12px; width: 100%;">
+      <button type="button" @click="resetPassword" class="button" :disabled="loading || !canSubmit"
+        style="width: 100%;">
         {{ loading ? "送出中..." : "確認修改" }}
       </button>
     </div>
 
-    <p style="margin-top: 16px;">
-      <a href="#" @click.prevent="goToLogin">回登入</a>
+    <p class="muted">
+      <a class="link" href="#" @click.prevent="goToLogin">回登入</a>
     </p>
-  </div>
+  </AuthLayout>
 </template>
 
 <script setup>
@@ -80,6 +70,7 @@
 import { ref, computed, onUnmounted, watch } from "vue";
 import { useRouter } from "vue-router";
 import PasswordField from "@/components/PasswordField.vue";
+import AuthLayout from "@/layouts/AuthLayout.vue";
 import {
   sendForgotPasswordOtp,
   verifyForgotPasswordOtp,
@@ -93,8 +84,8 @@ const errorMsg = ref("");
 const okMsg = ref("");
 
 /** Step 狀態 */
-const isEmailChecked = ref(false); // 已發送過 OTP
-const isOtpVerified = ref(false);  // OTP 已驗證成功
+const isEmailChecked = ref(false); // ✅ OTP 已寄出（可開始輸入 OTP）
+const isOtpVerified = ref(false);  // ✅ OTP 已驗證成功（可重設密碼）
 
 /** 表單 */
 const email = ref("");
