@@ -7,12 +7,14 @@ const authStore = useAuthStore()
 <template>
     <nav class="navbar">
         <RouterLink to="/" class="logo">
+            <img src="/navbar.png" alt="Logo"/>
             <span>DINE 享樂</span>
         </RouterLink>
         <div class="navbar-content">
-            <div class="member-feature">會員專區</div>
-            <RouterLink :to="{'name': 'login'}" class="btn-login">登入</RouterLink>
-            <RouterLink :to="{'name': 'register'}" class="btn-login member-feature">註冊</RouterLink>
+            <RouterLink :to="{'name': 'profile'}" 
+            class="btn-login">會員專區 </RouterLink>
+            <RouterLink :to="{'name': 'login'}" class="btn-login"> 登入  </RouterLink>
+            <RouterLink :to="{'name': 'register'}" class="btn-login "> 註冊 </RouterLink>
         </div>
     </nav>
 </template>
@@ -33,7 +35,7 @@ const authStore = useAuthStore()
 .navbar-content {
     max-width: 80rem;
     /* margin: 0 auto; */
-    padding: 0 1rem;
+    padding: 0 5rem;
     height: 4rem;
     display: flex;
     justify-content: space-between;
@@ -42,6 +44,9 @@ const authStore = useAuthStore()
 
 /* Navbar標題 */
 .logo {
+    display: flex;          
+    align-items: center;    
+    gap: 12px;              
     font-size: 1.6rem;
     font-weight: 800;
     color: #ae5617; 
@@ -49,7 +54,11 @@ const authStore = useAuthStore()
     cursor: pointer;
     transition: opacity 0.3s;
     padding: 0 4rem;
-    text-decoration: none
+    text-decoration: none;
+}
+
+.logo img {
+    height: 60px; 
 }
 
 .logo:hover {
@@ -78,25 +87,14 @@ const authStore = useAuthStore()
     gap: 1.5rem;
 }
 
-.member-feature {
-    font-size: 0.95rem;
-    font-weight: 500;
-    color: #666;
-}
-
-.member-feature {
-    padding: 10px;
-    font-size: 16px;
-    font-weight: 500;
-}
-
 /* 登入按鈕  */
 .btn-login {
     color: #ae5617;
     font-weight: 600;
     text-decoration: none;
-    font-size: 0.95rem;
+    font-size: 1.2rem;
     transition: color 0.3s;
+    padding: 1.1rem
 }
 
 .btn-login:hover {
@@ -111,7 +109,7 @@ const authStore = useAuthStore()
     border-radius: 50px;
     text-decoration: none;
     font-weight: 600;
-    font-size: 0.9rem;
+    font-size: 1.1rem;
     transition: all 0.3s;
     box-shadow: 0 4px 12px rgba(174, 86, 23, 0.2);
 }
