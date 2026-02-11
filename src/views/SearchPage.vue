@@ -5,6 +5,8 @@ import RestaurantList from '@/components/SearchPage/RestaurantList.vue';
 import RestaurantMap from '@/components/SearchPage/RestaurantMap.vue';
 import { useRestaurantSearch } from '@/composables/useRestaurantSearch';
 import LobbySearch from '@/components/LobbySearch.vue';
+import Navbar from '@/components/Navbar.vue';
+import TheFooter from '@/components/TheFooter.vue';
 
 const route = useRoute();
 const router = useRouter();
@@ -77,6 +79,7 @@ watch(() => route.query, () => {
 </script>
 
 <template>
+  <Navbar></Navbar>
   <div class="search-page-container">
     <aside class="sidebar">
       <div class="sidebar-header">
@@ -113,6 +116,7 @@ watch(() => route.query, () => {
       <RestaurantMap ref="mapRef" :restaurants="restaurants" @bounds-changed="handleMapMove" />
     </main>
   </div>
+      <TheFooter></TheFooter>
 </template>
 
 <style scoped>
