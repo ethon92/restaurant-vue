@@ -1,10 +1,12 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 import AppointmentSection from '@/components/AppointmentSection.vue';
-import restaurantApi from '@/api/modules/restaurant';
+import restaurantApi, { restaurantCommentList } from '@/api/modules/restaurant';
 import FaqSection from '@/components/FaqSection.vue';
 import InfoMetaItem from '@/components/RestaurantDetail/InfoMetaItem.vue';
 import DetailCard from '@/components/RestaurantDetail/DetailCard.vue';
+import RestaurantCard from '@/components/HomeDetail/RestaurantCard.vue';
+import RestaurantCommentCard from '@/components/RestaurantCommentCard.vue';
 
 
 const props = defineProps({
@@ -99,7 +101,7 @@ onMounted(async () => {
             <InfoMetaItem icon="🅿️" label="停車資訊" :value="info.Parking" />
           </div>
         </DetailCard>
-
+        <RestaurantCommentCard></RestaurantCommentCard>
         <FaqSection />
       </main>
 

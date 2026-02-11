@@ -13,8 +13,6 @@ const getComments = async () => {
 loading.value = true;
     const res = await memberCommentList(userId.value);
     try{
-    // 關鍵修正：對應到 JSON 裡的 results 欄位
-    // 根據你的截圖，資料是放在 res.data.results 裡面
     comments.value = res.data.results || []; 
     
     console.log("取得的評論列表:", comments.value);
