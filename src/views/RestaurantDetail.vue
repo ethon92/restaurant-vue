@@ -7,10 +7,11 @@ import InfoMetaItem from '@/components/RestaurantDetail/InfoMetaItem.vue';
 import DetailCard from '@/components/RestaurantDetail/DetailCard.vue';
 import AddFavoriteCard from '@/components/AddFavoriteCard.vue';
 import { useAuthStore } from '@/stores/auth';
-import { deleteFavoriteRestaurant, getFavorite } from '@/api/modules/feature';
+import { deleteFavoriteRestaurant, getFavorite }
+from '@/api/modules/feature';
 import Navbar from '@/components/Navbar.vue';
 import TheFooter from '@/components/TheFooter.vue';
-
+import LoginGuideModel from '@/components/RestaurantDetail/LoginGuideModel.vue';
 
 const props = defineProps({
   id: {
@@ -50,8 +51,15 @@ const onFavSuccess = () => {
   isFavorite.value = true;
 };
 
+const showLoginGuide= ref(false);
+
 // 切換收藏餐廳函式
 const toggleFavorite = () => {
+  if (!authStore.me || !authStore.me.id) {
+    showLoginGuide.value = true;
+    return;
+  }
+
   if (isFavorite.value) {
     // 如果已經是收藏狀態，執行取消收藏 API
     handleDeleteFav();
@@ -76,6 +84,7 @@ const handleDeleteFav = async () => {
 
 // 查詢收藏餐廳API函式
 const handleGetFavorite = async () => {
+  if (!authStore.me?.id) return;
   try {
     const result = await getFavorite(authStore.me.id, props.id)
     isFavorite.value = result.data.results
@@ -96,7 +105,12 @@ const getImageUrl = (path) => {
 
 onMounted(async () => {
   fetchDetail();
-  handleGetFavorite();
+  if (authStore.me && authStore.me.id) {
+    handleGetFavorite();
+
+  } else {
+    console.log("當前為訪客模式，跳過收藏狀態查詢");
+  }
 });
 </script>
 
@@ -119,7 +133,7 @@ onMounted(async () => {
           <Transition name="modal-zoom">
             <div v-show="showAddFavModal" class="custom-modal-overlay">
               <div class="custom-modal-content card p-4 shadow-lg">
-                <AddFavoriteCard :restaurantInfo="info" :userId="authStore.me.id" @success="onFavSuccess"
+                <AddFavoriteCard :restaurantInfo="info" :userId="authStore.me?.id" @success="onFavSuccess"
                   @close="showAddFavModal = false">
                 </AddFavoriteCard>
               </div>
@@ -164,6 +178,10 @@ onMounted(async () => {
 
     </div>
   </div>
+  <LoginGuideModel 
+  :show="showLoginGuide" 
+  @close="showLoginGuide = false" 
+/>
   <TheFooter></TheFooter>
 </template>
 
