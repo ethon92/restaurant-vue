@@ -7,12 +7,9 @@ import Login from "@/views/auth/Login.vue";
 import Register from "@/views/auth/Register.vue";
 import ForgotPassword from "@/views/auth/ForgotPassword.vue";
 import Profile from "@/views/auth/Profile.vue";
-import VerifyIdentity from "@/views/auth/VerifyIdentity.vue";
-import ResetPassword from "@/views/auth/ResetPassword.vue";
-import SearchPage from '@/views/SearchPage.vue';
+import SearchPage from "@/views/SearchPage.vue";
 import AccountDetail from "@/views/ProfileDetail/AccountDetail.vue";
-
-
+import ChangePassword from "@/views/ProfileDetail/ChangePassword.vue";
 
 const router = createRouter({
   history: createWebHistory(),
@@ -29,9 +26,9 @@ const router = createRouter({
       props: true,
     },
     {
-      path:'/search',
+      path: "/search",
       component: SearchPage,
-      name: 'Search',
+      name: "Search",
     },
     {
       path: "/favorite-restaurant",
@@ -43,14 +40,8 @@ const router = createRouter({
       component: BookingRecord,
       name: "bookingRecord",
     },
-    { path: "/login", 
-      component: Login, 
-      name: "login" 
-    },
-    { path: "/register", 
-      component: Register, 
-      name: "register" 
-    },
+    { path: "/login", component: Login, name: "login" },
+    { path: "/register", component: Register, name: "register" },
     {
       path: "/forgot-password",
       component: ForgotPassword,
@@ -78,22 +69,21 @@ const router = createRouter({
           component: AccountDetail,
           name: "accountDetail",
         },
+        {
+          path: "change-password",
+          component: ChangePassword,
+          name: "changePassword",
+        },
       ],
-    },
-    {
-      path: "/verify-identity",
-      component: VerifyIdentity,
-      name: "verify-identity",
-    },
-    {
-      path: "/reset-password",
-      component: ResetPassword,
-      name: "reset-password",
     },
   ],
 });
 
-
+/**
+ * Router Guard
+ * ✅ 目前用 localStorage 的 "auth_user_id" 當登入旗標
+ * 這個 key 由 Pinia store 的 setSession 寫入（src/stores/auth.js）
+ */
 const isAuthenticated = () => Boolean(localStorage.getItem("auth_user_id"));
 
 router.beforeEach((to) => {

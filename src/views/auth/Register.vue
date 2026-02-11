@@ -1,59 +1,50 @@
 <template>
-  <div class="auth-container">
-    <div class="card">
-      <div class="head">
-        <h2>創建新帳戶</h2>
-        <p class="muted">建立帳號後即可使用訂位、收藏等功能</p>
-      </div>
+  <AuthLayout title="創建新帳戶" subtitle="建立帳號後即可使用訂位、收藏等功能" icon="📝">
+    <!-- submit 交給 onRegister，避免頁面刷新 -->
+    <form class="form" @submit.prevent="onRegister">
+      <label class="label">
+        姓名
+        <input v-model.trim="form.name" class="input" type="text" placeholder="請輸入姓名" required />
+      </label>
 
-      <!-- submit 交給 onRegister，避免頁面刷新 -->
-      <form class="form" @submit.prevent="onRegister">
-        <label class="label">
-          姓名
-          <input v-model.trim="form.name" class="input" type="text" placeholder="請輸入姓名" required />
-        </label>
+      <label class="label">
+        Email
+        <input v-model.trim="form.email" class="input" type="email" placeholder="your@email.com" required />
+      </label>
 
-        <label class="label">
-          Email
-          <input v-model.trim="form.email" class="input" type="email" placeholder="your@email.com" required />
-        </label>
+      <label class="label">
+        <!-- PasswordField 可顯示/隱藏密碼 -->
+        密碼
+        <PasswordField v-model="form.password" placeholder="請輸入密碼" />
+        <p v-if="passwordRuleError" class="msg-error">{{ passwordRuleError }}</p>
+      </label>
 
-        <label class="label">
-          <!-- PasswordField 可顯示/隱藏密碼 -->
-          密碼
-          <PasswordField v-model="form.password" placeholder="請輸入密碼" />
-          <p v-if="passwordRuleError" class="error">{{ passwordRuleError }}</p>
-        </label>
+      <label class="label">
+        確認密碼
+        <PasswordField v-model="form.confirmPassword" placeholder="請再次輸入密碼" />
+        <p v-if="passwordMismatch" class="msg-error">{{ passwordMismatch }}</p>
+      </label>
 
-        <label class="label">
-          確認密碼
-          <PasswordField v-model="form.confirmPassword" placeholder="請再次輸入密碼" />
-          <p v-if="passwordMismatch" class="error">{{ passwordMismatch }}</p>
+      <label class="label">
+        生日
+        <input v-model="form.birthday" class="input" type="date" required />
+      </label>
 
-        </label>
+      <!-- loading 時禁用按鈕，避免重複送出 -->
+      <button class="btn btn-primary" type="submit" :disabled="loading">
+        {{ loading ? "註冊中..." : "立即註冊 →" }}
+      </button>
 
-        <label class="label">
-          生日
-          <input v-model="form.birthday" class="input" type="date" required />
-        </label>
+      <!-- 顯示後端/前端驗證錯誤 -->
+      <p v-if="errorMsg" class="msg-error">{{ errorMsg }}</p>
+      <!-- 顯示成功訊息 -->
+      <p v-if="okMsg" class="msg-ok">{{ okMsg }}</p>
+    </form>
 
-        <!-- loading 時禁用按鈕，避免重複送出 -->
-        <button class="primary" type="submit" :disabled="loading">
-          {{ loading ? "註冊中..." : "立即註冊 →" }}
-        </button>
-
-        <!-- 顯示後端/前端驗證錯誤 -->
-        <p v-if="errorMsg" class="error">{{ errorMsg }}</p>
-        <!-- 顯示成功訊息 -->
-        <p v-if="okMsg" class="ok">{{ okMsg }}</p>
-
-        <p class="login-link">
-          已經有帳號？
-          <a href="#" @click.prevent="goToLogin">回登入</a>
-        </p>
-      </form>
-    </div>
-  </div>
+    <template #footer>
+      已經有帳號？<a class="link" href="#" @click.prevent="goToLogin">回登入</a>
+    </template>
+  </AuthLayout>
 </template>
 <script setup>
 /**
@@ -63,6 +54,7 @@
  * 4) 成功後導回 /login
  */
 import { computed, watch, reactive, ref } from 'vue'
+import AuthLayout from "@/layouts/AuthLayout.vue";
 import PasswordField from "@/components/PasswordField.vue";
 import { register as registerAPI } from '@/api/modules/auth'
 
@@ -199,10 +191,4 @@ const goToLogin = () => router.push("/login");
 
 </script>
 
-<style scoped>
-.auth-container {
-  max-width: 400px;
-  margin: 40px auto;
-  padding: 0 16px;
-}
-</style>1
+<style scoped></style>1
