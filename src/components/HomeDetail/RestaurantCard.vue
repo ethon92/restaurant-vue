@@ -33,22 +33,13 @@ const getImageUrl = (path) => {
             <p class="res-tags">
                 {{ info.TagStr?.split(',')[0] }} • {{ info.City }}
             </p>
-
-            <div class="booking-trend">
-                <span class="icon">📈</span> 今天已有 8 人預訂
-            </div>
-
-            <div class="time-slots">
-                <button class="time-btn">18:00</button>
-                <button class="time-btn">19:00</button>
-                <button class="time-btn">20:00</button>
             </div>
 
             <router-link :to="{ name: 'RestaurantDetail', params: { id: info.ID } }" class="card-btn">
                 立即訂位
             </router-link>
         </div>
-    </div>
+    
 </template>
 
 
@@ -119,29 +110,6 @@ const getImageUrl = (path) => {
     font-size: 0.85rem;
     color: #666;
     margin-bottom: 12px;
-}
-
-.time-slots {
-    display: flex;
-    gap: 5px;
-    margin-bottom: 15px;
-}
-
-.time-btn {
-    flex: 1;
-    padding: 5px;
-    border: 1px solid #f38332;
-    color: #f38332;
-    background: white;
-    border-radius: 4px;
-    font-size: 0.75rem;
-    font-weight: bold;
-    cursor: pointer;
-}
-
-.time-btn:hover {
-    background: #f38332;
-    color: white;
 }
 
 .card-btn {

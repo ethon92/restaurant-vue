@@ -1,4 +1,17 @@
+import service from "../index";
 import api from "../index";
+
+// 取得用戶評論
+const authCommentApi = {
+  memberCommentList(userId){
+    return service({
+      url: `/comment/${userId}`,
+      method: 'get'
+    })
+  }
+}
+
+export const memberCommentList = authCommentApi.memberCommentList
 
 export const login = (payload) => api.post("/auth/login", payload);
 export const register = (payload) => api.post("/auth/register", payload);

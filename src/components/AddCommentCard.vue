@@ -21,6 +21,8 @@ const AddComment = async()=>{
     }
     try{
         const result = await createComment(comment_data)
+        rate.value=''
+        commentContent.value=''
         console.log(result)   
     }
     catch(error){
