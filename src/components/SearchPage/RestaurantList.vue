@@ -136,6 +136,7 @@ const goBooking = (id) => {
   /* 限制地址長度，超出顯示省略號 */
   display: -webkit-box;
   -webkit-line-clamp: 2;
+  line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }

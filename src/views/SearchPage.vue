@@ -161,7 +161,6 @@ watch(() => route.query, () => {
   justify-content: center;
   padding: 20px 0;
   background-color: #fdf3e4;
-  /* 配合你原本的背景色 */
 }
 
 .load-more-btn {
