@@ -6,9 +6,9 @@ const authStore = useAuthStore()
 
 <template>
     <nav class="navbar">
-        <div class="logo">
-            <span>平台名稱</span>
-        </div>
+        <RouterLink to="/" class="logo">
+            <span>DINE 享樂</span>
+        </RouterLink>
         <div class="navbar-content">
             <div class="member-feature">會員專區</div>
             <RouterLink :to="{'name': 'login'}" class="btn-login">登入</RouterLink>
@@ -21,11 +21,12 @@ const authStore = useAuthStore()
 /* Navbar 樣式 */
 /* Navbar底色樣式 */
 .navbar {
-    background-color: grey;
-    box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+    background-color: #fdfaf7; 
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
     position: sticky;
     top: 0;
-    z-index: 50;
+    z-index: 1000;
+    border-bottom: 1px solid #eee;
 }
 
 /* Navbar內容位置 */
@@ -41,12 +42,18 @@ const authStore = useAuthStore()
 
 /* Navbar標題 */
 .logo {
-    font-size: 1.5rem;
-    font-weight: 700;
-    margin: 15px;
-    color: var(--primary-color);
-    letter-spacing: -0.025em;
+    font-size: 1.6rem;
+    font-weight: 800;
+    color: #ae5617; 
+    letter-spacing: 1px;
     cursor: pointer;
+    transition: opacity 0.3s;
+    padding: 0 4rem;
+    text-decoration: none
+}
+
+.logo:hover {
+    opacity: 0.8;
 }
 
 .nav-item {
@@ -60,35 +67,58 @@ const authStore = useAuthStore()
     color: var(--primary-color);
 }
 
+.navbar-content {
+    display: flex;
+    align-items: center;
+}
+
+.nav-links {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+}
+
+.member-feature {
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: #666;
+}
+
 .member-feature {
     padding: 10px;
     font-size: 16px;
     font-weight: 500;
 }
 
-/* 按鈕樣式 */
+/* 登入按鈕  */
 .btn-login {
-    background: none;
-    border: none;
-    color: var(--text-muted);
-    font-weight: 500;
-    cursor: pointer;
+    color: #ae5617;
+    font-weight: 600;
     text-decoration: none;
+    font-size: 0.95rem;
+    transition: color 0.3s;
 }
 
+.btn-login:hover {
+    color: #f38332;
+}
+
+/* 註冊按鈕 */
 .btn-register {
-    background-color: var(--primary-color);
-    color: black;
-    padding: 0.5rem 1.25rem;
-    border-radius: 9999px;
-    border: none;
-    font-weight: 500;
-    box-shadow: var(--shadow-main);
-    cursor: pointer;
-    transition: background 0.2s;
+    background-color: #ae5617;
+    color: white;
+    padding: 0.6rem 1.5rem;
+    border-radius: 50px;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 0.9rem;
+    transition: all 0.3s;
+    box-shadow: 0 4px 12px rgba(174, 86, 23, 0.2);
 }
 
 .btn-register:hover {
-    background-color: var(--primary-hover);
+    background-color: #f38332;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 15px rgba(174, 86, 23, 0.3);
 }
 </style>
