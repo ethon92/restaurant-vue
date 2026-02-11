@@ -2,8 +2,13 @@
 import { useRouter } from 'vue-router';
 import LobbySearch from '@/components/LobbySearch.vue';
 import Navbar from '@/components/Navbar.vue';
+import RestaurantCarousel from '@/components/HomeDetail/RestaurantCarousel.vue';
+import restaurantApi from '@/api/modules/restaurant';
+import { onMounted , ref } from 'vue';
 
+const recommendedRestaurants = ref([])
 const router = useRouter();
+const isSearching = ref()
 
 // 處理來自 LobbySearch 的搜尋事件
 const handleSearch = (searchParams) => {
@@ -14,6 +19,16 @@ const handleSearch = (searchParams) => {
     query: searchParams
   });
 };
+
+const fetchRecommended = async () => {
+  try {
+    const res = await restaurantApi.getRestaurants(0, 2000); // 抓 100 筆抽 20 筆
+    if (res?.data) {
+      recommendedRestaurants.value = res.data.sort(() => Math.random() - 0.5).slice(0, 20);
+    }
+  } catch (e) { console.error(e); }
+};
+onMounted(fetchRecommended);
 </script>
 
 <template>
@@ -29,6 +44,11 @@ const handleSearch = (searchParams) => {
     <div class="search-section">
       <LobbySearch @search-submit="handleSearch" />
       <hr />
+    </div>
+        <div class="container">
+      <RestaurantCarousel title="熱門推薦" :list="recommendedRestaurants" />
+
+      <SearchResults v-if="isSearching" :results="searchResults" @close="isSearching = false" />
     </div>
   </div>
 </template>

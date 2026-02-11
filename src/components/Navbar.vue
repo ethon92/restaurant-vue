@@ -1,5 +1,7 @@
 <script setup>
+import { ref } from 'vue';
 
+const isLoggedIn = ref()
 </script>
 
 <template>
