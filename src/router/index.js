@@ -7,6 +7,7 @@ import Login from "@/views/auth/Login.vue";
 import Register from "@/views/auth/Register.vue";
 import ForgotPassword from "@/views/auth/ForgotPassword.vue";
 import Profile from "@/views/auth/Profile.vue";
+import SearchPage from "@/views/SearchPage.vue";
 import AccountDetail from "@/views/ProfileDetail/AccountDetail.vue";
 import ChangePassword from "@/views/ProfileDetail/ChangePassword.vue";
 
@@ -23,6 +24,21 @@ const router = createRouter({
       name: "RestaurantDetail",
       component: RestaurantDetail,
       props: true,
+    },
+    {
+      path: "/search",
+      component: SearchPage,
+      name: "Search",
+    },
+    {
+      path: "/favorite-restaurant",
+      component: FavoriteRestaurant,
+      name: "favoriteRestaurant",
+    },
+    {
+      path: "/booking-record",
+      component: BookingRecord,
+      name: "bookingRecord",
     },
     { path: "/login", component: Login, name: "login" },
     { path: "/register", component: Register, name: "register" },

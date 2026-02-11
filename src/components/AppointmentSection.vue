@@ -27,16 +27,22 @@ const isPastTime = computed(() => {
     return selectedDateTime < new Date();
 });
 
-// SessionStorage
+// localstorage
 onMounted(() => {
-    // 1. 從 SessionStorage 拿 ID
-    const savedUser = JSON.parse(sessionStorage.getItem('user_info'));
-
-    if (savedUser && savedUser.user_id) {
-        myFormData.user_id = savedUser.user_id;
-        myFormData.user_name = savedUser.user_name || '';
-        myFormData.phone = savedUser.phone || '';
-        myFormData.email = savedUser.email || '';
+    const rawData = localStorage.getItem('user_info');
+    if (rawData) {
+        try {
+            const savedUser = JSON.parse(rawData);
+            
+            if (savedUser && savedUser.user_id) {
+                myFormData.user_id = savedUser.user_id;
+                myFormData.user_name = savedUser.user_name || '';
+                myFormData.phone = savedUser.phone || '';
+                myFormData.email = savedUser.email || '';
+            }
+        } catch (e) {
+            console.error("解析使用者資訊失敗:", e);
+        }
     }
 });
 
