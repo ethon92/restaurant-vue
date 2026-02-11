@@ -168,6 +168,9 @@ const goBooking = (id) => {
 }
 
 .custom-book {
+  flex-shrink: 0;
+  min-width: 120px;
+  white-space: nowrap;
   background-color: #865120;
   color: #ffffff;
   padding: 10px 42px;

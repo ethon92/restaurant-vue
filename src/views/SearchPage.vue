@@ -10,7 +10,7 @@ const route = useRoute();
 const router = useRouter();
 const mapRef = ref(null);
 
-const { restaurants, isLoading, searchRestaurants, searchByBounds } = useRestaurantSearch();
+const { restaurants, isLoading, hasMore, searchRestaurants, searchByBounds } = useRestaurantSearch();
 
 const handleLobbySearch = (params) => {
   console.log("收到 LobbySearch 的參數:", params);
@@ -41,11 +41,14 @@ const handleSelect = (item) => {
 
 // 呼叫searchByBounds
 const handleMapMove = async (bounds) => {
-  console.log("地圖範圍改變，合併當前參數中...", route.query);
+  if (route.query.city && route.query.city.length > 0) {
+    console.log("已有選定縣市，地圖移動不出發座標搜尋");
+    return;
+  }
   const combinedParams = {
-    ...bounds,                        
-    q: route.query.q || '',           
-    city: route.query.city || null,   
+    ...bounds,
+    q: route.query.q || '',
+    city: route.query.city || null,
     price_level: route.query.price_level || null,
     tags: route.query.tags || null
   };
@@ -57,10 +60,10 @@ const performSearch = async () => {
   console.log("正在執行新搜尋...", route.query);
   await searchRestaurants(route.query);
   if (restaurants.value.length > 0 && mapRef.value) {
-        setTimeout(() => {
-            handleSelect(restaurants.value[0]);
-        }, 300);
-    }
+    setTimeout(() => {
+      handleSelect(restaurants.value[0]);
+    }, 300);
+  }
 };
 
 onMounted(() => {
@@ -93,6 +96,16 @@ watch(() => route.query, () => {
           <p>搜尋中...</p>
         </div>
         <RestaurantList :data="restaurants" @select-restaurant="handleSelect" />
+
+        <div class="list-wrapper">
+          <RestaurantList :data="restaurants" @select-restaurant="handleSelect" />
+
+          <div v-if="hasMore && restaurants.length > 0" class="load-more-container">
+            <button class="load-more-btn" @click="searchRestaurants(route.query, true)" :disabled="isLoading">
+              {{ isLoading ? '搜尋中...' : '查看更多餐廳' }}
+            </button>
+          </div>
+        </div>
       </div>
     </aside>
 
@@ -139,11 +152,41 @@ watch(() => route.query, () => {
   overflow-y: auto;
 }
 
+.load-more-container {
+  display: flex;
+  justify-content: center;
+  padding: 20px 0;
+  background-color: #fdf3e4;
+  /* 配合你原本的背景色 */
+}
+
+.load-more-btn {
+  background-color: #f38332;
+  color: white;
+  border: none;
+  padding: 10px 40px;
+  border-radius: 25px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.load-more-btn:hover {
+  background-color: #d66a1e;
+  transform: translateY(-2px);
+}
+
+.load-more-btn:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
 .map-container {
   flex: 1;
   background-color: #f8f9fa;
   position: relative;
 }
+
 
 /* RWD 響應式 */
 @media (max-width: 768px) {
