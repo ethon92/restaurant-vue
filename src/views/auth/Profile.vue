@@ -73,6 +73,8 @@ provide("profileCancelEdit", cancelEdit);
 
 
 const loadProfileFromStore = async () => {
+  // 進入profile後，直接轉往定位歷史紀錄頁面
+  router.push("/profile/booking-record");
   // 每次載入先清訊息
   errorMsg.value = "";
   okMsg.value = "";
