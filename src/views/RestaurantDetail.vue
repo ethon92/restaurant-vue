@@ -77,6 +77,10 @@ const handleDeleteFav = async () => {
 // 查詢收藏餐廳API函式
 const handleGetFavorite = async () => {
   try {
+    // 當me為空值時，先去打API拿資料
+    if (!authStore.me) {
+      await authStore.fetchMe();
+    }
     const result = await getFavorite(authStore.me.id, props.id)
     isFavorite.value = result.data.results
   } catch (error) {
