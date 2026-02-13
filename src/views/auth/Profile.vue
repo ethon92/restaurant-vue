@@ -86,10 +86,6 @@ const loadProfileFromStore = async () => {
   }
 
   try {
-    // ✅ 2) 確保 me 有資料（沒有就打 /auth/profile）
-    if (!auth.me) {
-      await auth.fetchMe();
-    }
     // ✅ 3) 把 store 的 me 同步到可編輯的 form
     form.name = auth.me?.name ?? "";
     form.email = auth.me?.email ?? "";
