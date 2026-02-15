@@ -3,7 +3,7 @@ defineProps({
     info: {
         type: Object,
         required: true
-    }
+    },resRating : Number
 });
 
 const getImageUrl = (path) => {
@@ -25,8 +25,7 @@ const getImageUrl = (path) => {
 
             <div class="rating-section">
                 <slot name="rating">
-                    <span class="placeholder-stars">★★★★★</span>
-                    <span class="placeholder-reviews">(預留評論位置)</span>
+                    <span class="placeholder-stars">★ {{ resRating }}</span>
                 </slot>
             </div>
 

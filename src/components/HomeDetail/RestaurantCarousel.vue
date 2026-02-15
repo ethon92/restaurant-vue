@@ -32,7 +32,7 @@ const nav = (direction) => {
       </button>
 
       <div class="scroll-track" ref="scrollContainer">
-        <RestaurantCard v-for="r in list" :key="'carousel-' + r.ID" :info="r" />
+        <RestaurantCard v-for="r in list" :key="'carousel-' + r.ID" :info="r" :resRating="r.rating"/>
       </div>
 
       <button class="nav-control next" @click="nav('right')" aria-label="Next">

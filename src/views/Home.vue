@@ -4,6 +4,7 @@ import LobbySearch from '@/components/LobbySearch.vue';
 import Navbar from '@/components/Navbar.vue';
 import RestaurantCarousel from '@/components/HomeDetail/RestaurantCarousel.vue';
 import restaurantApi from '@/api/modules/restaurant';
+import { restaurantCommentList } from '@/api/modules/restaurant';
 import { onMounted , ref } from 'vue';
 
 const recommendedRestaurants = ref([])
@@ -24,7 +25,37 @@ const fetchRecommended = async () => {
   try {
     const res = await restaurantApi.getRestaurants(0, 2000); // 抓 100 筆抽 20 筆
     if (res?.data) {
-      recommendedRestaurants.value = res.data.sort(() => Math.random() - 0.5).slice(0, 20);
+      // 隨機抽 20 筆
+      const rawList = res.data.sort(() => Math.random() - 0.5).slice(0, 20);
+
+      // 2. 遍歷這 20 筆，去抓取各自的 rating
+      const listWithRatings = await Promise.all(
+        rawList.map(async (restaurant) => {
+try {
+            // 呼叫取得評論 API
+            const commentRes = await restaurantCommentList(restaurant.ID);
+            const comments = commentRes?.data?.results || []; // 取得 results 陣列
+            
+            let avgRating = 0;
+            if (comments.length > 0) {
+              // 加總所有評論的 rating 欄位
+              const totalScore = comments.reduce((sum, item) => sum + (item.rating || 0), 0);
+              // 計算平均並四捨五入到小數點第一位
+              avgRating = Number((totalScore / comments.length).toFixed(1));
+            }
+
+            return { 
+              ...restaurant, 
+              rating: avgRating, 
+              commentCount: comments.length // 可選：記錄評論數
+            };
+          } catch (err) {
+            console.error(`餐廳 ${restaurant.ID} 評分計算失敗:`, err);
+            return { ...restaurant, rating: 0, commentCount: 0 };
+          }
+        })
+      );
+      recommendedRestaurants.value = listWithRatings;
     }
   } catch (e) { console.error(e); }
 };
