@@ -1,5 +1,6 @@
 <script setup>
 import { useRouter } from 'vue-router';
+import ImageLoader from '../RestaurantDetail/ImageLoader.vue';
 const props = defineProps(['data']);
 const emit = defineEmits(['select-restaurant']);
 const router = useRouter();
@@ -30,8 +31,7 @@ const goBooking = (id) => {
 
     <div v-for="item in data" :key="item.ID" class="restaurant-card" @click="$emit('select-restaurant', item)">
       <div class="card-image">
-        <img :src="getImageUrl(item.CoverImage)"
-          @error="(e) => e.target.src = 'https://via.placeholder.com/150?text=Error'" alt="restaurant">
+        <ImageLoader :src="getImageUrl(item.CoverImage)" :alt="item.Name" />
       </div>
 
       <div class="card-content">
@@ -47,7 +47,7 @@ const goBooking = (id) => {
           <div class="tags-wrapper">
             <template v-if="item.TagsStr">
               <span v-for="(tag, index) in item.TagsStr.split(',')" :key="index" class="custom-tag">{{ tag.trim()
-                }}</span>
+              }}</span>
             </template>
             <span v-else class="custom-tag">一般餐廳</span>
           </div>
@@ -87,13 +87,13 @@ const goBooking = (id) => {
   width: 180px;
   height: 160px;
   flex-shrink: 0;
+  overflow: hidden;
+}
+:deep(.image-container) {
+  height: 100%;
+  border-radius: 0;
 }
 
-.card-image img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
 
 .card-content {
   padding: 18px;

@@ -182,8 +182,7 @@ onMounted(async () => {
         </DetailCard>
 
         <FaqSection />
-
-        <FaqSection />
+        
       </main>
 
       <aside class="sidebar">
