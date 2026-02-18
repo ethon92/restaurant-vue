@@ -1,4 +1,5 @@
 <template>
+  <Navbar />
   <AuthLayout title="創建新帳戶" subtitle="建立帳號後即可使用訂位、收藏等功能" icon="📝">
     <!-- submit 交給 onRegister，避免頁面刷新 -->
     <form class="form" @submit.prevent="onRegister">
@@ -59,6 +60,7 @@ import PasswordField from "@/components/PasswordField.vue";
 import { register as registerAPI } from '@/api/modules/auth'
 
 import { useRouter } from 'vue-router'
+import Navbar from '@/components/Navbar.vue';
 
 /** loading：避免連點註冊 */
 const loading = ref(false);

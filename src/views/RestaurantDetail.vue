@@ -86,6 +86,10 @@ const handleDeleteFav = async () => {
 const handleGetFavorite = async () => {
   if (!authStore.me?.id) return;
   try {
+    // 當me為空值時，先去打API拿資料
+    if (!authStore.me) {
+      await authStore.fetchMe();
+    }
     const result = await getFavorite(authStore.me.id, props.id)
     isFavorite.value = result.data.results
   } catch (error) {
