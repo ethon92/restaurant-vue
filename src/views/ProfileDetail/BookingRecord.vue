@@ -11,6 +11,11 @@ const isEmpty = ref(false);
 
 const bookingRecord = async () => {
     try {
+        // 當me為空值時，先去打API拿資料
+        if (!authStore.me) {
+            await authStore.fetchMe();
+        }
+
         const result = await fetchBookingRecord(authStore.me.id);
         bookingData.value = result.data.results;
         if (bookingData.value.length === 0) {

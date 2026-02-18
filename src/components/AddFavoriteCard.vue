@@ -59,7 +59,7 @@ const addFavorite = async () => {
             <button type="button" class="btn btn-primary btn-lg rounded-pill" @click="addFavorite">
                 確認加入收藏
             </button>
-            <button type="button" class="btn btn-light text-secondary text-decoration-none" @click="emit('close')">
+            <button type="button" class="btn btn-light text-secondary rounded-pill" @click="emit('close')">
                 我再想想
             </button>
         </div>

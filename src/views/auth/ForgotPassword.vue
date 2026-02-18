@@ -1,4 +1,5 @@
 <template>
+  <Navbar />
   <AuthLayout title="忘記密碼" subtitle="輸入註冊 Email 收取驗證碼，完成後即可重設密碼" icon="📧">
 
     <!-- 顯示錯誤/成功（統一用 auth-form.css class） -->
@@ -76,6 +77,7 @@ import {
   verifyForgotPasswordOtp,
   resetPasswordByOtp,
 } from "@/api/modules/auth";
+import Navbar from '@/components/Navbar.vue';
 
 const router = useRouter()
 

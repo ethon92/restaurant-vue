@@ -8,10 +8,11 @@ import DetailCard from '@/components/RestaurantDetail/DetailCard.vue';
 import AddFavoriteCard from '@/components/AddFavoriteCard.vue';
 import { useAuthStore } from '@/stores/auth';
 import { deleteFavoriteRestaurant, getFavorite }
-from '@/api/modules/feature';
+  from '@/api/modules/feature';
 import Navbar from '@/components/Navbar.vue';
 import TheFooter from '@/components/TheFooter.vue';
 import LoginGuideModel from '@/components/RestaurantDetail/LoginGuideModel.vue';
+import ImageLoader from '@/components/RestaurantDetail/ImageLoader.vue';
 
 const props = defineProps({
   id: {
@@ -51,7 +52,7 @@ const onFavSuccess = () => {
   isFavorite.value = true;
 };
 
-const showLoginGuide= ref(false);
+const showLoginGuide = ref(false);
 
 // 切換收藏餐廳函式
 const toggleFavorite = () => {
@@ -86,6 +87,10 @@ const handleDeleteFav = async () => {
 const handleGetFavorite = async () => {
   if (!authStore.me?.id) return;
   try {
+    // 當me為空值時，先去打API拿資料
+    if (!authStore.me) {
+      await authStore.fetchMe();
+    }
     const result = await getFavorite(authStore.me.id, props.id)
     isFavorite.value = result.data.results
   } catch (error) {
@@ -95,12 +100,13 @@ const handleGetFavorite = async () => {
 
 const getImageUrl = (path) => {
   if (!path) return '';
-
   if (path.startsWith('http')) return path;
 
   const baseUrl = 'http://127.0.0.1:8000';
-  const cleanPath = path.startsWith('/') ? path : `/` + path;
-  return `${baseUrl}/static${cleanPath}`;
+  const hasStatic = path.includes('/static');
+  const cleanPath = path.startsWith('/') ? path : `/${path}`;
+
+  return hasStatic ? `${baseUrl}${cleanPath}` : `${baseUrl}/static${cleanPath}`;
 };
 
 onMounted(async () => {
@@ -167,6 +173,16 @@ onMounted(async () => {
           </div>
         </DetailCard>
 
+        <DetailCard title="餐廳相簿" v-if="gallery && gallery.length > 0">
+          <div class="gallery-grid">
+            <div v-for="(img, index) in gallery" :key="index" class="gallery-item">
+              <ImageLoader :src="getImageUrl(img.image_url)" :alt="info.Name + ' gallery ' + index" />
+            </div>
+          </div>
+        </DetailCard>
+
+        <FaqSection />
+
         <FaqSection />
       </main>
 
@@ -178,10 +194,7 @@ onMounted(async () => {
 
     </div>
   </div>
-  <LoginGuideModel 
-  :show="showLoginGuide" 
-  @close="showLoginGuide = false" 
-/>
+  <LoginGuideModel :show="showLoginGuide" @close="showLoginGuide = false" />
   <TheFooter></TheFooter>
 </template>
 
@@ -255,6 +268,22 @@ onMounted(async () => {
   /* 淡淡的粉紅底 */
   animation: heartBeat 0.4s ease-in-out;
   background: transparent;
+}
+
+/* 相簿網格 */
+.gallery-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr); 
+  gap: 16px;
+  margin-top: 10px;
+}
+
+.gallery-item {
+  transition: transform 0.3s ease;
+}
+
+.gallery-item:hover {
+  transform: translateY(-5px); 
 }
 
 /* 心型跳動動畫 */
@@ -346,17 +375,39 @@ onMounted(async () => {
   top: 40px;
 }
 
+/* 平板與中型螢幕*/
 @media (max-width: 992px) {
   .content-layout {
-    grid-template-columns: 1fr;
+    grid-template-columns: 1fr; 
   }
 
   .sidebar {
     order: -1;
+    margin-bottom: 20px;
   }
 
   .meta-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: 1fr; 
+  }
+  
+  .gallery-grid {
+    gap: 14px;
+  }
+}
+
+/* 小型螢幕與手機  */
+@media (max-width: 768px) {
+  .hero-section {
+    height: 300px; 
+  }
+
+  .gallery-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+  
+  .restaurant-name {
+    font-size: 1.8rem; 
   }
 }
 
