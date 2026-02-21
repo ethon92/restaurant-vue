@@ -1,29 +1,31 @@
 <script setup>
-import { ref } from 'vue'
+import { ref } from 'vue';
+import { useRouter } from 'vue-router';
 
 const props = defineProps({
     restaurants: {
         type: Array,
     },
-})
-const emit = defineEmits(['edit-note', 'delete-fav', 'go-explore'])
-const baseUrl = "http://localhost:8000/static"
+});
+const emit = defineEmits(['edit-note', 'delete-fav', 'go-explore']);
+const baseUrl = "http://localhost:8000/static";
 
 // 用於 Modal 的響應式資料
-const editingRestaurant = ref({})
-const tempNote = ref("")
+const editingRestaurant = ref({});
+const tempNote = ref("");
+const router = useRouter();
 
 const saveNote = () => {
     // 取得 HTML 元素
-    const modalElement = document.getElementById('editNoteModal')
+    const modalElement = document.getElementById('editNoteModal');
 
     // 抓取已經存在的 Modal 實例
-    const modal = bootstrap.Modal.getInstance(modalElement)
+    const modal = bootstrap.Modal.getInstance(modalElement);
 
     // 呼叫 hide() 方法，讓對話框消失
     if (modal) {
-        modal.hide()
-    }
+        modal.hide();
+    };
     // 連動畫面上顯示的文字
     editingRestaurant.value.fav_note = tempNote.value;
     const updateData = {
@@ -34,19 +36,23 @@ const saveNote = () => {
 }
 
 const openEditModal = (restaurant) => {
-    editingRestaurant.value = restaurant
-    tempNote.value = restaurant.fav_note || ""
+    editingRestaurant.value = restaurant;
+    tempNote.value = restaurant.fav_note || "";
 
     // 手動觸發 Bootstrap Modal (若沒用實體化，可用 data-bs-toggle)
-    const modalElement = document.getElementById('editNoteModal')
+    const modalElement = document.getElementById('editNoteModal');
     // 抓取已經存在的 Modal 實例
-    const modal = new bootstrap.Modal(modalElement)
-    modal.show()
+    const modal = new bootstrap.Modal(modalElement);
+    modal.show();
 }
 
 // 加入 .stop 修飾符防止事件冒泡 (如果未來卡片本身有點擊功能)
 const handleDelete = (id) => {
-    emit('delete-fav', id)
+    emit('delete-fav', id);
+}
+
+const getRestaurant = (restaurantId) => {
+    router.push(`/restaurant/${restaurantId}`);
 }
 </script>
 
@@ -55,22 +61,23 @@ const handleDelete = (id) => {
     <!-- 顯示收藏餐廳列表 -->
     <div v-if="restaurants && restaurants.length > 0">
         <TransitionGroup name="staggered-list" tag="div" class="row row-cols-1 row-cols-md-3 row-cols-lg-4 g-4" appear>
-            <div class="col" v-for="(restaurant, index) in restaurants" :key="restaurant.fav_id"
+            <div class="col" v-for="(restaurant, index) in restaurants" :key="restaurant.favId"
                 :style="{ '--delay': index }">
                 <div class="card h-100 shadow-sm border-0 restaurant-card position-relative">
-                    <button type="button" class="btn-close-custom" @click.stop="handleDelete(restaurant.fav_id)"
+                    <button type="button" class="btn-close-custom" @click.stop="handleDelete(restaurant.favId)"
                         title="刪除此收藏">
                         <i class="bi bi-x-lg"></i>
                     </button>
                     <div class="img-wrapper">
-                        <img class="card-img-top" :src="baseUrl + restaurant.CoverImage" :alt="restaurant.Name">
+                        <img class="card-img-top" :src="baseUrl + restaurant.coverImage" :alt="restaurant.name">
                     </div>
                     <div class="card-body d-flex flex-column">
-                        <h5 class="card-title fw-bold text-dark">{{ restaurant.Name }}</h5>
+                        <h5 class="card-title fw-bold text-dark" title="點擊查看餐廳詳情"
+                            @click="getRestaurant(restaurant.restaurantId)">{{ restaurant.name }}</h5>
 
                         <div class="card-text text-secondary mb-3 flex-grow-1 note-text">
                             <i class="bi bi-pencil-square me-1"></i>
-                            {{ restaurant.fav_note || "尚無備註..." }}
+                            {{ restaurant.favNote || "尚無備註..." }}
                         </div>
                         <div class="mt-auto pt-3 border-top">
                             <button class="btn btn-outline-primary btn-sm w-100" @click="openEditModal(restaurant)">
@@ -189,6 +196,24 @@ const handleDelete = (id) => {
     background-color: #f8f9fa;
     padding: 8px;
     border-radius: 6px;
+}
+
+.card-title {
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+}
+
+.card-title:hover {
+    color: #0d6efd !important;
+    transform: translateX(3px);
+    /* 輕微右移，增加動感 */
+}
+
+/* 也可以在文字前加上一個小圖示，讓引導更明確 */
+.card-title:hover::after {
+    content: "\2192";
+    font-size: 0.8em;
+    opacity: 0.7;
 }
 
 /* modal樣式設定 */
