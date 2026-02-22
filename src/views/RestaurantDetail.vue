@@ -5,7 +5,14 @@ import restaurantApi from '@/api/modules/restaurant';
 import FaqSection from '@/components/FaqSection.vue';
 import InfoMetaItem from '@/components/RestaurantDetail/InfoMetaItem.vue';
 import DetailCard from '@/components/RestaurantDetail/DetailCard.vue';
-
+import AddFavoriteCard from '@/components/AddFavoriteCard.vue';
+import { useAuthStore } from '@/stores/auth';
+import { deleteFavoriteRestaurant, getFavorite }
+  from '@/api/modules/feature';
+import Navbar from '@/components/Navbar.vue';
+import TheFooter from '@/components/TheFooter.vue';
+import LoginGuideModel from '@/components/RestaurantDetail/LoginGuideModel.vue';
+import ImageLoader from '@/components/RestaurantDetail/ImageLoader.vue';
 
 const props = defineProps({
   id: {
@@ -31,47 +38,112 @@ const fetchDetail = async () => {
     alert("找不到此餐廳資訊！");
   } finally {
     isLoading.value = false;
+    if (authStore.me) {
+      handleGetFavorite();
+    } else {
+      console.log("當前為訪客模式，跳過收藏狀態查詢");
+    }
   }
 };
-// fav section.
-const isFavorite = ref(false);
 
-const toggleFavorite = () => {
-  isFavorite.value = !isFavorite.value;
-  // 這裡串接 API
-  console.log(isFavorite.value ? "加入最愛成功" : "取消最愛成功");
+
+const authStore = useAuthStore();
+const isFavorite = ref(false);
+// 控制彈窗顯示
+const showAddFavModal = ref(false);
+// 成功收藏餐廳函式
+const onFavSuccess = () => {
+  showAddFavModal.value = false;
+  isFavorite.value = true;
 };
+
+const showLoginGuide = ref(false);
+
+// 切換收藏餐廳函式
+const toggleFavorite = () => {
+  if (!authStore.me || !authStore.me.id) {
+    showLoginGuide.value = true;
+    return;
+  }
+
+  if (isFavorite.value) {
+    // 如果已經是收藏狀態，執行取消收藏 API
+    handleDeleteFav();
+    isFavorite.value = false;
+  } else {
+    // 如果不是，則開啟「加入收藏」的彈窗輸入備註
+    showAddFavModal.value = true;
+  }
+};
+
+// 刪除收藏餐廳API函式
+const handleDeleteFav = async () => {
+  try {
+    const result = await deleteFavoriteRestaurant(authStore.me.id, props.id)
+    if (result.data.status == 'Success') {
+      console.log('刪除成功!!')
+    }
+  } catch (error) {
+    console.warn(error)
+  }
+}
+
+// 查詢收藏餐廳API函式
+const handleGetFavorite = async () => {
+  try {
+    // 當me為空值時，先去打API拿資料
+    if (!authStore.me) {
+      await authStore.fetchMe();
+    }
+
+    const result = await getFavorite(authStore.me.id, props.id)
+    isFavorite.value = result.data.results
+  } catch (error) {
+    console.warn(error)
+  }
+}
 
 const getImageUrl = (path) => {
   if (!path) return '';
-
   if (path.startsWith('http')) return path;
 
   const baseUrl = 'http://127.0.0.1:8000';
-  const cleanPath = path.startsWith('/') ? path : `/` + path;
-  return `${baseUrl}/static${cleanPath}`;
+  const hasStatic = path.includes('/static');
+  const cleanPath = path.startsWith('/') ? path : `/${path}`;
+
+  return hasStatic ? `${baseUrl}${cleanPath}` : `${baseUrl}/static${cleanPath}`;
 };
 
-onMounted(async () => {
+onMounted(() => {
   fetchDetail();
 });
 </script>
 
 <template>
+  <Navbar></Navbar>
   <div class="detail-container">
-    
+
     <div v-if="isLoading" class="loading-state">
       <p>Loading...</p>
     </div>
 
     <div v-else class="content-layout">
-      
+
       <main class="main-content">
-        
+
         <section class="hero-section" :style="{ backgroundImage: `url(${getImageUrl(info.CoverImage)})` }">
           <button class="favorite-btn" :class="{ 'is-active': isFavorite }" @click="toggleFavorite">
             {{ isFavorite ? '❤️' : '🤍' }}
           </button>
+          <Transition name="modal-zoom">
+            <div v-show="showAddFavModal" class="custom-modal-overlay">
+              <div class="custom-modal-content card p-4 shadow-lg">
+                <AddFavoriteCard :restaurantInfo="info" :userId="authStore.me?.id" @success="onFavSuccess"
+                  @close="showAddFavModal = false">
+                </AddFavoriteCard>
+              </div>
+            </div>
+          </Transition>
           <div class="hero-overlay">
             <div class="hero-text">
               <h1 class="restaurant-name">{{ info.Name }}</h1>
@@ -100,7 +172,16 @@ onMounted(async () => {
           </div>
         </DetailCard>
 
+        <DetailCard title="餐廳相簿" v-if="gallery && gallery.length > 0">
+          <div class="gallery-grid">
+            <div v-for="(img, index) in gallery" :key="index" class="gallery-item">
+              <ImageLoader :src="getImageUrl(img.image_url)" :alt="info.Name + ' gallery ' + index" />
+            </div>
+          </div>
+        </DetailCard>
+
         <FaqSection />
+
       </main>
 
       <aside class="sidebar">
@@ -111,6 +192,8 @@ onMounted(async () => {
 
     </div>
   </div>
+  <LoginGuideModel :show="showLoginGuide" @close="showLoginGuide = false" />
+  <TheFooter></TheFooter>
 </template>
 
 <style scoped>
@@ -139,6 +222,125 @@ onMounted(async () => {
   margin-bottom: 30px;
 }
 
+/* 加入收藏餐廳按鈕 */
+.favorite-btn {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  width: 45px;
+  height: 45px;
+  border-radius: 50%;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.4rem;
+  cursor: pointer;
+  z-index: 10;
+  background: transparent;
+
+  /* 磨砂玻璃背景效果 */
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+
+  /* 陰影與過渡動畫 */
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+/* 滑鼠懸停效果 */
+.favorite-btn:hover {
+  transform: scale(1.1);
+  background: rgba(255, 255, 255, 1);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+}
+
+/* 點擊瞬間的壓縮感 */
+.favorite-btn:active {
+  transform: scale(0.9);
+}
+
+/* 已加入收藏 (is-active) 的狀態 */
+.favorite-btn.is-active {
+  background: #fff0f0;
+  /* 淡淡的粉紅底 */
+  animation: heartBeat 0.4s ease-in-out;
+  background: transparent;
+}
+
+/* 相簿網格 */
+.gallery-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-top: 10px;
+}
+
+.gallery-item {
+  transition: transform 0.3s ease;
+}
+
+.gallery-item:hover {
+  transform: translateY(-5px);
+}
+
+/* 心型跳動動畫 */
+@keyframes heartBeat {
+  0% {
+    transform: scale(1);
+  }
+
+  50% {
+    transform: scale(1.3);
+  }
+
+  100% {
+    transform: scale(1.1);
+  }
+}
+
+/* 彈窗背景遮罩 */
+.custom-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  backdrop-filter: blur(4px);
+}
+
+.custom-modal-content {
+  width: 100%;
+  max-width: 450px;
+  border-radius: 15px;
+  border: none;
+}
+
+/* Modal 縮放進場動畫 */
+.modal-zoom-enter-from {
+  opacity: 0;
+  transform: scale(0.9);
+}
+
+.modal-zoom-leave-to {
+  opacity: 0;
+  transform: scale(0.9);
+}
+
+.modal-zoom-enter-active,
+.modal-zoom-leave-active {
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  /* 帶點彈性的貝氏曲線 */
+}
+
+/* 遮罩淡入效果 */
+.modal-zoom-enter-active .custom-modal-overlay,
+.modal-zoom-leave-active .custom-modal-overlay {
+  transition: opacity 0.3s ease;
+}
+
 .hero-overlay {
   position: absolute;
   inset: 0;
@@ -146,6 +348,10 @@ onMounted(async () => {
   display: flex;
   align-items: flex-end;
   padding: 40px;
+}
+
+.restaurant-name {
+  color: snow;
 }
 
 /* Meta Grid */
@@ -171,13 +377,44 @@ onMounted(async () => {
   top: 40px;
 }
 
+/* 平板與中型螢幕*/
 @media (max-width: 992px) {
-  .content-layout { grid-template-columns: 1fr; }
-  .sidebar { order: -1; }
-  .meta-grid { grid-template-columns: 1fr; }
+  .content-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .sidebar {
+    order: -1;
+    margin-bottom: 20px;
+  }
+
+  .meta-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .gallery-grid {
+    gap: 14px;
+  }
 }
 
-.address-link, .modern-link {
+/* 小型螢幕與手機  */
+@media (max-width: 768px) {
+  .hero-section {
+    height: 300px;
+  }
+
+  .gallery-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+
+  .restaurant-name {
+    font-size: 1.8rem;
+  }
+}
+
+.address-link,
+.modern-link {
   color: hsl(28, 75%, 45%);
   text-decoration: none;
   font-weight: 500;
