@@ -6,6 +6,8 @@ import { useAuthStore } from '@/stores/auth';
 const authStore = useAuthStore();
 const todayStr = new Date().toISOString().split('T')[0];
 
+const isSubmitting = ref(false);
+
 const props = defineProps({
     restaurantName: String
 });
@@ -40,7 +42,7 @@ const isPastTime = computed(() => {
 
 // 組建掛載去抓store資料
 onMounted(async () => {
-    if (useStore.useId && !authStore.me) {
+    if (authStore.useId && !authStore.me) {
         try {
             await authStore.fetchMe();
         } catch (err) {
