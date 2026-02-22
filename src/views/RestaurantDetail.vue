@@ -38,6 +38,11 @@ const fetchDetail = async () => {
     alert("找不到此餐廳資訊！");
   } finally {
     isLoading.value = false;
+    if (authStore.me) {
+      handleGetFavorite();
+    } else {
+      console.log("當前為訪客模式，跳過收藏狀態查詢");
+    }
   }
 };
 
@@ -85,12 +90,12 @@ const handleDeleteFav = async () => {
 
 // 查詢收藏餐廳API函式
 const handleGetFavorite = async () => {
-  if (!authStore.me?.id) return;
   try {
     // 當me為空值時，先去打API拿資料
     if (!authStore.me) {
       await authStore.fetchMe();
     }
+
     const result = await getFavorite(authStore.me.id, props.id)
     isFavorite.value = result.data.results
   } catch (error) {
@@ -109,14 +114,8 @@ const getImageUrl = (path) => {
   return hasStatic ? `${baseUrl}${cleanPath}` : `${baseUrl}/static${cleanPath}`;
 };
 
-onMounted(async () => {
+onMounted(() => {
   fetchDetail();
-  if (authStore.me && authStore.me.id) {
-    handleGetFavorite();
-
-  } else {
-    console.log("當前為訪客模式，跳過收藏狀態查詢");
-  }
 });
 </script>
 
@@ -182,7 +181,7 @@ onMounted(async () => {
         </DetailCard>
 
         <FaqSection />
-        
+
       </main>
 
       <aside class="sidebar">
@@ -272,7 +271,7 @@ onMounted(async () => {
 /* 相簿網格 */
 .gallery-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr); 
+  grid-template-columns: repeat(3, 1fr);
   gap: 16px;
   margin-top: 10px;
 }
@@ -282,7 +281,7 @@ onMounted(async () => {
 }
 
 .gallery-item:hover {
-  transform: translateY(-5px); 
+  transform: translateY(-5px);
 }
 
 /* 心型跳動動畫 */
@@ -351,6 +350,10 @@ onMounted(async () => {
   padding: 40px;
 }
 
+.restaurant-name {
+  color: snow;
+}
+
 /* Meta Grid */
 .meta-grid {
   display: grid;
@@ -377,7 +380,7 @@ onMounted(async () => {
 /* 平板與中型螢幕*/
 @media (max-width: 992px) {
   .content-layout {
-    grid-template-columns: 1fr; 
+    grid-template-columns: 1fr;
   }
 
   .sidebar {
@@ -386,9 +389,9 @@ onMounted(async () => {
   }
 
   .meta-grid {
-    grid-template-columns: 1fr; 
+    grid-template-columns: 1fr;
   }
-  
+
   .gallery-grid {
     gap: 14px;
   }
@@ -397,16 +400,16 @@ onMounted(async () => {
 /* 小型螢幕與手機  */
 @media (max-width: 768px) {
   .hero-section {
-    height: 300px; 
+    height: 300px;
   }
 
   .gallery-grid {
     grid-template-columns: repeat(2, 1fr);
     gap: 12px;
   }
-  
+
   .restaurant-name {
-    font-size: 1.8rem; 
+    font-size: 1.8rem;
   }
 }
 
