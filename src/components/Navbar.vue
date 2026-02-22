@@ -1,20 +1,43 @@
 <script setup>
 import { useAuthStore } from '@/stores/auth';
-const authStore = useAuthStore()
+import { computed } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
 
+const authStore = useAuthStore();
+// 利用useRoute去獲取路徑上的參數
+const route = useRoute();
+const router = useRouter();
+
+// 判斷當前是否已經在 profile 相關頁面
+const isAtProfile = computed(() => route.path.startsWith('/profile'));
+
+// 登出功能的函式
+const onLogout = async () => {
+    try {
+        await authStore.logout();
+    } catch (e) {
+        console.log(e)
+    }
+
+    router.push("/login");
+};
 </script>
 
 <template>
     <nav class="navbar">
         <RouterLink to="/" class="logo">
-            <img src="/navbar.png" alt="Logo"/>
+            <img src="/navbar.png" alt="Logo" />
             <span>DINE 享樂</span>
         </RouterLink>
         <div class="navbar-content">
-            <RouterLink :to="{'name': 'profile'}" 
-            class="btn-login">會員專區 </RouterLink>
-            <RouterLink :to="{'name': 'login'}" class="btn-login"> 登入  </RouterLink>
-            <RouterLink :to="{'name': 'register'}" class="btn-login "> 註冊 </RouterLink>
+            <RouterLink :to="{ 'name': 'profile' }" class="btn" :class="{ 'disabled-link': isAtProfile }">會員專區
+            </RouterLink>
+            <RouterLink :to="{ 'name': 'login' }" class="btn" v-if="!authStore.isLoggedIn"> 登入
+            </RouterLink>
+            <button v-else class="btn" type="button" @click="onLogout">
+                登出
+            </button>
+            <RouterLink :to="{ 'name': 'register' }" class="btn"> 註冊 </RouterLink>
         </div>
     </nav>
 </template>
@@ -23,7 +46,7 @@ const authStore = useAuthStore()
 /* Navbar 樣式 */
 /* Navbar底色樣式 */
 .navbar {
-    background-color: #fdfaf7; 
+    background-color: #fdfaf7;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
     position: sticky;
     top: 0;
@@ -44,12 +67,12 @@ const authStore = useAuthStore()
 
 /* Navbar標題 */
 .logo {
-    display: flex;          
-    align-items: center;    
-    gap: 12px;              
+    display: flex;
+    align-items: center;
+    gap: 12px;
     font-size: 1.6rem;
     font-weight: 800;
-    color: #ae5617; 
+    color: #ae5617;
     letter-spacing: 1px;
     cursor: pointer;
     transition: opacity 0.3s;
@@ -58,7 +81,7 @@ const authStore = useAuthStore()
 }
 
 .logo img {
-    height: 60px; 
+    height: 60px;
 }
 
 .logo:hover {
@@ -87,36 +110,21 @@ const authStore = useAuthStore()
     gap: 1.5rem;
 }
 
-/* 登入按鈕  */
-.btn-login {
+.disabled-link {
+    opacity: 0.6;
+    pointer-events: none;
+}
+
+/* 按鈕樣式  */
+.btn {
     color: #ae5617;
     font-weight: 600;
     text-decoration: none;
     font-size: 1.2rem;
     transition: color 0.3s;
-    padding: 1.1rem
 }
 
-.btn-login:hover {
+.btn:hover {
     color: #f38332;
-}
-
-/* 註冊按鈕 */
-.btn-register {
-    background-color: #ae5617;
-    color: white;
-    padding: 0.6rem 1.5rem;
-    border-radius: 50px;
-    text-decoration: none;
-    font-weight: 600;
-    font-size: 1.1rem;
-    transition: all 0.3s;
-    box-shadow: 0 4px 12px rgba(174, 86, 23, 0.2);
-}
-
-.btn-register:hover {
-    background-color: #f38332;
-    transform: translateY(-2px);
-    box-shadow: 0 6px 15px rgba(174, 86, 23, 0.3);
 }
 </style>
