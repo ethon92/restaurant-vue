@@ -1,8 +1,9 @@
 <script setup>
-import { ref, reactive, onMounted, computed } from 'vue';
+import { ref, reactive, onMounted, computed, watch } from 'vue';
 import restaurantApi from '@/api/modules/restaurant';
+import { useAuthStore } from '@/stores/auth';
 
-
+const authStore = useAuthStore();
 const todayStr = new Date().toISOString().split('T')[0];
 
 const props = defineProps({
@@ -21,32 +22,41 @@ const myFormData = reactive({
     note: '',
 });
 
+// 提成一個function,方便重複呼叫
+const fillFormData = () => {
+    myFormData.user_id = authStore.userId;
+    myFormData.user_name = authStore.me.name || '';
+    myFormData.phone = authStore.me.phone || '';
+    myFormData.email = authStore.me.email || '';
+
+};
+
 const isPastTime = computed(() => {
     if (!myFormData.date || !myFormData.time) return false;
     const selectedDateTime = new Date(`${myFormData.date}T${myFormData.time}`);
     return selectedDateTime < new Date();
 });
 
-// localstorage
-onMounted(() => {
-    const rawData = localStorage.getItem('user_info');
-    if (rawData) {
+
+// 組建掛載去抓store資料
+onMounted(async () => {
+    if (useStore.useId && !authStore.me) {
         try {
-            const savedUser = JSON.parse(rawData);
-            
-            if (savedUser && savedUser.user_id) {
-                myFormData.user_id = savedUser.user_id;
-                myFormData.user_name = savedUser.user_name || '';
-                myFormData.phone = savedUser.phone || '';
-                myFormData.email = savedUser.email || '';
-            }
-        } catch (e) {
-            console.error("解析使用者資訊失敗:", e);
+            await authStore.fetchMe();
+        } catch (err) {
+            console.error("抓取會員資料失敗", err);
         }
+    }
+
+    if (authStore.me) {
+        fillFormData();
     }
 });
 
-const isSubmitting = ref(false);
+// 監控store 資料更新
+watch(() => authStore.me, (newVal) => {
+    if (newVal) fillFormData();
+}, { immediate: true });
 
 const handleBooking = async () => {
     // 防呆：沒 ID
@@ -83,14 +93,14 @@ const handleBooking = async () => {
         alert("預約時間不可早於現在，請重新選擇");
         return;
     }
-    
+
     const apiPayload = {
         restaurant_name: myFormData.restaurant_name,
         user_id: myFormData.user_id,
         user_name: myFormData.user_name,
         phone: myFormData.phone,
         email: myFormData.email,
-        party_size: myFormData.people,
+        party_size: parseInt(myFormData.people, 10),
         booking_time: `${myFormData.date}T${myFormData.time}:00`,
         note: myFormData.note || "",
         booking_status: "confirmed"
@@ -170,7 +180,7 @@ const handleBooking = async () => {
                 <textarea v-model="myFormData.note" rows="2"></textarea>
             </div>
 
-            <button class="submit-btn" @click="handleBooking" :disabled="isSubmitting">
+            <button class="submit-btn" @click="handleBooking" :disabled="isSubmitting || isPastTime">
                 {{ isSubmitting ? '正在連線資料庫...' : '確認預約' }}
             </button>
         </div>
