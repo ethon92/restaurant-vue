@@ -14,6 +14,11 @@ const loadProgress = ref(0);
 // 獲取收藏餐廳清單
 const fetchFavoriteRestaurant = async () => {
     try {
+        // 當me為空值時，先去打API拿資料
+        if (!authStore.me) {
+            await authStore.fetchMe();
+        }
+        
         const response = await favoriteList(authStore.me.id);
         favoriteData.value = response.data.results;
         console.log(response.data);
