@@ -32,7 +32,7 @@ export const verifyPassword = (payload) =>
   api.post("/auth/verify-password", payload);
 
 /** POST /auth/profile
- * 你目前設計是「後端吃 user_id」，所以 store 會傳 { user_id }
+ * 目前設計是「後端吃 user_id」，所以 store 會傳 { user_id }
  * payload(default {}): { user_id? }
  */
 export const getProfile = (payload = {}) => api.post("/auth/profile", payload);
@@ -73,3 +73,27 @@ export const verifyForgotPasswordOtp = (payload) =>
  */
 export const resetPasswordByOtp = (payload) =>
   api.post("/auth/forgot-password/reset", payload);
+
+// ===== Avatar（存後端 static/avatars + DB avatar_path） =====
+
+/** POST /auth/avatar
+ * form-data: user_id, file
+ */
+export const uploadAvatar = (userId, file) => {
+  const fd = new FormData();
+  fd.append("user_id", String(userId));
+  fd.append("file", file);
+  return api.post("/auth/avatar", fd, {
+    headers: { "Content-Type": "multipart/form-data" },
+  });
+};
+
+/** GET /auth/avatar-url?user_id=xx
+ * response: { url: "http://127.0.0.1:8000/static/avatars/xxx.jpg" } or { url: "" }
+ */
+export const getAvatarUrl = (userId) =>
+  api.get("/auth/avatar-url", { params: { user_id: userId } });
+
+/** DELETE /auth/avatar?user_id=xx */
+export const removeAvatar = (userId) =>
+  api.delete("/auth/avatar", { params: { user_id: userId } });
