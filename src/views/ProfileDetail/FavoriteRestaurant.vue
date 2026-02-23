@@ -32,6 +32,9 @@ const handleEdit = async (updateData) => {
     try {
         const result = await updateFavorite(updateData)
         console.log(result)
+        if (result.data.status == 'Success') {
+            fetchFavoriteRestaurant()
+        }
     } catch (error) {
         console.warn(error)
     }

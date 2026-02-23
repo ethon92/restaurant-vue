@@ -1,50 +1,42 @@
 <script setup>
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
+import EditFavoriteModal from './EditFavoriteModal.vue';
 
+const emit = defineEmits(['edit-note', 'delete-fav', 'go-explore']);
 const props = defineProps({
     restaurants: {
         type: Array,
     },
 });
-const emit = defineEmits(['edit-note', 'delete-fav', 'go-explore']);
-const baseUrl = "http://localhost:8000/static";
 
-// 用於 Modal 的響應式資料
-const editingRestaurant = ref({});
-const tempNote = ref("");
+const baseUrl = "http://localhost:8000/static";
 const router = useRouter();
 
-const saveNote = () => {
-    // 取得 HTML 元素
-    const modalElement = document.getElementById('editNoteModal');
+// 用於 EditFavoriteModal 的資料
+const editingRestaurant = ref(null);
+const isEditing = ref(false);
 
-    // 抓取已經存在的 Modal 實例
-    const modal = bootstrap.Modal.getInstance(modalElement);
-
-    // 呼叫 hide() 方法，讓對話框消失
-    if (modal) {
-        modal.hide();
-    };
-    // 連動畫面上顯示的文字
-    editingRestaurant.value.fav_note = tempNote.value;
-    const updateData = {
-        fav_id: editingRestaurant.value.fav_id,
-        fav_note: editingRestaurant.value.fav_note
-    };
-    emit('edit-note', updateData);
-}
-
-const openEditModal = (restaurant) => {
+const openEditSection = (restaurant) => {
     editingRestaurant.value = restaurant;
-    tempNote.value = restaurant.fav_note || "";
+    isEditing.value = true;
 
-    // 手動觸發 Bootstrap Modal (若沒用實體化，可用 data-bs-toggle)
-    const modalElement = document.getElementById('editNoteModal');
-    // 抓取已經存在的 Modal 實例
-    const modal = new bootstrap.Modal(modalElement);
-    modal.show();
+    // 如果是採用捲動到編輯區的設計，可以加上：
+    // window.scrollTo({ top: 0, behavior: 'smooth' });
 }
+
+const handleSaveNote = (updateData) => {
+    // 3. 接收子元件傳來的資料並轉發給父層 (Profile.vue 等)
+    emit('edit-note', updateData);
+    isEditing.value = false;
+    editingRestaurant.value = null;
+}
+
+const handleCancelEdit = () => {
+    isEditing.value = false;
+    editingRestaurant.value = null;
+}
+
 
 // 加入 .stop 修飾符防止事件冒泡 (如果未來卡片本身有點擊功能)
 const handleDelete = (id) => {
@@ -58,70 +50,55 @@ const getRestaurant = (restaurantId) => {
 
 
 <template>
-    <!-- 顯示收藏餐廳列表 -->
-    <div v-if="restaurants && restaurants.length > 0">
-        <TransitionGroup name="staggered-list" tag="div" class="row row-cols-1 row-cols-md-3 row-cols-lg-4 g-4" appear>
-            <div class="col" v-for="(restaurant, index) in restaurants" :key="restaurant.favId"
-                :style="{ '--delay': index }">
-                <div class="card h-100 shadow-sm border-0 restaurant-card position-relative">
-                    <button type="button" class="btn-close-custom" @click.stop="handleDelete(restaurant.favId)"
-                        title="刪除此收藏">
-                        <i class="bi bi-x-lg"></i>
-                    </button>
-                    <div class="img-wrapper">
-                        <img class="card-img-top" :src="baseUrl + restaurant.coverImage" :alt="restaurant.name">
-                    </div>
-                    <div class="card-body d-flex flex-column">
-                        <h5 class="card-title fw-bold text-dark" title="點擊查看餐廳詳情"
-                            @click="getRestaurant(restaurant.restaurantId)">{{ restaurant.name }}</h5>
+    <div class="favorite-section">
+        <Transition name="fade-slide">
+            <div v-if="isEditing && editingRestaurant" class="edit-overlay mb-5">
+                <EditFavoriteModal :restaurant="editingRestaurant" @edit-note="handleSaveNote"
+                    @cancel="handleCancelEdit"></EditFavoriteModal>
+            </div>
+        </Transition>
+        <!-- 顯示收藏餐廳列表 -->
+        <div v-if="restaurants && restaurants.length > 0 && !isEditing">
+            <TransitionGroup name="staggered-list" tag="div" class="row row-cols-1 row-cols-md-3 row-cols-lg-4 g-4"
+                appear>
+                <div class="col" v-for="(restaurant, index) in restaurants" :key="restaurant.favId"
+                    :style="{ '--delay': index }">
+                    <div class="card h-100 shadow-sm border-0 restaurant-card position-relative">
+                        <button type="button" class="btn-close-custom" @click.stop="handleDelete(restaurant.favId)"
+                            title="刪除此收藏">
+                            <i class="bi bi-x-lg"></i>
+                        </button>
+                        <div class="img-wrapper">
+                            <img class="card-img-top" :src="baseUrl + restaurant.coverImage" :alt="restaurant.name">
+                        </div>
+                        <div class="card-body d-flex flex-column">
+                            <h5 class="card-title fw-bold text-dark" title="點擊查看餐廳詳情"
+                                @click="getRestaurant(restaurant.restaurantId)">{{ restaurant.name }}</h5>
 
-                        <div class="card-text text-secondary mb-3 flex-grow-1 note-text">
-                            <i class="bi bi-pencil-square me-1"></i>
-                            {{ restaurant.favNote || "尚無備註..." }}
-                        </div>
-                        <div class="mt-auto pt-3 border-top">
-                            <button class="btn btn-outline-primary btn-sm w-100" @click="openEditModal(restaurant)">
-                                修改備註
-                            </button>
+                            <div class="card-text text-secondary mb-3 flex-grow-1 note-text">
+                                <i class="bi bi-pencil-square me-1"></i>
+                                {{ restaurant.favNote || "尚無備註..." }}
+                            </div>
+                            <div class="mt-auto pt-3 border-top">
+                                <button class="btn btn-outline-primary btn-sm w-100"
+                                    @click="openEditSection(restaurant)">
+                                    修改備註
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
-        </TransitionGroup>
-    </div>
-    <!-- 若使用者還未收藏餐廳 -->
-    <div v-else class="d-flex flex-column align-items-center justify-content-center py-5 text-center empty-state">
-        <div class="mb-3 icon-container">
-            <i class="bi bi-heartbreak text-muted" style="font-size: 4rem;"></i>
+            </TransitionGroup>
         </div>
-        <h4 class="text-secondary fw-bold">目前沒有收藏餐廳</h4>
-        <p class="text-muted mb-4">快去探索美味餐廳，將它們加入收藏清單吧！</p>
-        <RouterLink :to="{ 'name': 'home' }" class="btn btn-primary px-4 rounded-pill">去探索餐廳</RouterLink>
-    </div>
-    <!-- 修改餐廳備註modal -->
-    <div class="modal fade" id="editNoteModal" tabindex="-1">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title fw-bold">修改餐廳備註</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <div class="mb-3 text-start">
-                        <label class="form-label fw-bold">餐廳名稱</label>
-                        <input type="text" class="form-control-plaintext" :value="editingRestaurant?.Name" readonly>
-                    </div>
-                    <div class="mb-3 text-start">
-                        <label for="noteInput" class="form-label fw-bold">我的備註</label>
-                        <textarea v-model="tempNote" class="form-control" id="noteInput" rows="4"
-                            placeholder="請輸入對這間餐廳的評價或筆記..."></textarea>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">取消</button>
-                    <button type="button" class="btn btn-primary" @click="saveNote">儲存變更</button>
-                </div>
+        <!-- 若使用者還未收藏餐廳 -->
+        <div v-else-if="restaurants.length == 0"
+            class="d-flex flex-column align-items-center justify-content-center py-5 text-center empty-state">
+            <div class="mb-3 icon-container">
+                <i class="bi bi-heartbreak text-muted" style="font-size: 4rem;"></i>
             </div>
+            <h4 class="text-secondary fw-bold">目前沒有收藏餐廳</h4>
+            <p class="text-muted mb-4">快去探索美味餐廳，將它們加入收藏清單吧！</p>
+            <RouterLink :to="{ 'name': 'home' }" class="btn btn-primary px-4 rounded-pill">去探索餐廳</RouterLink>
         </div>
     </div>
 </template>
@@ -216,24 +193,6 @@ const getRestaurant = (restaurantId) => {
     opacity: 0.7;
 }
 
-/* modal樣式設定 */
-.modal-content {
-    border-radius: 15px;
-    border: none;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-}
-
-.modal-header {
-    background-color: #f8f9fa;
-    border-bottom: 1px solid #eee;
-    border-radius: 15px 15px 0 0;
-}
-
-.form-control:focus {
-    border-color: #0d6efd;
-    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.1);
-}
-
 /* --- 交錯動畫核心邏輯 --- */
 
 /* 進場前狀態 */
@@ -267,5 +226,52 @@ const getRestaurant = (restaurantId) => {
 /* 移動動畫 (當其他卡片被刪除時) */
 .staggered-list-move {
     transition: transform 0.5s ease;
+}
+
+/* 編輯區域容器美化 */
+.edit-overlay {
+    /* 1. 背景：使用非常淡的漸層，增加層次感 */
+    background: linear-gradient(145deg, #ffffff, #fdfaf7);
+
+    /* 2. 邊框：改為實線，並使用柔和的品牌色調 */
+    border: 1.5px solid rgba(174, 86, 23, 0.15);
+
+    /* 3. 圓角與間距 */
+    border-radius: 20px;
+    padding: 2.5rem;
+
+    /* 4. 陰影：使用多層陰影創造深度感，而不是單調的黑影 */
+    box-shadow:
+        0 10px 15px -3px rgba(0, 0, 0, 0.05),
+        0 4px 6px -2px rgba(0, 0, 0, 0.02),
+        inset 0 0 0 1px rgba(255, 255, 255, 0.6);
+    /* 內發光效果 */
+
+    /* 5. 確保與上方內容有足夠呼吸空間 */
+    margin-bottom: 3rem;
+
+    /* 6. 當它出現時的平滑效果 */
+    transition: all 0.3s ease-in-out;
+}
+
+/* 如果滑鼠移到該區塊，可以有微弱的提亮效果 */
+.edit-overlay:hover {
+    border-color: rgba(174, 86, 23, 0.3);
+    box-shadow:
+        0 20px 25px -5px rgba(0, 0, 0, 0.08),
+        0 10px 10px -5px rgba(0, 0, 0, 0.03);
+}
+
+/* 針對過場動畫的微調 */
+.fade-slide-enter-active,
+.fade-slide-leave-active {
+    transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.fade-slide-enter-from,
+.fade-slide-leave-to {
+    opacity: 0;
+    transform: translateY(-30px) scale(0.98);
+    /* 加入輕微縮放效果 */
 }
 </style>
