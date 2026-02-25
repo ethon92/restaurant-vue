@@ -1,9 +1,10 @@
 <script setup>
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed, onMounted, watch } from 'vue';
 import restaurantApi from '@/api/modules/restaurant'; 
+import { useRoute } from 'vue-router';
 
 const emit = defineEmits(['search-submit']);
-
+const route = useRoute();
 const allData = ref([]);
 const isFiltersOpen = ref(false);
 
@@ -13,6 +14,34 @@ const priceLevels = ['全部', '$', '$$', '$$$'];
 const priceIndex = ref(0);
 const selectedPrice = computed(() => priceLevels[priceIndex.value]);
 const selectedTags = ref([]);
+
+// 同步URL 參數到變數
+const syncInternalState =()=>{
+    const {q, city, price_level, tags} = route.query;
+
+    searchQuery.value=q||'';
+
+    if (city) {
+        selectedCity.value = Array.isArray(city) ? city : [city];
+    } else {
+        selectedCity.value = [];
+    }
+    if (price_level) {
+        const index = priceLevels.indexOf(price_level);
+        priceIndex.value = index !== -1 ? index : 0;
+    } else {
+        priceIndex.value = 0;
+    }
+    if (tags) {
+        selectedTags.value = Array.isArray(tags) ? tags : [tags];
+    } else {
+        selectedTags.value = [];
+    }
+};
+
+watch(() => route.query, () => {
+    syncInternalState();
+}, { immediate: true });
 
 // 產生選單資料
 const cityOptions = computed(() => {
@@ -26,7 +55,7 @@ const tagOptions = computed(() => {
         const tags = r.TagsStr ? r.TagsStr.split(',') : [];
         allTags.push(...tags.map(t => t.trim()));
     });
-    return [...new Set(allTags)].filter(t => t.length > 0).slice(0, 15);
+    return [...new Set(allTags)].filter(t => t.length > 0);
 });
 
 // 清除過濾功能
@@ -35,6 +64,7 @@ const clearFilters = () => {
     selectedCity.value = [];
     priceIndex.value = 0;
     selectedTags.value = [];
+    onSearch();
 };
 
 const toggleFilters = () => {
@@ -51,12 +81,24 @@ const toggleSelection = (arrayRef, item) => {
 };
 
 const onSearch = () => {
-    const params = {
-        q: searchQuery.value || '',
-        city: selectedCity.value,
-        price_level: selectedPrice.value === '全部' ? '' : selectedPrice.value,
-        tags: selectedTags.value
-    };
+    const params = {};
+    if (searchQuery.value && searchQuery.value.trim() !== '') {
+        params.q = searchQuery.value.trim();
+    }
+
+    if (selectedCity.value.length>0) {
+        params.city = [...selectedCity.value];
+    }
+
+    if (selectedPrice.value && selectedPrice.value !== '全部' && selectedPrice.value !== '') {
+        params.price_level = selectedPrice.value;
+    }
+
+    if (selectedTags.value.length > 0) {
+        params.tags = [...selectedTags.value];
+    }
+
+    console.log("LobbySearch 發送參數:", params);
 
     // 關閉面板並通知 Home.vue 執行路由跳轉
     isFiltersOpen.value = false;
@@ -83,7 +125,7 @@ onMounted(async () => {
                 <span class="icon">🔍</span>
                 <input v-model="searchQuery" placeholder="搜尋名稱、縣市或標籤..." @focus="isFiltersOpen = true"
                     @keyup.enter="onSearch" />
-                <button class="menu-btn" @click.stop="isFiltersOpen = !isFiltersOpen">
+                <button class="menu-btn" @click.stop="toggleFilters">
                     <span v-if="!isFiltersOpen">☰</span>
                     <span v-else>✕</span>
                 </button>

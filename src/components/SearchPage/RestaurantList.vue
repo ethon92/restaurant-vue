@@ -1,6 +1,6 @@
 <script setup>
-import RestaurantDetail from '@/views/RestaurantDetail.vue';
 import { useRouter } from 'vue-router';
+import ImageLoader from '../RestaurantDetail/ImageLoader.vue';
 const props = defineProps(['data']);
 const emit = defineEmits(['select-restaurant']);
 const router = useRouter();
@@ -31,8 +31,7 @@ const goBooking = (id) => {
 
     <div v-for="item in data" :key="item.ID" class="restaurant-card" @click="$emit('select-restaurant', item)">
       <div class="card-image">
-        <img :src="getImageUrl(item.CoverImage)"
-          @error="(e) => e.target.src = 'https://via.placeholder.com/150?text=Error'" alt="restaurant">
+        <ImageLoader :src="getImageUrl(item.CoverImage)" :alt="item.Name" />
       </div>
 
       <div class="card-content">
@@ -45,7 +44,13 @@ const goBooking = (id) => {
 
 
         <div class="footer">
-          <span class="custom-tag">{{ item.TagsStr || '一般餐廳' }}</span>
+          <div class="tags-wrapper">
+            <template v-if="item.TagsStr">
+              <span v-for="(tag, index) in item.TagsStr.split(',')" :key="index" class="custom-tag">{{ tag.trim()
+              }}</span>
+            </template>
+            <span v-else class="custom-tag">一般餐廳</span>
+          </div>
           <button class="custom-book" @click.stop="goBooking(item.ID)">
             立即預約
           </button>
@@ -82,13 +87,13 @@ const goBooking = (id) => {
   width: 180px;
   height: 160px;
   flex-shrink: 0;
+  overflow: hidden;
+}
+:deep(.image-container) {
+  height: 100%;
+  border-radius: 0;
 }
 
-.card-image img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
 
 .card-content {
   padding: 18px;
@@ -131,26 +136,42 @@ const goBooking = (id) => {
   /* 限制地址長度，超出顯示省略號 */
   display: -webkit-box;
   -webkit-line-clamp: 2;
+  line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
 
 .footer {
   display: flex;
+  align-items: flex-start;
   justify-content: space-between;
   align-items: center;
+  padding: 10px 0
+}
+
+.tags-wrapper {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  flex: 1;
+  margin-right: 10px;
 }
 
 .custom-tag {
   background-color: #c6851c;
   color: #fcfcfc;
-  padding: 4px 12px;
-  border-radius: 20px;
+  padding: 2px 10px;
+  border-radius: 15px;
   font-size: 0.8rem;
+  white-space: nowrap;
+  display: inline-block;
   font-weight: 600;
 }
 
 .custom-book {
+  flex-shrink: 0;
+  min-width: 120px;
+  white-space: nowrap;
   background-color: #865120;
   color: #ffffff;
   padding: 10px 42px;
