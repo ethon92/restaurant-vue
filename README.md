@@ -1,38 +1,90 @@
-# restaurant-vue
+# 餐廳預約系統 (restaurant-vue)
 
-This template should help get you started developing with Vue 3 in Vite.
+這是一個使用 Vue 3 開發的餐廳預約平台，提供會員完整的餐廳搜尋、地圖瀏覽、預約與收藏功能。
 
-## Recommended IDE Setup
+## 🚀 主要功能
 
-[VS Code](https://code.visualstudio.com/) + [Vue (Official)](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur).
+### 1. 會員管理
 
-## Recommended Browser Setup
+* **註冊與登入**：完整的身份驗證流程。
+* **密碼管理**：支援忘記密碼、重設密碼功能。
+* **帳號資訊**：個人資料總覽與編輯。
 
-- Chromium-based browsers (Chrome, Edge, Brave, etc.):
-  - [Vue.js devtools](https://chromewebstore.google.com/detail/vuejs-devtools/nhdogjmejiglipccpnnnanhbledajbpd)
-  - [Turn on Custom Object Formatter in Chrome DevTools](http://bit.ly/object-formatters)
-- Firefox:
-  - [Vue.js devtools](https://addons.mozilla.org/en-US/firefox/addon/vue-js-devtools/)
-  - [Turn on Custom Object Formatter in Firefox DevTools](https://fxdx.dev/firefox-devtools-custom-object-formatters/)
+### 2. 餐廳探索
 
-## Customize configuration
+* **餐廳介紹**：查看詳細的餐廳資訊與圖片。
+* **地圖搜尋**：透過地圖直觀尋找周邊餐廳。
+* **主題篩選**：根據特定情境搜尋餐廳，如「約會」、「下午茶」、「傳統料理」等。
+* **用戶評論**：瀏覽餐廳評價。
 
-See [Vite Configuration Reference](https://vite.dev/config/).
+### 3. 預約與收藏
 
-## Project Setup
+* **在線預約**：直接選定時間預約心儀餐廳。
+* **收藏夾**：收藏感興趣的餐廳以便快速查看。
 
-```sh
+---
+
+## 🛠️ 技術堆疊與套件 (Tech Stack)
+
+### 核心框架
+
+* **Vue.js (v3.5)**：前端主流框架，負責界面邏輯。
+* **Pinia (v3.0)**：Vue 的狀態管理工具，用於處理會員登入狀態與全局數據。
+* **Vue Router (v4.6)**：管理網站路由導覽。
+
+### 地圖與搜尋
+
+* **Leaflet (v1.9)**：強大的開源互動式地圖庫，用於餐廳位置呈現。
+* **Leaflet MarkerCluster (v1.5)**：處理地圖標記聚合，提升地圖搜尋效能。
+* **Google Maps MarkerClusterer (v2.6)**：地圖標記聚合輔助工具。
+
+### 資料通訊
+
+* **Axios (v1.13)**：處理 API 請求，負責與後端進行資料互動（如預約、登入等）。
+
+---
+
+## 💻 開發環境設定
+
+### 軟體需求
+
+* **Node.js**: `^20.19.0` 或 `>=22.12.0`
+
+### 安裝步驟
+
+1. **複製專案**
+```bash
+git clone https://github.com/ethon92/restaurant-vue.git
+cd restaurant-vue
+
+```
+
+
+2. **安裝依賴**
+```bash
 npm install
+
 ```
 
-### Compile and Hot-Reload for Development
 
-```sh
+3. **啟動開發伺服器**
+```bash
 npm run dev
+
 ```
 
-### Compile and Minify for Production
 
-```sh
+4. **專案打包**
+```bash
 npm run build
+
 ```
+
+
+
+---
+
+## 📦 專案結構 (部分)
+
+* **Vite**: 建構工具，提供極速的開發體驗。
+* **Vite Plugin Vue Devtools**: 增強開發時的調試效率。

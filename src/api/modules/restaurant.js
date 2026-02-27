@@ -54,5 +54,17 @@ const bookingRecordApi = {
         })
     }
 }
+// 取得餐廳評論
+const restaurantCommentApi= {
+    restaurantCommentList(restaurantId){
+      return service({
+        url :`/RestaurantComment/${restaurantId}`,
+        method: 'get'
+      })
+      
+    }
+
+}
 
 export const fetchBookingRecord = bookingRecordApi.fetchBookingRecord
+export const restaurantCommentList = restaurantCommentApi.restaurantCommentList

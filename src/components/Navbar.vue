@@ -1,6 +1,6 @@
 <script setup>
 import { useAuthStore } from '@/stores/auth';
-import { computed } from 'vue';
+import { computed , ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
 const authStore = useAuthStore();
@@ -21,6 +21,8 @@ const onLogout = async () => {
 
     router.push("/login");
 };
+
+const isLoggedIn = ref()
 </script>
 
 <template>

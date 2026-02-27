@@ -1,18 +1,20 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 import AppointmentSection from '@/components/AppointmentSection.vue';
-import restaurantApi from '@/api/modules/restaurant';
+import restaurantApi, { restaurantCommentList } from '@/api/modules/restaurant';
 import FaqSection from '@/components/FaqSection.vue';
 import InfoMetaItem from '@/components/RestaurantDetail/InfoMetaItem.vue';
 import DetailCard from '@/components/RestaurantDetail/DetailCard.vue';
 import AddFavoriteCard from '@/components/AddFavoriteCard.vue';
 import { useAuthStore } from '@/stores/auth';
-import { deleteFavoriteRestaurant, getFavorite }
-  from '@/api/modules/feature';
+import { deleteFavoriteRestaurant, getFavorite }from '@/api/modules/feature';
 import Navbar from '@/components/Navbar.vue';
 import TheFooter from '@/components/TheFooter.vue';
 import LoginGuideModel from '@/components/RestaurantDetail/LoginGuideModel.vue';
 import ImageLoader from '@/components/RestaurantDetail/ImageLoader.vue';
+import RestaurantCard from '@/components/HomeDetail/RestaurantCard.vue';
+import RestaurantCommentCard from '@/components/RestaurantCommentCard.vue';
+
 
 const props = defineProps({
   id: {
@@ -180,6 +182,7 @@ onMounted(() => {
           </div>
         </DetailCard>
 
+        <RestaurantCommentCard></RestaurantCommentCard>
         <FaqSection />
 
       </main>
