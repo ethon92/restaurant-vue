@@ -7,13 +7,10 @@ import Login from "@/views/auth/Login.vue";
 import Register from "@/views/auth/Register.vue";
 import ForgotPassword from "@/views/auth/ForgotPassword.vue";
 import Profile from "@/views/auth/Profile.vue";
-import VerifyIdentity from "@/views/auth/VerifyIdentity.vue";
-import ResetPassword from "@/views/auth/ResetPassword.vue";
 import SearchPage from '@/views/SearchPage.vue';
-import SearchPage from "@/views/SearchPage.vue";
 import AccountDetail from "@/views/ProfileDetail/AccountDetail.vue";
 import ChangePassword from "@/views/ProfileDetail/ChangePassword.vue";
-import UserComment from "@/views/UserComment.vue";
+import UserComment from "@/views/ProfileDetail/UserComment.vue";
 
 
 const router = createRouter({
@@ -41,11 +38,6 @@ const router = createRouter({
       name: "favoriteRestaurant",
     },
     {
-      path: "/User-Comments",
-      component: UserComment,
-      name: "userComments"
-    },
-    {
       path: "/booking-record",
       component: BookingRecord,
       name: "bookingRecord",
@@ -64,6 +56,11 @@ const router = createRouter({
       name: "profile",
       meta: { requiresAuth: true },
       children: [
+        {
+          path: "/User-Comments",
+          component: UserComment,
+          name: "userComments"
+        },
         {
           path: "booking-record",
           component: BookingRecord,

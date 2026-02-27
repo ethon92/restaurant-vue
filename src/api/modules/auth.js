@@ -17,7 +17,7 @@ import api from "../index";
 const authCommentApi = {
   memberCommentList(userId){
     return service({
-      url: `/comment/${userId}`,
+      url: `/comments/${userId}`,
       method: 'get'
     })
   }

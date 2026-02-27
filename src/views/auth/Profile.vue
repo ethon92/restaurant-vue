@@ -132,7 +132,8 @@ onMounted(loadProfileFromStore);
         :to="{ 'name': 'favoriteRestaurant' }">珍藏餐廳</RouterLink>
       <RouterLink class="tab" :class="{ active: activeTab === 'account' }" @click="activeTab = 'account'"
         :to="{ 'name': 'accountDetail' }">帳戶詳細資料</RouterLink>
-      <!-- <RouterLink class="tab" :class="{ active: activeTab === 'comment' }" @click="activeTab = 'comment'">我的評論</RouterLink> -->
+      <RouterLink class="tab" :class="{ active: activeTab === 'comment' }" @click="activeTab = 'comment'" 
+      :to="{'name': 'userComments'}">我的評論</RouterLink>
     </nav>
     <!-- Content：這裡會顯示子頁（AccountDetail / BookingRecord / FavoriteRestaurant) -->
     <section class="tab-content">
