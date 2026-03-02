@@ -49,7 +49,14 @@ const commentApi = {
             method: 'post',
             data : comment_data
         })
-    }
+    },
+    updateCommentStates(data) {
+        return service({
+            url: 'booking/comment-status',
+            method: 'put',
+            data
+        })
+    },
 }
 
 export const createFavorite = favoriteApi.createFavorite
@@ -59,3 +66,4 @@ export const deleteFavorite = favoriteApi.deleteFavorite
 export const deleteFavoriteRestaurant = favoriteApi.deleteFavoriteRestaurant
 export const getFavorite = favoriteApi.getFavorite
 export const createComment = commentApi.createComment
+export const updateCommentStates=commentApi.updateCommentStates
