@@ -8,11 +8,12 @@ import { updateProfile } from "@/api/modules/auth";
 /**
  * ✅ 從 Profile.vue 注入同一份狀態（共享）
  * - form：reactive 物件（可直接 form.name / form.email）
- * - errorMsg / okMsg：ref（要用 .value）
+ * - errorMsg / okMsg / isEditing：ref（在 template 會自動解包，但在 js 內要用 .value）
  * ⚠️ 防呆：如果此頁不是掛在 Profile 子路由下（沒有 provide），就會拿不到注入值
  */
 const form = inject("profileForm", null);
 const display = inject("profileDisplay", null);
+
 const isEditing = inject("profileIsEditing", ref(false));
 const startEdit = inject("profileStartEdit", () => { });
 const cancelEdit = inject("profileCancelEdit", () => { });
@@ -20,22 +21,18 @@ const cancelEdit = inject("profileCancelEdit", () => { });
 const errorMsg = inject("profileErrorMsg", ref(""));
 const okMsg = inject("profileOkMsg", ref(""));
 
-const canEdit = computed(() => !!isEditing.value);
-
-const cancelEditLocal = () => {
-    cancelEdit();
-    currentPassword.value = "";
-};
-
-
 if (!form) {
     console.warn("[AccountDetail] profileForm not provided. Make sure this page is under /profile route.");
 }
 
+const canEdit = computed(() => !!isEditing.value);
 
 const router = useRouter();
 const auth = useAuthStore();
 
+/* =========================
+ *  Local state
+ * ========================= */
 /** 儲存按鈕 loading */
 const saving = ref(false);
 /** 目前密碼：敏感操作（儲存個資）前驗證 */
@@ -47,11 +44,14 @@ const fieldErrors = ref({
     phone: "",
     currentPassword: "",
 });
-
 /** 每次驗證前清空 */
 const clearFieldErrors = () => {
     fieldErrors.value = { name: "", phone: "", currentPassword: "" };
 };
+
+/* =========================
+ *  Focus helpers
+ * ========================= */
 
 /** 用 ref 綁到 input DOM，才能 scroll/focus */
 const nameInputRef = ref(null);
@@ -76,22 +76,27 @@ const focusField = async (key) => {
     // ✅ 元件 ref 會是 component instance：它有 $el（DOM），也可能 expose focus()
     const dom = el?.$el ? el.$el : el;
 
-    if (dom?.scrollIntoView) {
-        dom.scrollIntoView({ behavior: "smooth", block: "center" });
-    }
+    dom?.scrollIntoView?.({ behavior: "smooth", block: "center" });
 
     // ✅ 如果有 expose focus() 就呼叫（PasswordField 會提供）
-    if (typeof el.focus === "function") {
-        el.focus();
-    } else if (typeof dom.focus === "function") {
-        dom.focus();
-    }
+    if (typeof el.focus === "function") el.focus();
+    else if (typeof dom.focus === "function") dom.focus();
+};
+
+/* =========================
+ *  Edit control
+ * ========================= */
+const cancelEditLocal = () => {
+    cancelEdit();
+    currentPassword.value = "";
+    clearFieldErrors();
 };
 
 
-/**
- * 儲存個人資料（需要先驗證目前密碼）
- */
+/* =========================
+ *  Save profile
+ *  - 儲存前要輸入目前密碼（敏感操作）
+ * ========================= */
 const onSave = async () => {
     errorMsg.value = "";
     okMsg.value = "";
@@ -99,21 +104,26 @@ const onSave = async () => {
     // ✅ 清欄位錯誤
     clearFieldErrors();
 
-    // 先做最基本檢查：名字不能空
+    if (!form) {
+        errorMsg.value = "頁面狀態初始化失敗，請回到 Profile 重新進入。";
+        return;
+    }
+
+    // 1)先做最基本檢查：名字不能空
     if (!form.name) {
         fieldErrors.value.name = "名字不能為空";
         await focusField("name");
         return;
     }
 
-    // 檢查手機格式（允許空）
+    // 2)檢查手機格式（允許空）
     if (form.phone && !/^09\d{8}$/.test(form.phone)) {
         fieldErrors.value.phone = "手機格式不正確（需為 09 開頭共 10 碼）";
         await focusField("phone");
         return;
     }
 
-    // 儲存前必須輸入目前密碼
+    // 3)儲存前必須輸入目前密碼（後端驗證）
     if (!currentPassword.value) {
         fieldErrors.value.currentPassword = "請先輸入目前密碼才能儲存";
         await focusField("currentPassword");
@@ -134,6 +144,7 @@ const onSave = async () => {
         });
 
         okMsg.value = "已儲存";
+
         // ✅ 儲存成功：把「已儲存資料」同步到 display（header/預覽就更新）
         if (display) {
             display.name = form.name;
@@ -147,7 +158,7 @@ const onSave = async () => {
 
         currentPassword.value = ""; // ✅ 存完清空比較安全
 
-        // ✅ 4) 更新後讓 store 的 me 也跟著更新（或直接重新 fetch）
+        // ✅ 更新後讓 store 的 me 也跟著更新（或直接重新 fetch）
         // 方案 A：直接更新 store.me（快）
         if (auth.me) {
             auth.$patch({
@@ -178,17 +189,19 @@ const onSave = async () => {
 };
 
 
-/**
- * ✅ 修改密碼：導到已登入的 ChangePassword（/profile/change-password）
- */
+
+/* =========================
+ *  Actions
+ * ========================= */
+// ✅ 修改密碼：導到已登入的 ChangePassword（/profile/change-password）
+
 const goChangePassword = () => {
     router.push({ name: "changePassword" });
 };
 
 
-/**
- * 登出：統一交給 store.logout 清掉 localStorage + me
- */
+// 登出：統一交給 store.logout 清掉 localStorage + me
+
 const onLogout = async () => {
     try {
         await auth.logout(); // ✅ 會清 localStorage + me

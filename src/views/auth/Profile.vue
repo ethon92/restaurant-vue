@@ -1,25 +1,34 @@
 <script setup>
-import { computed, onMounted, reactive, ref, provide } from "vue";
+import { computed, onMounted, onBeforeUnmount, reactive, ref, provide } from "vue";
 import { useRouter } from 'vue-router'
 import { useAuthStore } from "@/stores/auth";
-import { uploadAvatar, getAvatarUrl, removeAvatar as removeAvatarAPI, } from "@/api/modules/auth";
 import Navbar from '@/components/Navbar.vue';
+import { uploadAvatar, getAvatarUrl, removeAvatar as removeAvatarAPI, } from "@/api/modules/auth";
 
 
+/* =========================
+ *  Auth / Router
+ * ========================= */
 const router = useRouter()
 const auth = useAuthStore();
 
+/* =========================
+ *  Tabs / Message
+ * ========================= */
 /** Tabs：目前在哪個分頁 */
 const activeTab = ref("booking"); // 預設顯示「訂位」
-
 /** 共用訊息（成功/失敗提示） */
 const errorMsg = ref("");
 const okMsg = ref("");
 
-/**
- * 共用表單資料（可編輯）
- * 之後 AccountDetail 要 v-model 這些欄位，所以要放 reactive
- */
+
+/* =========================
+ *  Profile 共用表單資料
+ *  - form: 可編輯（子頁 v-model）
+ *  - display: 顯示用（header/非編輯狀態）
+ *  - isEditing: 編輯狀態
+ * ========================= */
+
 const form = reactive({
   name: "",
   email: "",
@@ -42,10 +51,12 @@ const isEditing = ref(false);
 const startEdit = () => {
   errorMsg.value = "";
   okMsg.value = "";
+
   form.name = display.name;
   form.email = display.email;
   form.birthday = display.birthday;
   form.phone = display.phone;
+
   isEditing.value = true;
 };
 
@@ -57,20 +68,34 @@ const cancelEdit = () => {
   isEditing.value = false;
 };
 
-/**
- * Profile 這層負責「拉一次會員資料」並把可編輯 form 提供給子頁
- * 好處：
- * - 子頁（AccountDetail/BookingRecord/...）不用各自再打一次 /auth/profile
- * - 所有子頁看到的是同一份狀態（資料一致）
- */
+/* =========================
+ *  Provide to child routes
+ *  Profile 這層負責「拉一次會員資料」並把可編輯 form 提供給子頁
+ *  子頁（AccountDetail/BookingRecord/...）共用同一份狀態
+ * ========================= */
 provide("profileForm", form);
-provide("profileErrorMsg", errorMsg);
-provide("profileOkMsg", okMsg);
 provide("profileDisplay", display);
 provide("profileIsEditing", isEditing);
 provide("profileStartEdit", startEdit);
 provide("profileCancelEdit", cancelEdit);
+provide("profileErrorMsg", errorMsg);
+provide("profileOkMsg", okMsg);
 
+/* =========================
+ *  Load profile (me)
+ *  - 只負責抓會員資料並同步到 form/display
+ * ========================= */
+const syncMeToState = () => {
+  form.name = auth.me?.name ?? "";
+  form.email = auth.me?.email ?? "";
+  form.birthday = auth.me?.birthday ?? "";
+  form.phone = auth.me?.phone ?? "";
+
+  display.name = form.name;
+  display.email = form.email;
+  display.birthday = form.birthday;
+  display.phone = form.phone;
+};
 
 
 const loadProfileFromStore = async () => {
@@ -78,40 +103,25 @@ const loadProfileFromStore = async () => {
   errorMsg.value = "";
   okMsg.value = "";
 
-  // ✅ 1) 用 Pinia 判斷登入，不直接讀 localStorage
+  // ✅ 用 Pinia 判斷登入（router guard 也會擋，但這裡再保險一次）
   if (!auth.isLoggedIn) {
     router.push("/login");
     return;
   }
 
   try {
-    // ✅ 2) 確保 me 有資料（沒有就打 /auth/profile）
-    if (!auth.me) {
-      await auth.fetchMe();
-    }
-    // ✅ 3) 把 store 的 me 同步到可編輯的 form
-    form.name = auth.me?.name ?? "";
-    form.email = auth.me?.email ?? "";
-    form.birthday = auth.me?.birthday ?? "";
-    form.phone = auth.me?.phone ?? "";
-
-    // ✅ 塞 display（header/預覽都用它）
-    display.name = form.name;
-    display.email = form.email;
-    display.birthday = form.birthday;
-    display.phone = form.phone;
+    // ✅ 確保 me 有資料（沒有就打 /auth/profile）
+    if (!auth.me) await auth.fetchMe();
+    syncMeToState();
   } catch (e) {
     errorMsg.value = "取得會員資料失敗";
   }
 };
 
+/* =========================
+ *  Avatar state
+ * ========================= */
 
-onMounted(async () => {
-  await loadProfileFromStore();
-  await loadAvatar();
-});
-
-// ===== Avatar state =====
 const fileInput = ref(null);
 const avatarUrl = ref("");         // 後端回傳的完整 url
 const avatarPreviewUrl = ref("");  // 選檔後預覽（短暫）
@@ -121,6 +131,8 @@ const avatarShown = computed(() => avatarPreviewUrl.value || avatarUrl.value || 
 
 // 選檔
 const triggerPickAvatar = () => fileInput.value?.click();
+
+// 重新抓後端頭貼
 const loadAvatar = async () => {
   if (!auth.userId) return;
   try {
@@ -135,7 +147,7 @@ const loadAvatar = async () => {
 };
 
 
-// 移除
+/** 移除頭貼 */
 const removeAvatar = async () => {
   if (!auth.userId) return;
 
@@ -143,24 +155,22 @@ const removeAvatar = async () => {
     await removeAvatarAPI(auth.userId);
     okMsg.value = "已移除大頭貼";
     avatarUrl.value = "";
+    // ✅ 清掉預覽 + revoke（避免 memory leak）
+    if (avatarPreviewUrl.value) URL.revokeObjectURL(avatarPreviewUrl.value);
     avatarPreviewUrl.value = "";
   } catch (err) {
     errorMsg.value = "移除失敗";
   }
 };
 
-// 進頁載入已保存的大頭貼
-/****** 
-onMounted(() => {
-  const saved = localStorage.getItem(avatarKey.value);
-  if (saved) avatarDataUrl.value = saved;
-});
-******/
 
 // （可選）也把它提供給子頁用
 provide("profileAvatarUrl", avatarUrl);
 provide("profileRemoveAvatar", removeAvatar);
 
+/* =========================
+ *  Avatar modal (click to zoom)
+ * ========================= */
 const showAvatarModal = ref(false);
 
 const openAvatarModal = () => {
@@ -170,36 +180,49 @@ const openAvatarModal = () => {
 const closeAvatarModal = () => {
   showAvatarModal.value = false;
 };
+const onKeydown = (e) => {
+  if (e.key === "Escape") closeAvatarModal();
+};
 
 
+/* =========================
+ *  Pick avatar file
+ * ========================= */
 const onPickAvatar = async (e) => {
   const file = e.target.files?.[0];
   if (!file) return;
 
+  errorMsg.value = "";
+  okMsg.value = "";
+
   if (!file.type.startsWith("image/")) {
     errorMsg.value = "請上傳圖片檔";
+    e.target.value = "";
     return;
   }
   if (file.size > 2 * 1024 * 1024) {
     errorMsg.value = "圖片請小於 2MB";
+    e.target.value = "";
     return;
   }
   if (!auth.userId) {
     errorMsg.value = "尚未登入";
+    e.target.value = "";
     return;
   }
 
-  // 先顯示預覽
+  // ✅ 先清掉舊的 preview url（避免累積 memory leak）
+  if (avatarPreviewUrl.value) URL.revokeObjectURL(avatarPreviewUrl.value);
   avatarPreviewUrl.value = URL.createObjectURL(file);
 
   try {
     await uploadAvatar(auth.userId, file);
     okMsg.value = "大頭貼已更新";
 
-    // 上傳成功後，重新拿一次後端 URL
+    // ✅ 上傳成功後，重新抓後端 URL（用後端圖取代 preview）
     await loadAvatar();
 
-    // 預覽清掉，改用後端圖（避免 memory leak）
+    // ✅ 預覽清掉（改用後端圖）
     URL.revokeObjectURL(avatarPreviewUrl.value);
     avatarPreviewUrl.value = "";
   } catch (err) {
@@ -209,11 +232,26 @@ const onPickAvatar = async (e) => {
   }
 };
 
+/* =========================
+ *  Lifecycle
+ * ========================= */
+onMounted(async () => {
+  window.addEventListener("keydown", onKeydown);
+  await loadProfileFromStore();
+  await loadAvatar();
+});
+
+onBeforeUnmount(() => {
+  window.removeEventListener("keydown", onKeydown);
+  // ✅ 離開頁面也順便 revoke
+  if (avatarPreviewUrl.value) URL.revokeObjectURL(avatarPreviewUrl.value);
+});
 </script>
 
 <template>
   <div class="profile-page">
     <Navbar />
+
     <!-- Header -->
     <section class="profile-header">
 
@@ -227,6 +265,7 @@ const onPickAvatar = async (e) => {
 
         <!-- 隱藏 input -->
         <input ref="fileInput" type="file" accept="image/*" class="hidden-file" @change="onPickAvatar" />
+
         <!-- 更換 -->
         <button class="avatar-btn" type="button" title="更換大頭貼" @click.stop="triggerPickAvatar">📷</button>
 
@@ -258,8 +297,13 @@ const onPickAvatar = async (e) => {
     <section class="tab-content">
       <!-- ✅ 子頁會用 inject 拿到 profileForm/profileErrorMsg/profileOkMsg -->
       <RouterView></RouterView>
+      <!-- ✅ 全域 toast統一訊息顯示 -->
+      <p v-if="errorMsg" class="error">{{ errorMsg }}</p>
+      <p v-if="okMsg" class="ok">{{ okMsg }}</p>
     </section>
   </div>
+
+  <!-- Avatar Modal -->
   <Teleport to="body">
     <div v-if="showAvatarModal" class="modal-mask" @click="closeAvatarModal">
       <div class="modal-card" @click.stop>
