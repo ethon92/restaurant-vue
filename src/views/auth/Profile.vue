@@ -99,6 +99,8 @@ const syncMeToState = () => {
 
 
 const loadProfileFromStore = async () => {
+  // 進入profile後，直接轉往訂位歷史紀錄頁面
+  router.push("/profile/booking-record");
   // 每次載入先清訊息
   errorMsg.value = "";
   okMsg.value = "";
@@ -249,8 +251,8 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
+  <Navbar />
   <div class="profile-page">
-    <Navbar />
 
     <!-- Header -->
     <section class="profile-header">

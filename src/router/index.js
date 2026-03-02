@@ -12,7 +12,6 @@ import AccountDetail from "@/views/ProfileDetail/AccountDetail.vue";
 import ChangePassword from "@/views/ProfileDetail/ChangePassword.vue";
 import UserComment from "@/views/UserComment.vue";
 
-
 const router = createRouter({
   history: createWebHistory(),
   routes: [
@@ -40,7 +39,7 @@ const router = createRouter({
     {
       path: "/User-Comments",
       component: UserComment,
-      name: "userComments"
+      name: "userComments",
     },
     {
       path: "/booking-record",
@@ -61,6 +60,11 @@ const router = createRouter({
       name: "profile",
       meta: { requiresAuth: true },
       children: [
+        // ✅ 進 /profile 自動顯示訂位紀錄
+        {
+          path: "",
+          redirect: { name: "bookingRecord" },
+        },
         {
           path: "booking-record",
           component: BookingRecord,
