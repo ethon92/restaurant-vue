@@ -1,6 +1,6 @@
 <script setup>
 import { computed, onMounted, onBeforeUnmount, reactive, ref, provide } from "vue";
-import { useRouter } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
 import { useAuthStore } from "@/stores/auth";
 import Navbar from '@/components/Navbar.vue';
 import { uploadAvatar, getAvatarUrl, removeAvatar as removeAvatarAPI, } from "@/api/modules/auth";
@@ -9,7 +9,8 @@ import { uploadAvatar, getAvatarUrl, removeAvatar as removeAvatarAPI, } from "@/
 /* =========================
  *  Auth / Router
  * ========================= */
-const router = useRouter()
+const router = useRouter();
+const route = useRoute();
 const auth = useAuthStore();
 
 /* =========================
@@ -17,26 +18,20 @@ const auth = useAuthStore();
  * ========================= */
 /** Tabs：目前在哪個分頁 */
 const activeTab = ref("booking"); // 預設顯示「訂位」
-/** 共用訊息（成功/失敗提示） */
+/** Profile 層級共用訊息（成功/失敗提示）
+ *  - 主要用在：拉會員資料 / 頭貼上傳、移除
+ *  - 帳戶詳細資料（儲存個資）的提示，放在 AccountDetail.vue 自己管
+ */
 const errorMsg = ref("");
 const okMsg = ref("");
 
 
 /* =========================
- *  Profile 共用表單資料
- *  - form: 可編輯（子頁 v-model）
- *  - display: 顯示用（header/非編輯狀態）
- *  - isEditing: 編輯狀態
+ *  Display（顯示用）
+ *  - header/tab 非編輯狀態要顯示的資料
+ *  - 真正資料來源是 auth.me
  * ========================= */
 
-const form = reactive({
-  name: "",
-  email: "",
-  birthday: "", // YYYY-MM-DD
-  phone: "",  // 09xxxxxxxx
-});
-
-/** 顯示用資料（不會跟著輸入即時變動）*/
 const display = reactive({
   name: "",
   email: "",
@@ -44,63 +39,46 @@ const display = reactive({
   phone: "",
 });
 
-/** 是否為編輯模式（預設 false：只能看不能改）*/
-const isEditing = ref(false);
-
-/** 一鍵開始編輯：把 display 複製到 form（開始改）*/
-const startEdit = () => {
-  errorMsg.value = "";
-  okMsg.value = "";
-
-  form.name = display.name;
-  form.email = display.email;
-  form.birthday = display.birthday;
-  form.phone = display.phone;
-
-  isEditing.value = true;
+/** 將 store.me 同步到 display（顯示用） */
+const syncMeToDisplay = () => {
+  display.name = auth.me?.name ?? "";
+  display.email = auth.me?.email ?? "";
+  display.birthday = auth.me?.birthday ?? "";
+  display.phone = auth.me?.phone ?? "";
 };
 
-/** 取消編輯：不動 display，直接退出 */
-
-const cancelEdit = () => {
-  errorMsg.value = "";
-  okMsg.value = "";
-  isEditing.value = false;
+/**
+ * ✅ 提供給子頁：更新 display（讓 header 立即更新）
+ * - 子頁存檔成功時呼叫：updateDisplay({ name, phone, birthday })
+ * - 只更新有傳的欄位（partial update）
+ */
+const updateDisplay = (patch = {}) => {
+  if (patch.name !== undefined) display.name = patch.name;
+  if (patch.email !== undefined) display.email = patch.email;
+  if (patch.birthday !== undefined) display.birthday = patch.birthday;
+  if (patch.phone !== undefined) display.phone = patch.phone;
 };
 
 /* =========================
  *  Provide to child routes
- *  Profile 這層負責「拉一次會員資料」並把可編輯 form 提供給子頁
- *  子頁（AccountDetail/BookingRecord/...）共用同一份狀態
+ *  Profile 這層負責
+ *  1) 拉一次會員資料（auth.fetchMe）
+ *  2) 同步到 display
+ *  3) 把 display 與 updateDisplay 提供給子頁（AccountDetail / BookingRecord / FavoriteRestaurant）
  * ========================= */
-provide("profileForm", form);
 provide("profileDisplay", display);
-provide("profileIsEditing", isEditing);
-provide("profileStartEdit", startEdit);
-provide("profileCancelEdit", cancelEdit);
-provide("profileErrorMsg", errorMsg);
-provide("profileOkMsg", okMsg);
+provide("profileUpdateDisplay", updateDisplay);
 
 /* =========================
  *  Load profile (me)
- *  - 只負責抓會員資料並同步到 form/display
+ *  - 只負責抓會員資料並同步到 display
  * ========================= */
-const syncMeToState = () => {
-  form.name = auth.me?.name ?? "";
-  form.email = auth.me?.email ?? "";
-  form.birthday = auth.me?.birthday ?? "";
-  form.phone = auth.me?.phone ?? "";
-
-  display.name = form.name;
-  display.email = form.email;
-  display.birthday = form.birthday;
-  display.phone = form.phone;
-};
-
-
 const loadProfileFromStore = async () => {
-  // 進入profile後，直接轉往訂位歷史紀錄頁面
-  router.push("/profile/booking-record");
+  // ✅ 只有在 /profile（沒有子路由）時，才導去 booking-record
+  // 避免：想進 /profile/account-detail 卻被強制導回 booking-record
+  if (route.path === "/profile") {
+    router.replace("/profile/booking-record");
+  }
   // 每次載入先清訊息
   errorMsg.value = "";
   okMsg.value = "";
@@ -114,7 +92,7 @@ const loadProfileFromStore = async () => {
   try {
     // ✅ 確保 me 有資料（沒有就打 /auth/profile）
     if (!auth.me) await auth.fetchMe();
-    syncMeToState();
+    syncMeToDisplay();
   } catch (e) {
     errorMsg.value = "取得會員資料失敗";
   }
@@ -128,8 +106,9 @@ const fileInput = ref(null);
 const avatarUrl = ref("");         // 後端回傳的完整 url
 const avatarPreviewUrl = ref("");  // 選檔後預覽（短暫）
 
-// 顯示用：預覽 > 後端URL > 空（走預設）
-const avatarShown = computed(() => avatarPreviewUrl.value || avatarUrl.value || "");
+// 顯示用：預覽 > 後端URL > 空（走預設icon）
+const avatarShown = computed(
+  () => avatarPreviewUrl.value || avatarUrl.value || "");
 
 // 選檔
 const triggerPickAvatar = () => fileInput.value?.click();
@@ -165,8 +144,7 @@ const removeAvatar = async () => {
   }
 };
 
-
-// （可選）也把它提供給子頁用
+// （可選）提供給子頁用
 provide("profileAvatarUrl", avatarUrl);
 provide("profileRemoveAvatar", removeAvatar);
 
@@ -185,7 +163,6 @@ const closeAvatarModal = () => {
 const onKeydown = (e) => {
   if (e.key === "Escape") closeAvatarModal();
 };
-
 
 /* =========================
  *  Pick avatar file
@@ -253,10 +230,8 @@ onBeforeUnmount(() => {
 <template>
   <Navbar />
   <div class="profile-page">
-
     <!-- Header -->
     <section class="profile-header">
-
       <div class="avatar-wrap">
         <!-- 有圖片就顯示圖片，沒有就顯示預設 icon -->
         <!-- 只有這層裁圓 -->
@@ -276,7 +251,6 @@ onBeforeUnmount(() => {
           @click.stop="removeAvatar">✕</button>
       </div>
 
-
       <div class="header-text">
         <!-- form.name 來自共用 reactive -->
         <h1 class="title">{{ display.name ? `${display.name} 您好` : "您好" }}</h1>
@@ -295,11 +269,12 @@ onBeforeUnmount(() => {
         :to="{ 'name': 'accountDetail' }">帳戶詳細資料</RouterLink>
       <!-- <RouterLink class="tab" :class="{ active: activeTab === 'comment' }" @click="activeTab = 'comment'">我的評論</RouterLink> -->
     </nav>
-    <!-- Content：這裡會顯示子頁（AccountDetail / BookingRecord / FavoriteRestaurant) -->
+    <!-- 子頁（AccountDetail / BookingRecord / FavoriteRestaurant) -->
     <section class="tab-content">
       <!-- ✅ 子頁會用 inject 拿到 profileForm/profileErrorMsg/profileOkMsg -->
       <RouterView></RouterView>
-      <!-- ✅ 全域 toast統一訊息顯示 -->
+
+      <!-- ✅ Profile 層級提示（抓資料/頭貼） -->
       <p v-if="errorMsg" class="error">{{ errorMsg }}</p>
       <p v-if="okMsg" class="ok">{{ okMsg }}</p>
     </section>
