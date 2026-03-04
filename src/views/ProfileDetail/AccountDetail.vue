@@ -1,43 +1,71 @@
 <script setup>
-import { ref, inject, computed, nextTick } from "vue";
+import { reactive, ref, inject, computed, nextTick } from "vue";
 import { useRouter } from "vue-router";
 import { useAuthStore } from "@/stores/auth";
 import PasswordField from "@/components/PasswordField.vue";
 import { updateProfile } from "@/api/modules/auth";
 
-/**
- * ✅ 從 Profile.vue 注入同一份狀態（共享）
- * - form：reactive 物件（可直接 form.name / form.email）
- * - errorMsg / okMsg：ref（要用 .value）
- * ⚠️ 防呆：如果此頁不是掛在 Profile 子路由下（沒有 provide），就會拿不到注入值
- */
-const form = inject("profileForm", null);
+/* =========================
+ *  Inject from Profile
+ * ========================= */
+/** Profile 提供的顯示用資料（header/非編輯狀態） */
 const display = inject("profileDisplay", null);
-const isEditing = inject("profileIsEditing", ref(false));
-const startEdit = inject("profileStartEdit", () => { });
-const cancelEdit = inject("profileCancelEdit", () => { });
+/** Profile 提供的更新 display 方法（讓 header 立即更新） */
+const updateDisplay = inject("profileUpdateDisplay", null);
 
-const errorMsg = inject("profileErrorMsg", ref(""));
-const okMsg = inject("profileOkMsg", ref(""));
+/* =========================
+ *  Local edit state（只屬於 AccountDetail）
+ * ========================= */
+const isEditing = ref(false);
+const errorMsg = ref("");
+const okMsg = ref("");
 
-const canEdit = computed(() => !!isEditing.value);
+const canEdit = computed(() => isEditing.value);
 
-const cancelEditLocal = () => {
-    cancelEdit();
-    currentPassword.value = "";
+/**
+ * ✅ form：帳戶詳細頁的「編輯草稿」
+ * - startEdit 時才把 display/auth.me 拷貝進來
+ */
+const form = reactive({
+    name: "",
+    email: "",
+    birthday: "",
+    phone: "",
+});
+
+/** 開始編輯：把 display（已儲存）拷貝到 form（草稿） */
+const startEdit = () => {
+    // 清提示
+    errorMsg.value = "";
+    okMsg.value = "";
+
+    // display 可能還沒注入成功，所以也用 auth.me 當備援來源
+    const src = display || auth.me || {};
+
+    form.name = src.name ?? "";
+    form.email = src.email ?? "";
+    form.birthday = src.birthday ?? "";
+    form.phone = src.phone ?? "";
+
+    isEditing.value = true;
 };
 
-
-if (!form) {
-    console.warn("[AccountDetail] profileForm not provided. Make sure this page is under /profile route.");
-}
-
+/** 取消編輯：清提示 + 離開編輯模式（草稿不一定要清，依你喜好） */
+const cancelEdit = () => {
+    errorMsg.value = "";
+    okMsg.value = "";
+    isEditing.value = false;
+};
 
 const router = useRouter();
 const auth = useAuthStore();
 
+/* =========================
+ *  Local state
+ * ========================= */
 /** 儲存按鈕 loading */
 const saving = ref(false);
+
 /** 目前密碼：敏感操作（儲存個資）前驗證 */
 const currentPassword = ref("");
 
@@ -47,11 +75,14 @@ const fieldErrors = ref({
     phone: "",
     currentPassword: "",
 });
-
 /** 每次驗證前清空 */
 const clearFieldErrors = () => {
     fieldErrors.value = { name: "", phone: "", currentPassword: "" };
 };
+
+/* =========================
+ *  Focus helpers
+ * ========================= */
 
 /** 用 ref 綁到 input DOM，才能 scroll/focus */
 const nameInputRef = ref(null);
@@ -76,22 +107,26 @@ const focusField = async (key) => {
     // ✅ 元件 ref 會是 component instance：它有 $el（DOM），也可能 expose focus()
     const dom = el?.$el ? el.$el : el;
 
-    if (dom?.scrollIntoView) {
-        dom.scrollIntoView({ behavior: "smooth", block: "center" });
-    }
+    dom?.scrollIntoView?.({ behavior: "smooth", block: "center" });
 
     // ✅ 如果有 expose focus() 就呼叫（PasswordField 會提供）
-    if (typeof el.focus === "function") {
-        el.focus();
-    } else if (typeof dom.focus === "function") {
-        dom.focus();
-    }
+    if (typeof el.focus === "function") el.focus();
+    else if (typeof dom.focus === "function") dom.focus();
 };
 
+/* =========================
+ *  Edit control
+ * ========================= */
+const cancelEditLocal = () => {
+    cancelEdit();
+    currentPassword.value = "";
+    clearFieldErrors();
+};
 
-/**
- * 儲存個人資料（需要先驗證目前密碼）
- */
+/* =========================
+ *  Save profile
+ *  - 儲存前要輸入目前密碼（敏感操作）
+ * ========================= */
 const onSave = async () => {
     errorMsg.value = "";
     okMsg.value = "";
@@ -99,27 +134,32 @@ const onSave = async () => {
     // ✅ 清欄位錯誤
     clearFieldErrors();
 
-    // 先做最基本檢查：名字不能空
+    // ✅ 防呆：如果不是掛在 Profile 子路由下，會拿不到 display / updateDisplay
+    if (!display) {
+        errorMsg.value = "頁面狀態初始化失敗，請回到 Profile 重新進入。";
+        return;
+    }
+
+    // 1)先做最基本檢查：名字不能空
     if (!form.name) {
         fieldErrors.value.name = "名字不能為空";
         await focusField("name");
         return;
     }
 
-    // 檢查手機格式（允許空）
+    // 2)檢查手機格式（允許空）
     if (form.phone && !/^09\d{8}$/.test(form.phone)) {
         fieldErrors.value.phone = "手機格式不正確（需為 09 開頭共 10 碼）";
         await focusField("phone");
         return;
     }
 
-    // 儲存前必須輸入目前密碼
+    // 3)儲存前必須輸入目前密碼（後端驗證）
     if (!currentPassword.value) {
         fieldErrors.value.currentPassword = "請先輸入目前密碼才能儲存";
         await focusField("currentPassword");
         return;
     }
-
 
     saving.value = true;
     try {
@@ -134,21 +174,24 @@ const onSave = async () => {
         });
 
         okMsg.value = "已儲存";
-        // ✅ 儲存成功：把「已儲存資料」同步到 display（header/預覽就更新）
-        if (display) {
+
+        // ✅ 1) 更新 Profile header 的 display
+        if (typeof updateDisplay === "function") {
+            updateDisplay({
+                name: form.name,
+                email: form.email,
+                birthday: form.birthday,
+                phone: form.phone,
+            });
+        } else {
+            // 直接改 display（同一個 reactive 物件）
             display.name = form.name;
             display.email = form.email;
             display.birthday = form.birthday;
             display.phone = form.phone;
         }
 
-        // ✅ 關閉編輯模式
-        isEditing.value = false;
-
-        currentPassword.value = ""; // ✅ 存完清空比較安全
-
-        // ✅ 4) 更新後讓 store 的 me 也跟著更新（或直接重新 fetch）
-        // 方案 A：直接更新 store.me（快）
+        // ✅ 更新tore.me（全站資料來源）
         if (auth.me) {
             auth.$patch({
                 me: {
@@ -159,9 +202,12 @@ const onSave = async () => {
                 },
             });
         } else {
-            // 方案 B：重新抓一次（穩）
             await auth.fetchMe();
         }
+
+        // ✅ 關閉編輯模式
+        isEditing.value = false;
+        currentPassword.value = ""; // ✅ 存完清空比較安全
     } catch (e) {
         const detail = e?.response?.data?.detail;
 
@@ -177,31 +223,33 @@ const onSave = async () => {
     }
 };
 
+/* =========================
+ *  Actions
+ * ========================= */
+// ✅ 修改密碼：導到已登入的 ChangePassword（/profile/change-password）
 
-/**
- * ✅ 修改密碼：導到已登入的 ChangePassword（/profile/change-password）
- */
 const goChangePassword = () => {
     router.push({ name: "changePassword" });
 };
 
 
-/**
- * 登出：統一交給 store.logout 清掉 localStorage + me
- */
+// 登出：統一交給 store.logout 清掉 localStorage + me
+
 const onLogout = async () => {
     try {
         await auth.logout(); // ✅ 會清 localStorage + me
     } catch (e) { }
-
     router.push("/login");
 };
 </script>
 
-
 <template>
-    <!-- 帳戶詳細資料 -->
-    <div class="card">
+    <!-- 防呆：沒有 display 代表不是在 Profile 子路由下 -->
+    <div v-if="!display" class="card">
+        <p class="error">頁面狀態初始化失敗，請回到 Profile 重新進入。</p>
+    </div>
+
+    <div v-else class="card">
         <div class="card-head">
             <h2>關於我</h2>
 
@@ -223,6 +271,7 @@ const onLogout = async () => {
                 </template>
             </div>
         </div>
+
         <p class="muted">你在這裡輸入的資訊會在之後預約時分享給餐廳。</p>
 
         <div class="form">
@@ -233,7 +282,6 @@ const onLogout = async () => {
                     :class="{ 'input-error': fieldErrors.name }" type="text" placeholder="請輸入名字"
                     @input="fieldErrors.name = ''" />
                 <p v-if="fieldErrors.name" class="field-error">{{ fieldErrors.name }}</p>
-
             </label>
 
             <label class="label">
@@ -248,7 +296,6 @@ const onLogout = async () => {
                     :class="{ 'input-error': fieldErrors.phone }" type="tel" inputmode="numeric" maxlength="10"
                     placeholder="例如：0912345678" @input="fieldErrors.phone = ''" />
                 <p v-if="fieldErrors.phone" class="field-error">{{ fieldErrors.phone }}</p>
-
             </label>
 
             <label class="label">
@@ -276,6 +323,7 @@ const onLogout = async () => {
                 </button>
             </div>
 
+            <!-- AccountDetail 自己的提示（儲存成功/失敗） -->
             <p v-if="errorMsg" class="error">{{ errorMsg }}</p>
             <p v-if="okMsg" class="ok">{{ okMsg }}</p>
         </div>

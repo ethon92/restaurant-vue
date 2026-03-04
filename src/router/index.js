@@ -7,11 +7,10 @@ import Login from "@/views/auth/Login.vue";
 import Register from "@/views/auth/Register.vue";
 import ForgotPassword from "@/views/auth/ForgotPassword.vue";
 import Profile from "@/views/auth/Profile.vue";
-import SearchPage from '@/views/SearchPage.vue';
+import SearchPage from "@/views/SearchPage.vue";
 import AccountDetail from "@/views/ProfileDetail/AccountDetail.vue";
 import ChangePassword from "@/views/ProfileDetail/ChangePassword.vue";
 import UserComment from "@/views/ProfileDetail/UserComment.vue";
-
 
 const router = createRouter({
   history: createWebHistory(),
@@ -38,6 +37,11 @@ const router = createRouter({
       name: "favoriteRestaurant",
     },
     {
+      path: "/User-Comments",
+      component: UserComment,
+      name: "userComments",
+    },
+    {
       path: "/booking-record",
       component: BookingRecord,
       name: "bookingRecord",
@@ -56,10 +60,15 @@ const router = createRouter({
       name: "profile",
       meta: { requiresAuth: true },
       children: [
+        // ✅ 進 /profile 自動顯示訂位紀錄
+        {
+          path: "",
+          redirect: { name: "bookingRecord" },
+        },
         {
           path: "/User-Comments",
           component: UserComment,
-          name: "userComments"
+          name: "userComments",
         },
         {
           path: "booking-record",
