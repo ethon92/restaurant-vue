@@ -265,10 +265,10 @@ onBeforeUnmount(() => {
         :to="{ 'name': 'bookingRecord' }">訂位紀錄</RouterLink>
       <RouterLink class="tab" :class="{ active: activeTab === 'favorite' }" @click="activeTab = 'favorite'"
         :to="{ 'name': 'favoriteRestaurant' }">珍藏餐廳</RouterLink>
+      <RouterLink class="tab" :class="{ active: activeTab === 'comment' }" @click="activeTab = 'comment'"
+        :to="{ 'name': 'userComments' }">我的評論</RouterLink>
       <RouterLink class="tab" :class="{ active: activeTab === 'account' }" @click="activeTab = 'account'"
         :to="{ 'name': 'accountDetail' }">帳戶詳細資料</RouterLink>
-      <RouterLink class="tab" :class="{ active: activeTab === 'comment' }" @click="activeTab = 'comment'" 
-      :to="{'name': 'userComments'}">我的評論</RouterLink>
     </nav>
     <!-- 子頁（AccountDetail / BookingRecord / FavoriteRestaurant) -->
     <section class="tab-content">
