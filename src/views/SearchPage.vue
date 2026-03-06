@@ -98,7 +98,6 @@ watch(() => route.query, () => {
           <div class="spinner-border text-warning" role="status"></div>
           <p>搜尋中...</p>
         </div>
-        <RestaurantList :data="restaurants" @select-restaurant="handleSelect" />
 
         <div class="list-wrapper">
           <RestaurantList :data="restaurants" @select-restaurant="handleSelect" />
