@@ -1,16 +1,17 @@
 <script setup>
 import {restaurantCommentList} from '@/api/modules/restaurant'
 import { onMounted , ref , computed } from 'vue';
+import { useRoute } from 'vue-router'; // 引入路由來取得 ID
 
-const restaurantId = ref();
 const resComments = ref([]);
 const loading = ref(true);
 //頁數功能
 const pageSize = 3; // 每頁顯示 3 筆
 const currentPage = ref(1); // 當前頁碼，預設第 1 頁
-
-//測試資料
-restaurantId.value = 'C3_371020000A_000334'
+const route = useRoute();
+// 優先從路由取得 ID，例如 /restaurant/5
+const restaurantId = ref(route.params.id || 1);
+ 
 
 const props = defineProps({ resComments: Array , resLoading: Boolean})
 const formatDate = (dateStr) => {
