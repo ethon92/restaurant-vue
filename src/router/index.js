@@ -60,11 +60,6 @@ const router = createRouter({
       name: "profile",
       meta: { requiresAuth: true },
       children: [
-        // ✅ 進 /profile 自動顯示訂位紀錄
-        {
-          path: "",
-          redirect: { name: "bookingRecord" },
-        },
         {
           path: "/User-Comments",
           component: UserComment,
