@@ -48,11 +48,16 @@ export function useRestaurantSearch() {
   };
 
   const searchByBounds = async (combinedParams) => {
+    isLoading.value = true;
     try {
       const res = await restaurantApi.getRestaurantsInBounds(combinedParams);
       
       if (res.data && Array.isArray(res.data)) {
-        restaurants.value = res.data;
+        const processedData = res.data.map(item => ({
+          ...item,
+          tagList: item.TagsStr ? item.TagsStr.split(',').map(tag => tag.trim()) : []
+        }));
+        restaurants.value = processedData;
       }
       console.log(`範圍內顯示 ${restaurants.value.length} 筆資料 (含關鍵字/城市過濾)`);
     } catch (err) {
