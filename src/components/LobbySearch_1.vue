@@ -1,9 +1,10 @@
 <script setup>
+// ... 現有 imports ...
 import { ref, computed, onMounted, watch } from 'vue';
 import restaurantApi from '@/api/modules/restaurant';
 import { useRoute } from 'vue-router';
 
-const emit = defineEmits(['search-submit', 'image-upload']);
+const emit = defineEmits(['search-submit', 'image-upload']); // 新增 image-upload 事件
 const route = useRoute();
 const allData = ref([]);
 const isFiltersOpen = ref(false);
@@ -16,9 +17,6 @@ const selectedPrice = computed(() => priceLevels[priceIndex.value]);
 const selectedTags = ref([]);
 
 const fileInput = ref(null);
-const showImageModal = ref(false); // 控制圖片搜尋彈窗
-const tempFile = ref(null);        // 暫存使用者選取的檔案
-const imageSearchCity = ref('');   // 圖片搜尋專用的縣市選項
 
 // 同步URL 參數到變數
 const syncInternalState = () => {
@@ -110,30 +108,12 @@ const onSearch = () => {
     emit('search-submit', params);
 };
 
-// 處理檔案選取
 const handleFileChange = (e) => {
     const file = e.target.files[0];
+    console.log("選擇的檔案:", file);
     if (file) {
-        tempFile.value = file;
-        showImageModal.value = true; // 開啟確認彈窗
+        emit('image-upload', file); // 向上傳遞檔案給 Home.vue
     }
-};
-
-// 執行圖片搜尋發送
-const submitImageSearch = () => {
-    if (!tempFile.value) return;
-
-    // 將檔案與選擇的縣市一起傳給父元件 (Home.vue)
-    emit('image-upload', {
-        file: tempFile.value,
-        city: imageSearchCity.value ? imageSearchCity.value : '' // 傳空字串表示不限定縣市
-    });
-
-    // 重置上傳檔案及縣市並關閉modal
-    showImageModal.value = false;
-    tempFile.value = null;
-    imageSearchCity.value = '';
-    if (fileInput.value) fileInput.value.value = '';
 };
 
 // 初始化：僅載入供「選項」使用的基礎資料
@@ -145,6 +125,7 @@ onMounted(async () => {
         console.error("載入選項失敗：", error);
     }
 });
+
 </script>
 
 <template>
@@ -156,7 +137,6 @@ onMounted(async () => {
                 <span class="icon">🔍</span>
                 <input v-model="searchQuery" placeholder="搜尋名稱、縣市或標籤..." @focus="isFiltersOpen = true"
                     @keyup.enter="onSearch" />
-                <!-- 以圖片搜尋餐廳按鈕 -->
                 <button class="camera-btn" @click.stop="fileInput.click()" title="以圖搜餐廳">
                     📷
                 </button>
@@ -167,7 +147,6 @@ onMounted(async () => {
                 </button>
                 <button class="search-btn" @click="onSearch">搜尋</button>
             </div>
-
             <Transition name="fade-slide">
                 <div v-if="isFiltersOpen" class="floating-panel">
                     <div class="panel-inner">
@@ -205,33 +184,6 @@ onMounted(async () => {
                     </div>
                 </div>
             </Transition>
-
-            <!-- 以圖片搜尋餐廳modal -->
-            <Transition name="fade">
-                <div v-if="showImageModal" class="image-modal-overlay">
-                    <div class="image-modal">
-                        <h3>以圖搜餐廳</h3>
-                        <div class="preview-container" v-if="tempFile">
-                            <p>已選取：{{ tempFile.name }}</p>
-                        </div>
-
-                        <div class="city-select-group">
-                            <label>限定搜尋縣市 (選填)</label>
-                            <select v-model="imageSearchCity" class="city-select">
-                                <option value="">全部縣市</option>
-                                <option v-for="city in cityOptions" :key="city" :value="city">
-                                    {{ city }}
-                                </option>
-                            </select>
-                        </div>
-
-                        <div class="modal-actions">
-                            <button class="cancel-btn" @click="showImageModal = false">取消</button>
-                            <button class="confirm-btn" @click="submitImageSearch">開始 AI 辨識</button>
-                        </div>
-                    </div>
-                </div>
-            </Transition>
         </div>
     </div>
 </template>
@@ -242,7 +194,7 @@ onMounted(async () => {
     display: flex;
     justify-content: center;
     padding: 30px 0;
-    z-index: 500;
+    z-index: 1000;
 }
 
 .search-container {
@@ -275,22 +227,6 @@ onMounted(async () => {
     outline: none;
     font-size: 1.1rem;
     padding: 10px;
-}
-
-/* 相機按鈕樣式 */
-.camera-btn {
-    background: none;
-    border: none;
-    font-size: 1.2rem;
-    cursor: pointer;
-    padding: 0;
-    color: #666;
-    transition: 0.2s;
-}
-
-.camera-btn:hover {
-    color: #f38332;
-    transform: scale(1.1);
 }
 
 .menu-btn {
@@ -420,61 +356,6 @@ onMounted(async () => {
     transform: translateY(-10px);
 }
 
-/* 以圖片搜尋餐廳modal樣式 */
-.image-modal-overlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(0, 0, 0, 0.5);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 3000;
-}
-
-.image-modal {
-    background: white;
-    padding: 25px;
-    border-radius: 15px;
-    width: 90%;
-    max-width: 400px;
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
-}
-
-.city-select-group {
-    margin: 20px 0;
-}
-
-.city-select {
-    width: 100%;
-    padding: 10px;
-    border-radius: 8px;
-    border: 1px solid #ddd;
-    margin-top: 8px;
-}
-
-.modal-actions {
-    display: flex;
-    gap: 10px;
-    justify-content: flex-end;
-}
-
-.confirm-btn {
-    background: #f38332;
-    color: white;
-    border: none;
-    padding: 8px 20px;
-    border-radius: 8px;
-    cursor: pointer;
-}
-
-.cancel-btn {
-    background: #eee;
-    border: none;
-    padding: 8px 20px;
-    border-radius: 8px;
-    cursor: pointer;
-}
-
 .overlay-mask {
     position: fixed;
     inset: 0;
@@ -489,5 +370,21 @@ onMounted(async () => {
         transform: translateX(-50%);
         border-radius: 0 0 20px 20px;
     }
+}
+
+/* 新增相機按鈕樣式 */
+.camera-btn {
+    background: none;
+    border: none;
+    font-size: 1.2rem;
+    cursor: pointer;
+    padding: 0 10px;
+    color: #666;
+    transition: 0.2s;
+}
+
+.camera-btn:hover {
+    color: #f38332;
+    transform: scale(1.1);
 }
 </style>
