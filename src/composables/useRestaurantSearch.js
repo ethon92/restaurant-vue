@@ -27,12 +27,32 @@ export function useRestaurantSearch() {
         limit: limit
       };
 
+      const t0 = performance.now();
       const res = await restaurantApi.searchRestaurants(apiParams);
+      const latency = Math.round(performance.now() - t0);
 
       if(isLoadMore) {
         restaurants.value.push(...res.data);
       } else {
         restaurants.value = res.data;
+      }
+
+      // debug log
+      const scored = res.data.filter(r => r._score != null);
+      const mode = scored.length > 0 ? 'semantic+rerank' : (queryParams.q ? 'semantic' : 'filter-only');
+      const activeFilters = [
+        queryParams.city ? `city:${queryParams.city}` : null,
+        queryParams.price_level ? `price:${queryParams.price_level}` : null,
+        tagsArray.length > 0 ? `tags:${tagsArray.join(',')}` : null,
+      ].filter(Boolean).join(' ');
+
+      console.log(
+        `[Search] query="${queryParams.q || ''}" | mode=${mode}` +
+        (activeFilters ? ` | filters=${activeFilters}` : '') +
+        ` | results=${res.data.length} | latency=${latency}ms`
+      );
+      if (scored.length > 0) {
+        scored.forEach((r, i) => console.log(`  #${i + 1}  similarity=${r._score}  ${r.Name}`));
       }
 
       hasMore.value = res.data.length ===limit;
