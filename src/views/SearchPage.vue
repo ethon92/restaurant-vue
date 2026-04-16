@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted, watch } from 'vue';
+import { ref, onMounted, watch, computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import RestaurantList from '@/components/SearchPage/RestaurantList.vue';
 import RestaurantMap from '@/components/SearchPage/RestaurantMap.vue';
@@ -14,11 +14,11 @@ const mapRef = ref(null);
 
 const { restaurants, isLoading, hasMore, searchRestaurants, searchByBounds } = useRestaurantSearch();
 
-const handleLobbySearch = (params) => {
-  console.log("收到 LobbySearch 的參數:", params);
-  router.push({
-    query: params
-  });
+// 有語意查詢或明確選縣市時，鎖定地圖，不讓移動地圖覆蓋搜尋結果
+const isSemanticLocked = computed(() => !!(route.query.q || route.query.city));
+
+const unlockToMapMode = () => {
+  router.push({ query: {} });
 };
 
 // 處理列表點擊，叫地圖飛過去 (子組件聯動)
@@ -43,18 +43,11 @@ const handleSelect = (item) => {
 
 // 呼叫searchByBounds
 const handleMapMove = async (bounds) => {
-  if (route.query.city && route.query.city.length > 0) {
-    console.log("已有選定縣市，地圖移動不出發座標搜尋");
+  // 有語意查詢或明確選縣市時，結果已按相關度排序，地圖移動不重搜
+  if (route.query.q || route.query.city) {
     return;
   }
-  const combinedParams = {
-    ...bounds,
-    q: route.query.q || '',
-    city: route.query.city || null,
-    price_level: route.query.price_level || null,
-    tags: route.query.tags || null
-  };
-  await searchByBounds(combinedParams);
+  await searchByBounds({ ...bounds });
 }
 
 // 執行搜尋邏輯
@@ -103,15 +96,24 @@ watch(() => route.query, () => {
           <RestaurantList :data="restaurants" @select-restaurant="handleSelect" />
 
           <div v-if="hasMore && restaurants.length > 0" class="load-more-container">
-            <button class="load-more-btn" @click="searchRestaurants(route.query, true)" :disabled="isLoading">
-              {{ isLoading ? '搜尋中...' : '查看更多餐廳' }}
-            </button>
+            <template v-if="isSemanticLocked">
+              <p class="semantic-hint">找不到想要的？試試換個說法描述看看</p>
+            </template>
+            <template v-else>
+              <button class="load-more-btn" @click="searchRestaurants(route.query, true)" :disabled="isLoading">
+                {{ isLoading ? '搜尋中...' : '查看更多餐廳' }}
+              </button>
+            </template>
           </div>
         </div>
       </div>
     </aside>
 
     <main class="map-container">
+      <div v-if="isSemanticLocked" class="map-lock-hint">
+        <span>🔒 顯示搜尋結果位置</span>
+        <button class="unlock-btn" @click="unlockToMapMode">改用地圖範圍探索</button>
+      </div>
       <RestaurantMap ref="mapRef" :restaurants="restaurants" @bounds-changed="handleMapMove" />
     </main>
   </div>
@@ -253,6 +255,48 @@ watch(() => route.query, () => {
 
 .sidebar-header :deep(.reset-link) {
   font-size: 0.8rem;
+}
+
+.map-lock-hint {
+  position: absolute;
+  top: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 999;
+  background: rgba(255, 255, 255, 0.95);
+  border: 1px solid #e0e0e0;
+  border-radius: 20px;
+  padding: 6px 14px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.82rem;
+  color: #555;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+  white-space: nowrap;
+}
+
+.unlock-btn {
+  background: #f38332;
+  color: white;
+  border: none;
+  border-radius: 12px;
+  padding: 4px 12px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.unlock-btn:hover {
+  background: #d66a1e;
+}
+
+.semantic-hint {
+  color: #999;
+  font-size: 0.85rem;
+  text-align: center;
+  padding: 10px 0;
+  margin: 0;
 }
 
 /* RWD 響應式 */

@@ -5,6 +5,32 @@ const props = defineProps(['data']);
 const emit = defineEmits(['select-restaurant']);
 const router = useRouter();
 
+// 解析 Tags 欄位（Python dict 格式字串 → JS 物件）
+const parseScenarioTags = (item) => {
+  // 優先用 TagsStr（舊格式，逗號分隔）
+  if (item.TagsStr && item.TagsStr.trim()) {
+    return item.TagsStr.split(',').map(t => t.trim()).filter(Boolean);
+  }
+  // 新格式：Tags 是 JSON-like 字串，取 scenario 陣列
+  if (item.Tags) {
+    try {
+      // Python dict → JSON 轉換（單引號換雙引號、True/False 換 true/false）
+      const jsonStr = item.Tags
+        .replace(/'/g, '"')
+        .replace(/\bTrue\b/g, 'true')
+        .replace(/\bFalse\b/g, 'false');
+      const parsed = JSON.parse(jsonStr);
+      const tags = [];
+      if (parsed.category) tags.push(parsed.category);
+      if (Array.isArray(parsed.scenario)) tags.push(...parsed.scenario.slice(0, 2));
+      return tags;
+    } catch {
+      // 解析失敗就用 Category
+    }
+  }
+  return item.Category ? [item.Category] : ['一般餐廳'];
+};
+
 const getImageUrl = (path) => {
   if (!path) return 'https://via.placeholder.com/150?text=No+Image';
   if (path.startsWith('http')) return path;
@@ -45,11 +71,7 @@ const goBooking = (id) => {
 
         <div class="footer">
           <div class="tags-wrapper">
-            <template v-if="item.TagsStr">
-              <span v-for="(tag, index) in item.TagsStr.split(',')" :key="index" class="custom-tag">{{ tag.trim()
-              }}</span>
-            </template>
-            <span v-else class="custom-tag">一般餐廳</span>
+            <span v-for="(tag, index) in parseScenarioTags(item)" :key="index" class="custom-tag">{{ tag }}</span>
           </div>
           <button class="custom-book" @click.stop="goBooking(item.ID)">
             立即預約
