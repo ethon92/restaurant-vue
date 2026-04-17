@@ -1,6 +1,8 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 import AppointmentSection from '@/components/AppointmentSection.vue';
+import AiOrderingGuide from '@/components/AiOrderingGuide.vue';
+import { useAiGuide } from '@/composables/useAiGuide';
 import restaurantApi, { restaurantCommentList } from '@/api/modules/restaurant';
 import FaqSection from '@/components/FaqSection.vue';
 import InfoMetaItem from '@/components/RestaurantDetail/InfoMetaItem.vue';
@@ -22,6 +24,9 @@ const props = defineProps({
     required: true
   }
 });
+
+const { getGuide, isBookable } = useAiGuide();
+
 const info = ref({});
 const gallery = ref([]);
 const isLoading = ref(true);
@@ -196,7 +201,13 @@ onMounted(() => {
 
       <aside class="sidebar">
         <div class="sticky-container">
-          <AppointmentSection :restaurant-name="info.Name" />
+          <AppointmentSection v-if="isBookable(props.id)" :restaurant-name="info.Name" />
+          <AiOrderingGuide
+            v-else
+            :restaurant-name="info.Name"
+            :golden-combo="getGuide(props.id)?.golden_combo"
+            :warning-tips="getGuide(props.id)?.warning_tips"
+          />
         </div>
       </aside>
 

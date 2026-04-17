@@ -1,9 +1,15 @@
 <script setup>
 import { useRouter } from 'vue-router';
 import ImageLoader from '../RestaurantDetail/ImageLoader.vue';
+import { useAiGuide } from '@/composables/useAiGuide';
+
 const props = defineProps(['data']);
 const emit = defineEmits(['select-restaurant']);
 const router = useRouter();
+const { getGuide, isBookable, loadGuides } = useAiGuide();
+
+// 確保頁面載入時 JSON 已準備好
+loadGuides();
 
 // 解析 Tags 欄位（Python dict 格式字串 → JS 物件）
 const parseScenarioTags = (item) => {
@@ -68,13 +74,18 @@ const goBooking = (id) => {
 
         <p class="address"><i class="bi bi-geo-alt"></i> {{ item.Add }}</p>
 
+        <!-- AI 黃金組合 mini badge -->
+        <div v-if="getGuide(item.ID)?.golden_combo" class="ai-combo-badge">
+          <span class="combo-icon">🥇</span>
+          <span class="combo-text">{{ getGuide(item.ID).golden_combo }}</span>
+        </div>
 
         <div class="footer">
           <div class="tags-wrapper">
             <span v-for="(tag, index) in parseScenarioTags(item)" :key="index" class="custom-tag">{{ tag }}</span>
           </div>
-          <button class="custom-book" @click.stop="goBooking(item.ID)">
-            立即預約
+          <button class="custom-book" :class="{ 'btn-detail': !isBookable(item.ID) }" @click.stop="goBooking(item.ID)">
+            {{ isBookable(item.ID) ? '立即預約' : '查看詳情' }}
           </button>
         </div>
       </div>
@@ -210,5 +221,36 @@ const goBooking = (id) => {
   text-align: center;
   padding: 50px 20px;
   color: #999;
+}
+
+/* AI 黃金組合 badge */
+.ai-combo-badge {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  background: #fffbf0;
+  border: 1px solid #fde8a0;
+  border-radius: 8px;
+  padding: 5px 10px;
+  margin-bottom: 6px;
+}
+
+.combo-icon {
+  font-size: 0.8rem;
+  flex-shrink: 0;
+}
+
+.combo-text {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #c26a1a;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* 查看詳情按鈕（小吃店） */
+.custom-book.btn-detail {
+  background-color: #6b7280;
 }
 </style>

@@ -1,0 +1,802 @@
+[
+  {
+    "id": "C3_376490000A_000834",
+    "name": "二崙煎包",
+    "category": "在地小吃店",
+    "has_booking": false,
+    "golden_combo": "高麗菜煎包加辣椒醬",
+    "warning_tips": "綠豆口味早售完"
+  },
+  {
+    "id": "C3_387000000A_000124",
+    "name": "炭火燒肉工房",
+    "category": "特色餐廳",
+    "has_booking": true,
+    "golden_combo": "松阪豬＋雪花牛＋棉花糖",
+    "warning_tips": "空間小排煙系統不佳"
+  },
+  {
+    "id": "C3_376430000A_001943",
+    "name": "卡托米利庭園咖啡",
+    "category": "咖啡廳",
+    "has_booking": true,
+    "golden_combo": "青醬鮭魚麵＋披薩",
+    "warning_tips": null
+  },
+  {
+    "id": "C3_382000000A_207336",
+    "name": "古早味鹹湯圓",
+    "category": "特色餐廳",
+    "has_booking": true,
+    "golden_combo": "鹹湯圓＋滷肉飯",
+    "warning_tips": null
+  },
+  {
+    "id": "C3_376470000A_000187",
+    "name": "木生海鮮會館",
+    "category": "特色餐廳",
+    "has_booking": true,
+    "golden_combo": "蒜苗炒石斑＋蝦丸蛤蠣湯",
+    "warning_tips": "停車位有限建議提早到"
+  },
+  {
+    "id": "C3_395000000A_001820",
+    "name": "邱家小卷米粉",
+    "category": "甜點冰品店",
+    "has_booking": false,
+    "golden_combo": "小卷米粉加胡椒粉",
+    "warning_tips": "湯頭偏甜北部人不習慣"
+  },
+  {
+    "id": "C3_382000000A_207940",
+    "name": "雪花軒涼麵",
+    "category": "在地小吃店",
+    "has_booking": false,
+    "golden_combo": "涼麵＋味噌蛋湯",
+    "warning_tips": "店面隱密難找需留意"
+  },
+  {
+    "id": "C3_395000000A_006531",
+    "name": "宇牛肉湯",
+    "category": "特色餐廳",
+    "has_booking": true,
+    "golden_combo": "牛肉湯＋牛肉燥飯吃到飽",
+    "warning_tips": null
+  },
+  {
+    "id": "C3_376580000A_000057",
+    "name": "鄭家魚丸燕圓",
+    "category": "在地小吃店",
+    "has_booking": false,
+    "golden_combo": "魚丸燕圓湯＋紅糟肉圓",
+    "warning_tips": null
+  },
+  {
+    "id": "C3_395000000A_002196",
+    "name": "瑪莎園",
+    "category": "特色店家",
+    "has_booking": false,
+    "golden_combo": "梅嶺梅子雞鍋＋夜景",
+    "warning_tips": "餐點普通主賣景觀"
+  },
+  {
+    "id": "C3_395000000A_001964",
+    "name": "呷霸浮水魚羹",
+    "category": "特色餐廳",
+    "has_booking": true,
+    "golden_combo": "浮水魚羹＋炸蝦捲",
+    "warning_tips": null
+  },
+  {
+    "id": "C3_376490000A_000890",
+    "name": "韓國戀人(Korealover)",
+    "category": "複合式咖啡烘焙館",
+    "has_booking": true,
+    "golden_combo": "釜山豬肉湯飯＋辣炒年糕",
+    "warning_tips": "同菜品不同次口味不一致"
+  },
+  {
+    "id": "C3_376490000A_000894",
+    "name": "雲林100碗(凹凸咖啡館)",
+    "category": "咖啡廳",
+    "has_booking": true,
+    "golden_combo": "熱拿鐵＋草莓可拿滋",
+    "warning_tips": null
+  },
+  {
+    "id": "C3_376430000A_001786",
+    "name": "賓帥活魚湘菜餐廳",
+    "category": "特色餐廳",
+    "has_booking": true,
+    "golden_combo": "鐵板魚＋糖醋魚點中份",
+    "warning_tips": null
+  },
+  {
+    "id": "C3_376490000A_001438",
+    "name": "虎尾眷村眷味廚房",
+    "category": "特色餐廳",
+    "has_booking": true,
+    "golden_combo": "開口笑＋手工DIY體驗",
+    "warning_tips": "需提前預約才能用餐"
+  },
+  {
+    "id": "C3_395000000A_002231",
+    "name": "輝哥本產牛肉爐",
+    "category": "特色餐廳",
+    "has_booking": true,
+    "golden_combo": "牛肉爐套餐＋肉燥飯吃到飽",
+    "warning_tips": "人潮多需提前訂位"
+  },
+  {
+    "id": "C3_376470000A_000169",
+    "name": "松本坊彩頭酥創始店",
+    "category": "特色店家",
+    "has_booking": false,
+    "golden_combo": "招牌彩頭酥＋素食款",
+    "warning_tips": null
+  },
+  {
+    "id": "C3_387000000A_004808",
+    "name": "石全石美石鍋專賣店",
+    "category": "特色店家",
+    "has_booking": false,
+    "golden_combo": "海鮮煎餅＋石鍋拌飯",
+    "warning_tips": null
+  },
+  {
+    "id": "C3_376480000A_000443",
+    "name": "鱒龍風格餐館",
+    "category": "特色餐廳",
+    "has_booking": true,
+    "golden_combo": "三杯鱘龍魚＋炸溪蝦",
+    "warning_tips": null
+  },
+  {
+    "id": "C3_376470000A_000220",
+    "name": "西門肉圓仔湯",
+    "category": "在地小吃店",
+    "has_booking": false,
+    "golden_combo": "肉羹＋肉圓仔湯",
+    "warning_tips": "不開放內用只能外帶"
+  },
+  {
+    "id": "C3_376560000A_000404",
+    "name": "清心飲食店",
+    "category": "特色餐廳",
+    "has_booking": true,
+    "golden_combo": "炸明蝦＋花枝丸＋生石蚵",
+    "warning_tips": "價位偏高需自行衡量"
+  },
+  {
+    "id": "C3_382000000A_207485",
+    "name": "大胖活海鮮",
+    "category": "特色餐廳",
+    "has_booking": true,
+    "golden_combo": "活花枝生吃＋龍蝦＋明蝦",
+    "warning_tips": null
+  },
+  {
+    "id": "C3_376470000A_000191",
+    "name": "石心爌肉飯",
+    "category": "在地小吃店",
+    "has_booking": false,
+    "golden_combo": "爌肉飯＋空心菜",
+    "warning_tips": null
+  },
+  {
+    "id": "C3_376470000A_000202",
+    "name": "貓鼠麵",
+    "category": "在地小吃店",
+    "has_booking": false,
+    "golden_combo": "三寶麵＋滷豬腳",
+    "warning_tips": null
+  },
+  {
+    "id": "C3_376500000A_000077",
+    "name": "竹林樓",
+    "category": "特色餐廳",
+    "has_booking": true,
+    "golden_combo": "白斬土雞＋茶油松阪豬",
+    "warning_tips": "上菜速度慢需預留時間"
+  },
+  {
+    "id": "C3_A15010200H_000133",
+    "name": "福牡蠣屋【馬公市】",
+    "category": "特色餐廳",
+    "has_booking": true,
+    "golden_combo": "蒸牡蠣＋炸蚵仔酥",
+    "warning_tips": null
+  },
+  {
+    "id": "C3_A15010200H_000026",
+    "name": "蒙地卡羅咖啡館【馬公市】",
+    "category": "咖啡廳",
+    "has_booking": true,
+    "golden_combo": "厚片吐司＋熱紅酒調酒",
+    "warning_tips": null
+  },
+  {
+    "id": "C3_395000000A_001064",
+    "name": "大鋤花間",
+    "category": "咖啡廳",
+    "has_booking": true,
+    "golden_combo": "冰美式咖啡＋天使冷麵",
+    "warning_tips": null
+  },
+  {
+    "id": "C3_376490000A_001227",
+    "name": "M2精品咖啡館",
+    "category": "複合式咖啡烘焙館",
+    "has_booking": true,
+    "golden_combo": "漂浮冰咖啡",
+    "warning_tips": null
+  },
+  {
+    "id": "C3_376580000A_000132",
+    "name": "禾日香古早味魯肉飯",
+    "category": "在地小吃店",
+    "has_booking": false,
+    "golden_combo": "太陽飯大碗＋肝連肉湯",
+    "warning_tips": "非招牌菜色表現一般"
+  },
+  {
+    "id": "C3_382000000A_207576",
+    "name": "枋腳堡大天皇毛蟹城",
+    "category": "特色店家",
+    "has_booking": false,
+    "golden_combo": "鱘龍魚一魚六吃＋溪蝦",
+    "warning_tips": "山路偏遠建議熟人帶路"
+  },
+  {
+    "id": "C3_382000000A_207688",
+    "name": "歐里人文咖啡",
+    "category": "複合式咖啡烘焙館",
+    "has_booking": true,
+    "golden_combo": "阿芙佳朵＋豆腐冰淇淋",
+    "warning_tips": null
+  },
+  {
+    "id": "C3_A15010600H_000045",
+    "name": "施家肉圓",
+    "category": "在地小吃店",
+    "has_booking": false,
+    "golden_combo": "軟Q肉圓＋自取大骨清湯",
+    "warning_tips": null
+  },
+  {
+    "id": "C3_376600000A_000294",
+    "name": "荒廟 TEMPLE",
+    "category": "在地小吃店",
+    "has_booking": false,
+    "golden_combo": "特調調酒＋每日例湯",
+    "warning_tips": null
+  },
+  {
+    "id": "C3_376600000A_000233",
+    "name": "Bar Door to Dream",
+    "category": "質感餐酒館",
+    "has_booking": true,
+    "golden_combo": "客製調酒＋手刷抹茶",
+    "warning_tips": null
+  },
+  {
+    "id": "C3_376490000A_000260",
+    "name": "日日興現宰羊肉爐",
+    "category": "特色餐廳",
+    "has_booking": true,
+    "golden_combo": "現切五花羊肉＋麵線加豆瓣醬",
+    "warning_tips": null
+  },
+  {
+    "id": "C3_376560000A_000381",
+    "name": "自強餐廳",
+    "category": "特色餐廳",
+    "has_booking": true,
+    "golden_combo": "京醬肉絲夾蔥油餅",
+    "warning_tips": null
+  },
+  {
+    "id": "C3_376600000A_000180",
+    "name": "東園軒餐廳",
+    "category": "特色餐廳",
+    "has_booking": true,
+    "golden_combo": "脆皮炸子雞＋竹笙菜心燉雞湯",
+    "warning_tips": null
+  },
+  {
+    "id": "C3_395000000A_001616",
+    "name": "豐海鮮漁府",
+    "category": "特色餐廳",
+    "has_booking": true,
+    "golden_combo": "蒸海石斑＋西瓜綿魚湯",
+    "warning_tips": "螃蟹粥需提前一小時預告"
+  },
+  {
+    "id": "C3_376470000A_000313",
+    "name": "李老城肉脯店",
+    "category": "特色店家",
+    "has_booking": false,
+    "golden_combo": "招牌薄片肉乾＋豬肉角",
+    "warning_tips": null
+  },
+  {
+    "id": "C3_371020000A_000323",
+    "name": "阡湖餐廳",
+    "category": "特色餐廳",
+    "has_booking": true,
+    "golden_combo": "石蚵煎＋白蝦＋阿兵哥芋頭",
+    "warning_tips": "合菜制建議六人以上同行"
+  },
+  {
+    "id": "C3_395000000A_002285",
+    "name": "蠻牛牛肉涮涮鍋",
+    "category": "在地小吃店",
+    "has_booking": false,
+    "golden_combo": "牛肉炒飯＋牛腩清湯",
+    "warning_tips": "環境昏暗衛生有待加強"
+  },
+  {
+    "id": "C3_382000000A_206139",
+    "name": "特香齋西餐廳",
+    "category": "特色餐廳",
+    "has_booking": true,
+    "golden_combo": "提拉米蘇＋菲力牛排",
+    "warning_tips": "服務態度及牛排熟度不穩"
+  },
+  {
+    "id": "C3_387000000A_004290",
+    "name": "佛羅倫斯義法料理餐廳",
+    "category": "特色餐廳",
+    "has_booking": true,
+    "golden_combo": "提拉米蘇＋義大利麵套餐",
+    "warning_tips": null
+  },
+  {
+    "id": "C3_376600000A_000011",
+    "name": "真北平餐廳",
+    "category": "特色餐廳",
+    "has_booking": true,
+    "golden_combo": "北平烤鴨＋牛肉蒸餃",
+    "warning_tips": null
+  },
+  {
+    "id": "C3_376430000A_001941",
+    "name": "天水海鮮館(原北海岸)",
+    "category": "特色餐廳",
+    "has_booking": true,
+    "golden_combo": "蛤蜊湯",
+    "warning_tips": "菜色份量少品質不穩定"
+  },
+  {
+    "id": "C3_382000000A_208032",
+    "name": "浙寧嘉園餐廳",
+    "category": "特色餐廳",
+    "has_booking": true,
+    "golden_combo": "炒飯＋臭豆腐＋鮮蝦粉絲煲",
+    "warning_tips": "人手少出菜需等候"
+  },
+  {
+    "id": "C3_376430000A_000327",
+    "name": "郭鵝肉海產店",
+    "category": "特色餐廳",
+    "has_booking": true,
+    "golden_combo": "招牌鵝肉＋米粉湯",
+    "warning_tips": "人氣高建議避開尖峰時段"
+  },
+  {
+    "id": "C3_382000000A_206117",
+    "name": "泰味廚房",
+    "category": "特色餐廳",
+    "has_booking": true,
+    "golden_combo": "金錢蝦餅＋打拋雞＋椰子水",
+    "warning_tips": null
+  },
+  {
+    "id": "C3_376500000A_000039",
+    "name": "溪口古早味豬血湯",
+    "category": "在地小吃店",
+    "has_booking": false,
+    "golden_combo": "綜合豬血湯＋黑白切",
+    "warning_tips": null
+  },
+  {
+    "id": "C3_376500000A_000086",
+    "name": "民雄椪皮麵",
+    "category": "在地小吃店",
+    "has_booking": false,
+    "golden_combo": "椪皮麵加滷蛋＋清湯",
+    "warning_tips": null
+  },
+  {
+    "id": "C3_395000000A_001060",
+    "name": "阿輝炒鱔魚",
+    "category": "在地小吃店",
+    "has_booking": false,
+    "golden_combo": "乾炒鱔魚意麵加高麗菜",
+    "warning_tips": null
+  },
+  {
+    "id": "C3_387000000A_004058",
+    "name": "串串-串燒 kusu kusu-kushi yaki",
+    "category": "質感餐酒館",
+    "has_booking": true,
+    "golden_combo": "豬五花＋雞腿肉串燒",
+    "warning_tips": null
+  },
+  {
+    "id": "C3_395000000A_002029",
+    "name": "石家正阿美綠豆湯 西門店",
+    "category": "甜點冰品店",
+    "has_booking": false,
+    "golden_combo": "綠豆薏仁加粉角",
+    "warning_tips": null
+  },
+  {
+    "id": "C3_376490000A_000820",
+    "name": "巧蕃古早味粉圓",
+    "category": "複合式咖啡烘焙館",
+    "has_booking": true,
+    "golden_combo": "咖啡加小粉圓",
+    "warning_tips": null
+  },
+  {
+    "id": "C3_376540000A_000400",
+    "name": "大巴六九景觀餐廳",
+    "category": "甜點冰品店",
+    "has_booking": false,
+    "golden_combo": "月桃飯＋五種湯品＋川燙野菜",
+    "warning_tips": "山路窄照指標開車勿信導航"
+  },
+  {
+    "id": "C3_395000000A_001077",
+    "name": "台南小南碗粿",
+    "category": "特色店家",
+    "has_booking": false,
+    "golden_combo": "碗粿加大蒜汁＋魚羹",
+    "warning_tips": null
+  },
+  {
+    "id": "C3_376430000A_000112",
+    "name": "八方園客家餐館",
+    "category": "咖啡廳",
+    "has_booking": true,
+    "golden_combo": "八方悶鴨＋客家小炒",
+    "warning_tips": null
+  },
+  {
+    "id": "C3_A15010100H_000210",
+    "name": "翔記餐廳",
+    "category": "特色餐廳",
+    "has_booking": true,
+    "golden_combo": "養生羊肉爐＋飛魚卵香腸",
+    "warning_tips": null
+  },
+  {
+    "id": "C3_382000000A_208427",
+    "name": "樂山莊",
+    "category": "特色餐廳",
+    "has_booking": true,
+    "golden_combo": "鱘龍魚一魚五吃＋生魚片",
+    "warning_tips": "需電話預約且需多人成行"
+  },
+  {
+    "id": "C3_382000000A_206113",
+    "name": "旺角迷你石頭火鍋",
+    "category": "特色店家",
+    "has_booking": false,
+    "golden_combo": "沙朗牛肉石頭鍋＋梅花豬",
+    "warning_tips": "用餐需提前預約訂位"
+  },
+  {
+    "id": "C3_376580000A_000086",
+    "name": "阿富魯肉飯",
+    "category": "在地小吃店",
+    "has_booking": false,
+    "golden_combo": "魯肉飯＋貢丸湯",
+    "warning_tips": null
+  },
+  {
+    "id": "C3_376580000A_000013",
+    "name": "漁香甜不辣",
+    "category": "特色店家",
+    "has_booking": false,
+    "golden_combo": "甜不辣＋炸豆腐＋乾麵",
+    "warning_tips": null
+  },
+  {
+    "id": "C3_376580000A_000035",
+    "name": "榮記客家湯圓-武昌店",
+    "category": "特色餐廳",
+    "has_booking": true,
+    "golden_combo": "客家湯圓＋二層肉飯",
+    "warning_tips": null
+  },
+  {
+    "id": "C3_371020000A_000359",
+    "name": "成功鍋貼館",
+    "category": "特色餐廳",
+    "has_booking": true,
+    "golden_combo": "鍋貼＋酸辣湯",
+    "warning_tips": "鍋貼油份偏重"
+  },
+  {
+    "id": "C3_376550000A_000227",
+    "name": "紐約客牛排館",
+    "category": "特色餐廳",
+    "has_booking": true,
+    "golden_combo": "雞腿排＋牛小排",
+    "warning_tips": "服務態度及出餐品質不穩"
+  },
+  {
+    "id": "C3_376560000A_000720",
+    "name": "多那之咖啡蛋糕烘焙-澎湖馬公",
+    "category": "複合式咖啡烘焙館",
+    "has_booking": true,
+    "golden_combo": "現烤麵包",
+    "warning_tips": null
+  },
+  {
+    "id": "C3_371020000A_000375",
+    "name": "金門牛家莊",
+    "category": "特色餐廳",
+    "has_booking": true,
+    "golden_combo": "鹽香牛小排＋酸白菜牛肉",
+    "warning_tips": "尖峰時段需提前電話預約"
+  },
+  {
+    "id": "C3_376550000A_000384",
+    "name": "甜在心糖水舖",
+    "category": "特色店家",
+    "has_booking": false,
+    "golden_combo": "甘蔗汁刨冰四種配料",
+    "warning_tips": null
+  },
+  {
+    "id": "C3_A15010100H_000016",
+    "name": "噶瑪蘭海產店",
+    "category": "特色餐廳",
+    "has_booking": true,
+    "golden_combo": "現撈海鮮熱炒",
+    "warning_tips": "需先拿號碼牌限9個名額"
+  },
+  {
+    "id": "C3_376550000A_000110",
+    "name": "莎莉經典美食餐廳",
+    "category": "咖啡廳",
+    "has_booking": true,
+    "golden_combo": "玉米濃湯麵包盅＋石頭餅",
+    "warning_tips": null
+  },
+  {
+    "id": "C3_A15010100H_001065",
+    "name": "項鍊海岸工作室",
+    "category": "特色店家",
+    "has_booking": false,
+    "golden_combo": "飛魚刺蔥炒飯＋海景咖啡",
+    "warning_tips": null
+  },
+  {
+    "id": "C3_376550000A_000870",
+    "name": "台南滷肉飯",
+    "category": "在地小吃店",
+    "has_booking": false,
+    "golden_combo": "滷肉飯＋虱目魚肚",
+    "warning_tips": null
+  },
+  {
+    "id": "C3_A15010100H_000682",
+    "name": "都蘭義大利披薩 Dulan A Mano Pizza",
+    "category": "特色餐廳",
+    "has_booking": true,
+    "golden_combo": "酸種薄脆披薩＋提拉米蘇",
+    "warning_tips": null
+  },
+  {
+    "id": "C3_376550000A_000443",
+    "name": "椿山日本料理",
+    "category": "特色餐廳",
+    "has_booking": true,
+    "golden_combo": "海膽手捲＋天婦羅定食",
+    "warning_tips": null
+  },
+  {
+    "id": "C3_376550000A_000367",
+    "name": "銘師父餐廳",
+    "category": "特色餐廳",
+    "has_booking": true,
+    "golden_combo": "烤鴨三吃＋蟹黃豆腐",
+    "warning_tips": "用餐中有蚊蠅建議留意"
+  },
+  {
+    "id": "C3_A15010100H_000676",
+    "name": "幸福食堂",
+    "category": "特色餐廳",
+    "has_booking": true,
+    "golden_combo": "家常菜＋隱藏版小卷",
+    "warning_tips": null
+  },
+  {
+    "id": "C3_376550000A_000376",
+    "name": "老邵餐館",
+    "category": "特色餐廳",
+    "has_booking": true,
+    "golden_combo": "小籠湯包＋酸辣湯",
+    "warning_tips": null
+  },
+  {
+    "id": "C3_376600000A_000097",
+    "name": "Eleventh Cafe 射日塔景觀咖啡館",
+    "category": "複合式咖啡烘焙館",
+    "has_booking": true,
+    "golden_combo": "拿鐵＋布朗尼＋360度景觀",
+    "warning_tips": "需購射日塔門票方可入場"
+  },
+  {
+    "id": "C3_382000000A_208085",
+    "name": "米工坊-月桃肉粽",
+    "category": "特色店家",
+    "has_booking": false,
+    "golden_combo": "月桃葉肉粽＋碗粿",
+    "warning_tips": "早上即售完需趁早前往"
+  },
+  {
+    "id": "C3_376430000A_000551",
+    "name": "大方蘭州拉麵館",
+    "category": "特色餐廳",
+    "has_booking": true,
+    "golden_combo": "冠軍牛肉麵＋清燉牛肉麵",
+    "warning_tips": null
+  },
+  {
+    "id": "C3_382000000A_206230",
+    "name": "舜德農莊休閒餐廳",
+    "category": "特色餐廳",
+    "has_booking": true,
+    "golden_combo": "白斬土雞＋京醬肉",
+    "warning_tips": null
+  },
+  {
+    "id": "C3_376430000A_001926",
+    "name": "山本海產店",
+    "category": "特色餐廳",
+    "has_booking": true,
+    "golden_combo": "千元海鮮set老闆自配",
+    "warning_tips": null
+  },
+  {
+    "id": "C3_376430000A_002828",
+    "name": "星上星港式飲茶",
+    "category": "特色店家",
+    "has_booking": false,
+    "golden_combo": "燒鵝＋鮮蝦腸粉＋臘味蘿蔔糕",
+    "warning_tips": "小籠湯包及流沙球品質不穩"
+  },
+  {
+    "id": "C3_376580000A_000146",
+    "name": "竹塹林記美食",
+    "category": "在地小吃店",
+    "has_booking": false,
+    "golden_combo": "茶鵝＋桔醬高麗菜＋豬腳",
+    "warning_tips": null
+  },
+  {
+    "id": "C3_382000000A_206275",
+    "name": "Gino Pizza店",
+    "category": "咖啡廳",
+    "has_booking": true,
+    "golden_combo": "酥脆薄底披薩",
+    "warning_tips": null
+  },
+  {
+    "id": "C3_376430000A_000448",
+    "name": "解放咖啡館",
+    "category": "複合式咖啡烘焙館",
+    "has_booking": true,
+    "golden_combo": "單品咖啡＋提拉米蘇",
+    "warning_tips": null
+  },
+  {
+    "id": "C3_376440000A_000040",
+    "name": "丹頂鶴中日式創意料理",
+    "category": "特色餐廳",
+    "has_booking": true,
+    "golden_combo": "宮保皮蛋＋炒蛤蠣＋炒飯",
+    "warning_tips": null
+  },
+  {
+    "id": "C3_382000000A_207569",
+    "name": "陳家豆腐",
+    "category": "複合式咖啡烘焙館",
+    "has_booking": true,
+    "golden_combo": "炸臭豆腐＋炒高麗菜＋炒麵",
+    "warning_tips": null
+  },
+  {
+    "id": "C3_376580000A_000046",
+    "name": "大千米苔目冰店",
+    "category": "甜點冰品店",
+    "has_booking": false,
+    "golden_combo": "米苔目刨冰多料",
+    "warning_tips": "多位顧客反映搬家後品質下滑"
+  },
+  {
+    "id": "C3_376490000A_000968",
+    "name": "大嬸的柴米油鹽廚房",
+    "category": "特色店家",
+    "has_booking": false,
+    "golden_combo": "私廚無菜單料理",
+    "warning_tips": null
+  },
+  {
+    "id": "C3_376490000A_001104",
+    "name": "小豬漫步手作廚房",
+    "category": "特色店家",
+    "has_booking": false,
+    "golden_combo": "特製滷肉飯＋新鮮蔬果沙拉",
+    "warning_tips": "口味偏清淡重口味者慎點"
+  },
+  {
+    "id": "C3_387000000A_000769",
+    "name": "幸發亭蜜豆冰 - 北平店",
+    "category": "甜點冰品店",
+    "has_booking": false,
+    "golden_combo": "蜜豆冰＋雪花冰",
+    "warning_tips": null
+  },
+  {
+    "id": "C3_387000000A_003703",
+    "name": "梨子咖啡館-豐原店",
+    "category": "複合式咖啡烘焙館",
+    "has_booking": true,
+    "golden_combo": "黑松露奶油義大利麵套餐",
+    "warning_tips": null
+  },
+  {
+    "id": "C3_376490000A_000877",
+    "name": "叮叮車港式早午餐",
+    "category": "在地小吃店",
+    "has_booking": false,
+    "golden_combo": "黯然銷魂飯＋鹹蛋黃奶皇包",
+    "warning_tips": "老闆一人出餐需耐心等候"
+  },
+  {
+    "id": "C3_376480000A_000624",
+    "name": "世傳魷魚羹",
+    "category": "在地小吃店",
+    "has_booking": false,
+    "golden_combo": "高麗菜飯＋炒麵＋綜合湯",
+    "warning_tips": "僅收現金內用需先取號"
+  },
+  {
+    "id": "C3_376490000A_000850",
+    "name": "川龍食堂",
+    "category": "特色店家",
+    "has_booking": false,
+    "golden_combo": "炸大腸＋清燙小卷＋鱔魚",
+    "warning_tips": null
+  },
+  {
+    "id": "C3_376470000A_000006",
+    "name": "龍吉高麗菜飯",
+    "category": "在地小吃店",
+    "has_booking": false,
+    "golden_combo": "香酥鴨＋家傳回味魚＋梅干扣肉",
+    "warning_tips": "年節期間出餐慢服務不穩"
+  },
+  {
+    "id": "C3_395000000A_001947",
+    "name": "新營李家宇航牛肉湯",
+    "category": "特色餐廳",
+    "has_booking": true,
+    "golden_combo": "特選牛肉涮涮鍋＋肉燥飯吃到飽",
+    "warning_tips": null
+  },
+  {
+    "id": "C3_376450000A_000129",
+    "name": "蒸烹派餐廳",
+    "category": "特色餐廳",
+    "has_booking": true,
+    "golden_combo": "芋香鴨＋家傳回味魚＋蘿蔔糕",
+    "warning_tips": "年節期間出餐慢服務不穩"
+  }
+]
