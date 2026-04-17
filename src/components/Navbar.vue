@@ -1,6 +1,6 @@
 <script setup>
 import { useAuthStore } from '@/stores/auth';
-import { computed , ref } from 'vue';
+import { computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
 const authStore = useAuthStore();
@@ -22,7 +22,7 @@ const onLogout = async () => {
     router.push("/login");
 };
 
-const isLoggedIn = ref()
+
 </script>
 
 <template>
@@ -32,14 +32,17 @@ const isLoggedIn = ref()
             <span>DINE 享樂</span>
         </RouterLink>
         <div class="navbar-content">
-            <RouterLink :to="{ 'name': 'profile' }" class="btn" :class="{ 'disabled-link': isAtProfile }">會員專區
+            <!-- 一般會員才顯示會員專區 -->
+            <RouterLink v-if="authStore.isLoggedIn && !authStore.isAdmin" :to="{ 'name': 'profile' }" class="btn"
+                :class="{ 'disabled-link': isAtProfile }">會員專區
             </RouterLink>
-            <RouterLink :to="{ 'name': 'login' }" class="btn" v-if="!authStore.isLoggedIn"> 登入
+            <RouterLink v-if="authStore.isLoggedIn && authStore.isAdmin" to="/adminPage" class="btn">管理後台</RouterLink>
+            <RouterLink v-if="!authStore.isLoggedIn" :to="{ 'name': 'login' }" class="btn"> 登入
             </RouterLink>
             <button v-else class="btn" type="button" @click="onLogout">
                 登出
             </button>
-            <RouterLink :to="{ 'name': 'register' }" class="btn"> 註冊 </RouterLink>
+            <RouterLink v-if="!authStore.isLoggedIn" :to="{ 'name': 'register' }" class="btn"> 註冊 </RouterLink>
         </div>
     </nav>
 </template>

@@ -113,15 +113,10 @@ const login = async () => {
     alert("登入成功");
 
     /**
-     * 若之後有管理頁，例如 /admin
-     * 可以讓 admin 登入後直接跳去管理頁
-     *
-     * 目前這裡先保留寫法：
+     * 讓 admin 登入後直接跳去管理頁
      */
     if (user.role === "admin") {
-      // 假設之後有管理員頁面可改成：
-      // router.push("/admin");
-      router.push("/");
+      router.push("/adminPage");
     } else {
       router.push("/");
     }
