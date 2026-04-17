@@ -11,6 +11,10 @@ import SearchPage from "@/views/SearchPage.vue";
 import AccountDetail from "@/views/ProfileDetail/AccountDetail.vue";
 import ChangePassword from "@/views/ProfileDetail/ChangePassword.vue";
 import UserComment from "@/views/ProfileDetail/UserComment.vue";
+import adminPage from '@/views/adminPage.vue';
+import memberDetail from "@/views/admin/memberDetail.vue";
+import record from "@/views/admin/record.vue"; 
+import restaurantDetail from "@/views/admin/restaurantDetail.vue";
 
 const router = createRouter({
   history: createWebHistory(),
@@ -53,6 +57,30 @@ const router = createRouter({
       component: ForgotPassword,
       name: "forgot-password",
     },
+    // admin page
+    {
+      path: "/adminPage",
+      component: adminPage,
+      name: "adminPage",
+      meta: { requiresAuth: true },
+      children:[{
+        path:"/memberDetail",
+        component:memberDetail,
+        name:"memberDetail",
+      },
+        {
+          path:"/record",
+        component:record,
+        name:"record",
+      },
+        {
+          path:"/restaurantDetail",
+        component:restaurantDetail,
+        name:"restaurantDetail",
+      }]
+
+    },
+
     // 未登入不能進 Profile
     {
       path: "/profile",
