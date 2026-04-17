@@ -27,7 +27,7 @@
     "id": "C3_382000000A_207336",
     "name": "古早味鹹湯圓",
     "category": "特色餐廳",
-    "has_booking": true,
+    "has_booking": false,
     "golden_combo": "鹹湯圓＋滷肉飯",
     "warning_tips": null
   },
@@ -139,7 +139,7 @@
     "id": "C3_387000000A_004808",
     "name": "石全石美石鍋專賣店",
     "category": "特色店家",
-    "has_booking": false,
+    "has_booking": true,
     "golden_combo": "海鮮煎餅＋石鍋拌飯",
     "warning_tips": null
   },
@@ -331,7 +331,7 @@
     "id": "C3_395000000A_002285",
     "name": "蠻牛牛肉涮涮鍋",
     "category": "在地小吃店",
-    "has_booking": false,
+    "has_booking": true,
     "golden_combo": "牛肉炒飯＋牛腩清湯",
     "warning_tips": "環境昏暗衛生有待加強"
   },
@@ -435,7 +435,7 @@
     "id": "C3_376490000A_000820",
     "name": "巧蕃古早味粉圓",
     "category": "複合式咖啡烘焙館",
-    "has_booking": true,
+    "has_booking": false,
     "golden_combo": "咖啡加小粉圓",
     "warning_tips": null
   },
@@ -443,7 +443,7 @@
     "id": "C3_376540000A_000400",
     "name": "大巴六九景觀餐廳",
     "category": "甜點冰品店",
-    "has_booking": false,
+    "has_booking": true,
     "golden_combo": "月桃飯＋五種湯品＋川燙野菜",
     "warning_tips": "山路窄照指標開車勿信導航"
   },
@@ -483,7 +483,7 @@
     "id": "C3_382000000A_206113",
     "name": "旺角迷你石頭火鍋",
     "category": "特色店家",
-    "has_booking": false,
+    "has_booking": true,
     "golden_combo": "沙朗牛肉石頭鍋＋梅花豬",
     "warning_tips": "用餐需提前預約訂位"
   },
@@ -507,7 +507,7 @@
     "id": "C3_376580000A_000035",
     "name": "榮記客家湯圓-武昌店",
     "category": "特色餐廳",
-    "has_booking": true,
+    "has_booking": false,
     "golden_combo": "客家湯圓＋二層肉飯",
     "warning_tips": null
   },
