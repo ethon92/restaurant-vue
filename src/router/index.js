@@ -1,3 +1,4 @@
+//
 import { createRouter, createWebHistory } from "vue-router";
 import Home from "@/views/Home.vue";
 import RestaurantDetail from "../views/RestaurantDetail.vue";
@@ -91,11 +92,12 @@ const router = createRouter({
 });
 
 /**
- * Router Guard
- * ✅ 目前用 localStorage 的 "auth_user_id" 當登入旗標
- * 這個 key 由 Pinia store 的 setSession 寫入（src/stores/auth.js）
+ * * ✅ 目前用 localStorage 的 "auth_access_token" 當登入旗標
+ * [原本看 auth_user_id
+ * 現在改成看 auth_access_token]
  */
-const isAuthenticated = () => Boolean(localStorage.getItem("auth_user_id"));
+const isAuthenticated = () =>
+  Boolean(localStorage.getItem("auth_access_token"));
 
 router.beforeEach((to) => {
   if (to.meta?.requiresAuth && !isAuthenticated()) {
