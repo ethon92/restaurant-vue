@@ -13,8 +13,21 @@ export default {
   searchRestaurants(filters) {
     return service.get("/api/search", {
       params: filters,
-      paramsSerializer: {
-        indexes: null,
+      // 修改這裡：使用 URLSearchParams 手動處理，確保格式為 tags=A&tags=B
+      paramsSerializer: (params) => {
+        const searchParams = new URLSearchParams();
+        Object.keys(params).forEach((key) => {
+          const value = params[key];
+          if (Array.isArray(value)) {
+            // 針對 city 和 tags 陣列，重複添加 key
+            value.forEach((v) => {
+              if (v) searchParams.append(key, v);
+            });
+          } else if (value !== null && value !== undefined) {
+            searchParams.append(key, value);
+          }
+        });
+        return searchParams.toString();
       },
     });
   },

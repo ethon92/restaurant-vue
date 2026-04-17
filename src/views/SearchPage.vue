@@ -98,7 +98,6 @@ watch(() => route.query, () => {
           <div class="spinner-border text-warning" role="status"></div>
           <p>搜尋中...</p>
         </div>
-        <RestaurantList :data="restaurants" @select-restaurant="handleSelect" />
 
         <div class="list-wrapper">
           <RestaurantList :data="restaurants" @select-restaurant="handleSelect" />
@@ -116,7 +115,7 @@ watch(() => route.query, () => {
       <RestaurantMap ref="mapRef" :restaurants="restaurants" @bounds-changed="handleMapMove" />
     </main>
   </div>
-      <TheFooter></TheFooter>
+  <TheFooter></TheFooter>
 </template>
 
 <style scoped>
@@ -124,7 +123,6 @@ watch(() => route.query, () => {
   display: flex;
   width: 100%;
   height: calc(100vh - 60px);
-  overflow: hidden;
 }
 
 .sidebar {
@@ -144,6 +142,8 @@ watch(() => route.query, () => {
   padding: 20px;
   border-bottom: 1px solid #eee;
   background-color: #fff;
+  position: relative;
+  z-index: 100;
 }
 
 .loading-hint {
@@ -190,6 +190,70 @@ watch(() => route.query, () => {
   position: relative;
 }
 
+
+/* SearchPage 專用：縮小 LobbySearch 進階搜尋面板 */
+.sidebar-header :deep(.search-system-wrapper) {
+  padding: 10px 0;
+}
+
+.sidebar-header :deep(.search-bar) {
+  padding: 5px 8px 5px 15px;
+}
+
+.sidebar-header :deep(.search-bar input) {
+  font-size: 0.95rem;
+  padding: 6px;
+}
+
+.sidebar-header :deep(.search-btn) {
+  padding: 7px 18px;
+  font-size: 0.85rem;
+}
+
+.sidebar-header :deep(.floating-panel) {
+  max-height: calc(100vh - 220px);
+  overflow-y: auto;
+}
+
+.sidebar-header :deep(.panel-inner) {
+  padding: 15px;
+}
+
+.sidebar-header :deep(.filter-group) {
+  margin-bottom: 12px;
+}
+
+.sidebar-header :deep(.filter-group label) {
+  font-size: 0.7rem;
+  margin-bottom: 6px;
+}
+
+.sidebar-header :deep(.chip) {
+  padding: 4px 10px;
+  font-size: 0.75rem;
+}
+
+.sidebar-header :deep(.chip-grid) {
+  gap: 5px;
+}
+
+.sidebar-header :deep(.custom-range) {
+  margin-top: 5px;
+}
+
+.sidebar-header :deep(.panel-footer) {
+  margin-top: 12px;
+  padding-top: 10px;
+}
+
+.sidebar-header :deep(.apply-btn) {
+  padding: 7px 18px;
+  font-size: 0.85rem;
+}
+
+.sidebar-header :deep(.reset-link) {
+  font-size: 0.8rem;
+}
 
 /* RWD 響應式 */
 @media (max-width: 768px) {

@@ -79,8 +79,6 @@ onMounted(fetchRecommended);
     </div>
         <div class="container">
       <RestaurantCarousel title="熱門推薦" :list="recommendedRestaurants" />
-
-      <SearchResults v-if="isSearching" :results="searchResults" @close="isSearching = false" />
     </div>
   </div>
   <TheFooter></TheFooter>

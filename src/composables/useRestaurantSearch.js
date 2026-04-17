@@ -48,6 +48,7 @@ export function useRestaurantSearch() {
   };
 
   const searchByBounds = async (combinedParams) => {
+    isLoading.value = true;
     try {
       const res = await restaurantApi.getRestaurantsInBounds(combinedParams);
       

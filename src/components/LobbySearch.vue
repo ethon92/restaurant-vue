@@ -1,6 +1,6 @@
 <script setup>
 import { ref, computed, onMounted, watch } from 'vue';
-import restaurantApi from '@/api/modules/restaurant'; 
+import restaurantApi from '@/api/modules/restaurant';
 import { useRoute } from 'vue-router';
 
 const emit = defineEmits(['search-submit']);
@@ -16,10 +16,10 @@ const selectedPrice = computed(() => priceLevels[priceIndex.value]);
 const selectedTags = ref([]);
 
 // 同步URL 參數到變數
-const syncInternalState =()=>{
-    const {q, city, price_level, tags} = route.query;
+const syncInternalState = () => {
+    const { q, city, price_level, tags } = route.query;
 
-    searchQuery.value=q||'';
+    searchQuery.value = q || '';
 
     if (city) {
         selectedCity.value = Array.isArray(city) ? city : [city];
@@ -86,7 +86,7 @@ const onSearch = () => {
         params.q = searchQuery.value.trim();
     }
 
-    if (selectedCity.value.length>0) {
+    if (selectedCity.value.length > 0) {
         params.city = [...selectedCity.value];
     }
 

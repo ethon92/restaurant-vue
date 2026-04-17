@@ -1,5 +1,6 @@
 <script setup>
-const props = defineProps({ comments: Array , loading: Boolean})
+const props = defineProps({ comments: Array , loading: Boolean, currentPage: Number,
+  totalPages: Number})
 const formatDate = (dateStr) => {
   if (!dateStr) return '';
   const date = new Date(dateStr);
@@ -21,6 +22,10 @@ const formatDate = (dateStr) => {
       <div v-for="comment in comments" :key="comment.comment_id" class="comment-card">
         <div class="comment-header">
            <small>餐廳: {{ comment.Name }}</small>
+           <div class="action-buttons">
+            <button class="edit-btn" @click="$emit('edit', comment)">更新</button>
+            <button class="delete-btn" @click="$emit('delete', comment)">刪除</button>
+          </div>
         </div>
         <div class="comment-body">
           <p>{{ comment.comment_content }}</p>
@@ -37,7 +42,19 @@ const formatDate = (dateStr) => {
         </div>
       </div>
     </div>
+    <div class="pagination" v-if="totalPages > 1">
+      <button 
+        :disabled="currentPage === 1" 
+        @click="$emit('change-page', currentPage - 1)"
+      > 上一頁 </button>
+      
+      <span>第 {{ currentPage }} / {{ totalPages }} 頁</span>
 
+      <button 
+        :disabled="currentPage === totalPages" 
+        @click="$emit('change-page', currentPage + 1)"
+      > 下一頁 </button>
+    </div>
     <div v-else class="no-data">尚無評論紀錄</div>
   </div>
 </template>
@@ -75,7 +92,10 @@ const formatDate = (dateStr) => {
 
 /* 頭部：餐廳名稱 */
 .comment-header {
-  margin-bottom: 8px;
+  display: flex;
+  justify-content: space-between; /* 關鍵：將標題推向左，按鈕推向右 */
+  align-items: center;           /* 垂直居中對齊 */
+  margin-bottom: 12px;
   border-bottom: 1px dashed #eee;
   padding-bottom: 8px;
 }
@@ -124,5 +144,87 @@ const formatDate = (dateStr) => {
 .time {
   color: #bbb;
   font-size: 0.85rem;
+}
+.action-btns {
+  display: flex;
+  gap: 12px;
+  align-self: flex-start; 
+}
+
+/* 按鈕美化（可選） */
+.edit-btn, .delete-btn {
+  padding: 5px 14px;
+  font-size: 13px;
+  border-radius: 20px; /* 更加圓潤，符合截圖風格 */
+  border: 1px solid #dcdfe6; /* 淺灰色細邊框 */
+  background-color: #fff;
+  color: #606266;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  line-height: 1;
+}
+
+.edit-btn:hover {
+  background-color: #f0f7ff;
+  border-color: #007bff;
+  color: #007bff;
+}
+
+.delete-btn:hover {
+  background-color: #fff5f5;
+  border-color: #ff4d4f;
+  color: #ff4d4f;
+}
+
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 30px 0;
+  gap: 8px;
+}
+
+/* 基礎按鈕樣式 */
+.pagination button {
+  padding: 8px 16px;
+  border: 1px solid #eee;
+  background-color: #fff;
+  color: #666;
+  border-radius: 20px; /* 圓角與卡片風格呼應 */
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05); /* 輕微陰影 */
+}
+
+/* 滑鼠懸停效果 */
+.pagination button:hover:not(:disabled) {
+  border-color: #ff8d4d; /* 品牌橘色 */
+  color: #ff8d4d;
+  background-color: #fffaf7;
+}
+
+/* 當前頁碼激活狀態 */
+.pagination button.active {
+  background-color: #ff8d4d; /* 品牌橘色 */
+  color: #fff;
+  border-color: #ff8d4d;
+  font-weight: bold;
+}
+
+/* 禁用狀態（例如在第一頁時點擊上一頁） */
+.pagination button:disabled {
+  background-color: #f5f5f5;
+  color: #ccc;
+  cursor: not-allowed;
+  border-color: #eee;
+  box-shadow: none;
+}
+
+/* 頁碼中間的文字標示 (選用) */
+.page-info {
+  margin: 0 10px;
+  font-size: 14px;
+  color: #999;
 }
 </style>

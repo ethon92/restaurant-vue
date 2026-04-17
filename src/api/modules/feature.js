@@ -49,7 +49,27 @@ const commentApi = {
             method: 'post',
             data : comment_data
         })
-    }
+    },
+    updateCommentStates(data) {
+        return service({
+            url: 'booking/comment-status',
+            method: 'put',
+            data
+        })
+    },
+    updateComment(comment_data) {
+    return service({
+    url: '/comments', 
+    method: 'put',
+    data: comment_data 
+    })
+},
+    deleteComment(user_id, comment_id){
+        return service({
+            url:`/comments/${user_id}/${comment_id}`,
+            method: 'delete',
+        })
+    },
 }
 
 export const createFavorite = favoriteApi.createFavorite
@@ -59,3 +79,6 @@ export const deleteFavorite = favoriteApi.deleteFavorite
 export const deleteFavoriteRestaurant = favoriteApi.deleteFavoriteRestaurant
 export const getFavorite = favoriteApi.getFavorite
 export const createComment = commentApi.createComment
+export const updateCommentStates=commentApi.updateCommentStates
+export const updateComment = commentApi.updateComment
+export const deleteComment = commentApi.deleteComment

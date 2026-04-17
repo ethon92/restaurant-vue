@@ -1,9 +1,9 @@
 <script setup>
 import { computed, onMounted, onBeforeUnmount, reactive, ref, provide } from "vue";
 import { useRouter, useRoute } from 'vue-router'
+import adminNavbar from '@/components/adminNavbar.vue'
 import { useAuthStore } from "@/stores/auth";
-import Navbar from '@/components/Navbar.vue';
-import { uploadAvatar, getAvatarUrl, removeAvatar as removeAvatarAPI, } from "@/api/modules/auth";
+
 
 
 /* =========================
@@ -228,7 +228,7 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <Navbar />
+  <adminNavbar />
   <div class="profile-page">
     <!-- Header -->
     <section class="profile-header">
@@ -261,14 +261,12 @@ onBeforeUnmount(() => {
 
     <!-- Tabs -->
     <nav class="tabs">
-      <RouterLink class="tab" :class="{ active: activeTab === 'booking' }" @click="activeTab = 'booking'"
-        :to="{ 'name': 'bookingRecord' }">訂位紀錄</RouterLink>
-      <RouterLink class="tab" :class="{ active: activeTab === 'favorite' }" @click="activeTab = 'favorite'"
-        :to="{ 'name': 'favoriteRestaurant' }">珍藏餐廳</RouterLink>
-      <RouterLink class="tab" :class="{ active: activeTab === 'comment' }" @click="activeTab = 'comment'"
-        :to="{ 'name': 'userComments' }">我的評論</RouterLink>
-      <RouterLink class="tab" :class="{ active: activeTab === 'account' }" @click="activeTab = 'account'"
-        :to="{ 'name': 'accountDetail' }">帳戶詳細資料</RouterLink>
+      <RouterLink class="tab" :class="{ active: activeTab === 'record' }" @click="activeTab = 'record'"
+        :to="{ 'name': 'record' }">數據分析</RouterLink>
+      <RouterLink class="tab" :class="{ active: activeTab === 'memberDetail' }" @click="activeTab = 'memberDetail'"
+        :to="{ 'name': 'memberDetail' }">會員管理</RouterLink>
+      <RouterLink class="tab" :class="{ active: activeTab === 'restaurantDetail' }" @click="activeTab = 'restaurantDetail'"
+        :to="{ 'name': 'restaurantDetail' }">餐廳管理</RouterLink>
     </nav>
     <!-- 子頁（AccountDetail / BookingRecord / FavoriteRestaurant) -->
     <section class="tab-content">
