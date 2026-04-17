@@ -168,7 +168,14 @@ onMounted(() => {
             <InfoMetaItem icon="🛜" label="餐廳網址">
               <a :href="info.Website" target="_blank" class="modern-link">{{ info.Name }}</a>
             </InfoMetaItem>
-            <InfoMetaItem icon="🍽️" label="營業風格" :value="info.TagsStr" />
+            <InfoMetaItem icon="🍽️" label="營業風格">
+              <div v-if="info.TagsStr" class="tag-chips">
+                <span v-for="tag in info.TagsStr.split(',')" :key="tag" class="tag-chip">
+                  {{ tag.trim() }}
+                </span>
+              </div>
+              <span v-else class="meta-empty">—</span>
+            </InfoMetaItem>
             <InfoMetaItem icon="🔖" label="鄰近縣市" :value="info.City" />
             <InfoMetaItem icon="🅿️" label="停車資訊" :value="info.Parking" />
           </div>
@@ -421,5 +428,27 @@ onMounted(() => {
   color: hsl(28, 75%, 45%);
   text-decoration: none;
   font-weight: 500;
+}
+
+.tag-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 2px;
+}
+
+.tag-chip {
+  background: #fdf3e4;
+  color: #c26a1a;
+  border: 1px solid #f5c98a;
+  border-radius: 20px;
+  padding: 3px 10px;
+  font-size: 0.78rem;
+  font-weight: 500;
+}
+
+.meta-empty {
+  color: #bbb;
+  font-weight: 400;
 }
 </style>
