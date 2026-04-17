@@ -38,7 +38,7 @@ export function useRestaurantSearch() {
       }
 
       // debug log
-      const scored = res.data.filter(r => r._score != null);
+      const scored = res.data.filter(r => r.match_score != null);
       const mode = scored.length > 0 ? 'semantic+rerank' : (queryParams.q ? 'semantic' : 'filter-only');
       const activeFilters = [
         queryParams.city ? `city:${queryParams.city}` : null,
@@ -52,7 +52,7 @@ export function useRestaurantSearch() {
         ` | results=${res.data.length} | latency=${latency}ms`
       );
       if (scored.length > 0) {
-        scored.forEach((r, i) => console.log(`  #${i + 1}  similarity=${r._score}  ${r.Name}`));
+        scored.forEach((r, i) => console.log(`  #${i + 1}  similarity=${r.match_score}  ${r.Name}`));
       }
 
       hasMore.value = res.data.length ===limit;
