@@ -7,7 +7,7 @@ import InfoMetaItem from '@/components/RestaurantDetail/InfoMetaItem.vue';
 import DetailCard from '@/components/RestaurantDetail/DetailCard.vue';
 import AddFavoriteCard from '@/components/AddFavoriteCard.vue';
 import { useAuthStore } from '@/stores/auth';
-import { deleteFavoriteRestaurant, getFavorite }from '@/api/modules/feature';
+import { deleteFavoriteRestaurant, getFavorite } from '@/api/modules/feature';
 import Navbar from '@/components/Navbar.vue';
 import TheFooter from '@/components/TheFooter.vue';
 import LoginGuideModel from '@/components/RestaurantDetail/LoginGuideModel.vue';
@@ -106,14 +106,10 @@ const handleGetFavorite = async () => {
 }
 
 const getImageUrl = (path) => {
-  if (!path) return '';
-  if (path.startsWith('http')) return path;
+  const baseUrl = 'http://127.0.0.1:8000/static';
 
-  const baseUrl = 'http://127.0.0.1:8000';
-  const hasStatic = path.includes('/static');
-  const cleanPath = path.startsWith('/') ? path : `/${path}`;
-
-  return hasStatic ? `${baseUrl}${cleanPath}` : `${baseUrl}/static${cleanPath}`;
+  // 使用 encodeURI 處理空格與中文字元
+  return `${baseUrl}${encodeURI(path)}`;
 };
 
 onMounted(() => {
