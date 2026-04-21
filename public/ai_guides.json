@@ -75,7 +75,7 @@
     "id": "C3_395000000A_002196",
     "name": "瑪莎園",
     "category": "特色店家",
-    "has_booking": false,
+    "has_booking": true,
     "golden_combo": "梅嶺梅子雞鍋＋夜景",
     "warning_tips": "餐點普通主賣景觀"
   },
@@ -243,7 +243,7 @@
     "id": "C3_382000000A_207576",
     "name": "枋腳堡大天皇毛蟹城",
     "category": "特色店家",
-    "has_booking": false,
+    "has_booking": true,
     "golden_combo": "鱘龍魚一魚六吃＋溪蝦",
     "warning_tips": "山路偏遠建議熟人帶路"
   },
@@ -667,7 +667,7 @@
     "id": "C3_376430000A_002828",
     "name": "星上星港式飲茶",
     "category": "特色店家",
-    "has_booking": false,
+    "has_booking": true,
     "golden_combo": "燒鵝＋鮮蝦腸粉＋臘味蘿蔔糕",
     "warning_tips": "小籠湯包及流沙球品質不穩"
   },
