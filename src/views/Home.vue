@@ -7,13 +7,15 @@ import RestaurantCarousel from '@/components/HomeDetail/RestaurantCarousel.vue';
 import restaurantApi from '@/api/modules/restaurant';
 import { restaurantCommentList } from '@/api/modules/restaurant';
 import { onMounted, ref } from 'vue';
-import SearchByImageCard from '@/components/SearchPage/SearchByImageCard.vue';
+import ImageSearchResultModal from '@/components/SearchPage/ImageSearchResultModal.vue';
+import { useSearchStore } from '@/stores/searchStore';
+
 
 const recommendedRestaurants = ref([])
 const router = useRouter();
-const imageSearchResults = ref([]);
-const showResultModal = ref(false); // 控制結果彈窗
-const isGlobalLoading = ref(false); // 全域讀取狀態
+const searchStore = useSearchStore();
+// 全域讀取狀態
+const isGlobalLoading = ref(false);
 
 
 // 處理來自 LobbySearch 的搜尋事件
@@ -67,7 +69,7 @@ const fetchRecommended = async () => {
 
 // 處理來自 LobbySearch 的圖片搜尋事件
 const handleImageSearch = async (file) => {
-  isGlobalLoading.value = true; 
+  isGlobalLoading.value = true;
   try {
     // 建立 FormData 物件
     const formData = new FormData();
@@ -79,20 +81,16 @@ const handleImageSearch = async (file) => {
     const res = await restaurantApi.searchByImage(formData, file.city);
 
     if (res.data.status === 'success') {
-      imageSearchResults.value = res.data.results; 
-      showResultModal.value = true;
+      // 將結果存入 Store，這會自動觸發彈窗顯示
+      searchStore.setSearchResults(res.data.results);
       console.log("圖片搜尋結果:", res.data.results);
     }
   } catch (err) {
     console.error("圖片搜尋失敗:", err);
-    alert("AI 辨識失敗，請稍後再試");
+    alert("搜尋失敗，請稍後再試");
   } finally {
     isGlobalLoading.value = false;
   }
-};
-
-const closeMetadata = () => {
-  showResultModal.value = false;
 };
 
 onMounted(fetchRecommended);
@@ -107,35 +105,21 @@ onMounted(fetchRecommended);
         <p class="hero-subtitle">全台 4,000+ 間頂級餐廳，一鍵即刻預定</p>
       </div>
     </header>
+
     <!--  以圖搜尋餐廳的 loading 狀態 -->
     <div v-if="isGlobalLoading" class="loading-overlay">
       <div class="loader"></div>
-      <p>AI 正在分析圖片並比對餐廳...</p>
+      <p>正在分析圖片並比對餐廳...</p>
     </div>
 
     <div class="search-section">
       <LobbySearch @search-submit="handleSearch" @image-upload="handleImageSearch" />
       <hr />
     </div>
-    <!-- 圖片搜尋結果彈窗 -->
-    <Transition name="fade">
-      <div v-if="showResultModal" class="result-modal-overlay" @click.self="closeMetadata">
-        <div class="result-modal-content">
-          <div class="modal-header">
-            <h2>AI 辨識結果</h2>
-            <button class="close-btn" @click="closeMetadata">✕</button>
-          </div>
 
-          <div class="result-grid" v-if="imageSearchResults.length > 0">
-            <SearchByImageCard v-for="item in imageSearchResults" :key="item.id"
-              :info="item" />
-          </div>
-          <div v-else class="no-result">
-            <p>找不到相似的餐廳，請嘗試換張照片或調整縣市。</p>
-          </div>
-        </div>
-      </div>
-    </Transition>
+    <!-- 圖片搜尋結果彈窗 -->
+    <ImageSearchResultModal :show="searchStore.showResultModal" :results="searchStore.imageSearchResults"
+      @close="searchStore.closeSearchModal" />
 
     <div class="container">
       <RestaurantCarousel title="熱門推薦" :list="recommendedRestaurants" />
@@ -172,57 +156,7 @@ onMounted(fetchRecommended);
   padding: 20px;
 }
 
-/* 彈窗背景遮罩 */
-.result-modal-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.7);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 3000;
-  padding: 20px;
-}
-
-/* 彈窗主體 */
-.result-modal-content {
-  background: #f8f9fa;
-  width: 90%;
-  max-width: 1000px;
-  max-height: 85vh;
-  border-radius: 20px;
-  overflow-y: auto;
-  position: relative;
-  padding: 30px;
-}
-
-.modal-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 25px;
-  position: sticky;
-  background: #f8f9fa;
-  z-index: 10;
-}
-
-.close-btn {
-  background: none;
-  border: none;
-  font-size: 1.5rem;
-  cursor: pointer;
-  color: #666;
-}
-
-/* 結果網格排版 */
-.result-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 20px;
-  justify-items: center;
-}
-
-/* Loading 效果 */
+/* 以圖搜尋餐廳的 Loading 效果 */
 .loading-overlay {
   position: fixed;
   inset: 0;
@@ -252,16 +186,5 @@ onMounted(fetchRecommended);
   100% {
     transform: rotate(360deg);
   }
-}
-
-/* 動畫 */
-.fade-enter-active,
-.fade-leave-active {
-  transition: opacity 0.3s;
-}
-
-.fade-enter-from,
-.fade-leave-to {
-  opacity: 0;
 }
 </style>
