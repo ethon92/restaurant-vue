@@ -1,12 +1,15 @@
 <script setup>
 import { useAuthStore } from '@/stores/auth';
-import { computed , ref } from 'vue';
+import { computed, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
+import { useSearchStore } from '@/stores/searchStore';
+
 
 const authStore = useAuthStore();
 // 利用useRoute去獲取路徑上的參數
 const route = useRoute();
 const router = useRouter();
+const searchStore = useSearchStore();
 
 // 判斷當前是否已經在 profile 相關頁面
 const isAtProfile = computed(() => route.path.startsWith('/profile'));
@@ -22,12 +25,18 @@ const onLogout = async () => {
     router.push("/login");
 };
 
+
+const closeImageSearchModal = () => {
+    // 關閉搜尋 Modal
+    searchStore.closeSearchModal(); 
+};
+
 const isLoggedIn = ref()
 </script>
 
 <template>
     <nav class="navbar">
-        <RouterLink to="/" class="logo">
+        <RouterLink to="/" class="logo" @click="closeImageSearchModal">
             <img src="/navbar.png" alt="Logo" />
             <span>DINE 享樂</span>
         </RouterLink>
