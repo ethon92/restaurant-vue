@@ -7,10 +7,16 @@ import { useRestaurantSearch } from '@/composables/useRestaurantSearch';
 import LobbySearch from '@/components/LobbySearch.vue';
 import Navbar from '@/components/Navbar.vue';
 import TheFooter from '@/components/TheFooter.vue';
+import ImageSearchResultModal from '@/components/SearchPage/ImageSearchResultModal.vue';
+import { useSearchStore } from '@/stores/searchStore';
+import restaurantApi from '@/api/modules/restaurant';
 
 const route = useRoute();
 const router = useRouter();
 const mapRef = ref(null);
+const searchStore = useSearchStore();
+// 全域讀取狀態
+const isGlobalLoading = ref(false);
 
 const { restaurants, isLoading, hasMore, searchRestaurants, searchByBounds } = useRestaurantSearch();
 
@@ -61,6 +67,32 @@ const performSearch = async () => {
   }
 };
 
+// 處理來自 LobbySearch 的圖片搜尋事件
+const handleImageSearch = async (file) => {
+  isGlobalLoading.value = true;
+  try {
+    // 建立 FormData 物件
+    const formData = new FormData();
+
+    // 加入圖片檔案 (必填)
+    formData.append('file', file.file);
+
+    // 呼叫後端 API 進行圖片搜尋，並傳入選擇的縣市
+    const res = await restaurantApi.searchByImage(formData, file.city);
+
+    if (res.data.status === 'success') {
+      // 將結果存入 Store，這會自動觸發彈窗顯示
+      searchStore.setSearchResults(res.data.results);
+      console.log("圖片搜尋結果:", res.data.results);
+    }
+  } catch (err) {
+    console.error("圖片搜尋失敗:", err);
+    alert("搜尋失敗，請稍後再試");
+  } finally {
+    isGlobalLoading.value = false;
+  }
+};
+
 onMounted(() => {
   performSearch();
 });
@@ -82,7 +114,18 @@ watch(() => route.query, () => {
           共找到 {{ restaurants.length }} 家餐廳
         </p>
         <p v-else class="no-result">沒有找到符合條件的餐廳</p>
-        <LobbySearch @search-submit="(params) => router.push({ query: params })" />
+
+        <!--  以圖搜尋餐廳的 loading 狀態 -->
+        <div v-if="isGlobalLoading" class="loading-overlay">
+          <div class="loader"></div>
+          <p>AI 正在分析圖片並比對餐廳...</p>
+        </div>
+
+        <LobbySearch @search-submit="(params) => router.push({ query: params })" @image-upload="handleImageSearch" />
+
+        <!-- 圖片搜尋結果彈窗 -->
+        <ImageSearchResultModal :show="searchStore.showResultModal" :results="searchStore.imageSearchResults"
+          @close="searchStore.closeSearchModal" />
       </div>
 
 
@@ -297,6 +340,38 @@ watch(() => route.query, () => {
   text-align: center;
   padding: 10px 0;
   margin: 0;
+}
+
+/* 以圖搜尋餐廳的 Loading 效果 */
+.loading-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(255, 255, 255, 0.9);
+  z-index: 4000;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.loader {
+  border: 5px solid #f3f3f3;
+  border-top: 5px solid #f38332;
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  animation: spin 1s linear infinite;
+  margin-bottom: 15px;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 /* RWD 響應式 */

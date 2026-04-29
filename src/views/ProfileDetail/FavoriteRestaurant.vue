@@ -13,17 +13,32 @@ const loadProgress = ref(0);
 
 // 獲取收藏餐廳清單
 const fetchFavoriteRestaurant = async () => {
+    // 初始化進度條
+    loadProgress.value = 20; 
+
     try {
         // 當me為空值時，先去打API拿資料
         if (!authStore.me) {
             await authStore.fetchMe();
         }
-        
+
+        // 此時會員資料已獲取完成
+        loadProgress.value = 50; 
+
         const response = await favoriteList(authStore.me.id);
-        favoriteData.value = response.data.results;
-        console.log(response.data);
+
+        if (response.data) {
+            favoriteData.value = response.data.results;
+            // API 資料成功回傳，進度條滿格
+            loadProgress.value = 100; 
+        }
     } catch (error) {
-        console.warn(error);
+        console.warn('抓取收藏失敗:', error);
+    } finally {
+        // 確保在資料載入後，稍微延遲一點點關閉
+        setTimeout(() => {
+            isLoading.value = false;
+        }, 300);
     }
 };
 
@@ -55,22 +70,12 @@ const handleDelete = async (favId) => {
 
 onMounted(() => {
     fetchFavoriteRestaurant();
-    // 利用setInterval實現進度條功能
-    const timer = setInterval(() => {
-        // 進度條的速度
-        loadProgress.value += 10;
-        // 當loadProgress超過100時，
-        if (loadProgress.value >= 100) {
-            clearInterval(timer)
-            isLoading.value = false;
-        }
-    }, 400)
 })
 </script>
 
 
 <template>
-    <LoadingState v-if="isLoading" :progress="loadProgress" message="正在載入您的收藏餐廳..." />
+    <LoadingState v-if="isLoading" :progress="loadProgress" ></LoadingState>
     <FavoriteCard v-else :restaurants="favoriteData" @edit-note="handleEdit" @delete-fav="handleDelete"></FavoriteCard>
 </template>
 
