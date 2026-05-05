@@ -32,10 +32,16 @@ const getImageUrl = (path) => {
             <p class="res-tags">
                 {{ info.TagsStr?.split(',')[0] }} • {{ info.City }}
             </p>
-            <!-- AI 推薦理由：只有「為你推薦」資料有 recommend_reason 時才會顯示 -->
-            <p v-if="info.recommend_reason" class="recommend-reason"
+            <!-- 
+                AI 推薦理由顯示邏輯：
+                1. llm_reason：Ollama 本機 LLM 產生的自然文案
+                2. recommend_reason：原本規則式推薦理由
+                3. 優先顯示 llm_reason，沒有才顯示 recommend_reason
+                4. 這樣就算 Ollama 沒開，畫面也不會壞掉
+            -->
+            <p v-if="info.llm_reason || info.recommend_reason" class="recommend-reason"
                 :class="`source-${info.recommend_source || 'default'}`">
-                ✨ {{ info.recommend_reason }}
+                ✨ {{ info.llm_reason || info.recommend_reason }}
             </p>
 
 

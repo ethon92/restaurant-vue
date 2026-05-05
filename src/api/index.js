@@ -6,7 +6,9 @@ import axios from "axios";
  */
 const service = axios.create({
   baseURL: "http://localhost:8000", // 後端API的網址
-  timeout: 10000, // 請求逾時時間(毫秒)
+  // 原本 10000 = 10 秒
+  // 加上 LLM 後第一次請求可能會比較慢，所以先改成 60 秒
+  timeout: 60000, // 請求逾時時間(毫秒)
 });
 
 /**
