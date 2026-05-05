@@ -1,5 +1,6 @@
 <script setup>
 import { ref, onMounted } from 'vue';
+import { useRoute } from 'vue-router';
 import AppointmentSection from '@/components/AppointmentSection.vue';
 import AiOrderingGuide from '@/components/AiOrderingGuide.vue';
 import { useAiGuide } from '@/composables/useAiGuide';
@@ -16,6 +17,8 @@ import LoginGuideModel from '@/components/RestaurantDetail/LoginGuideModel.vue';
 import ImageLoader from '@/components/RestaurantDetail/ImageLoader.vue';
 import RestaurantCard from '@/components/HomeDetail/RestaurantCard.vue';
 import RestaurantCommentCard from '@/components/RestaurantCommentCard.vue';
+import api from "@/api";
+import { recordBehaviorApi } from "@/api/modules/behavior";
 
 
 const props = defineProps({
@@ -45,6 +48,8 @@ const fetchDetail = async () => {
     alert("找不到此餐廳資訊！");
   } finally {
     isLoading.value = false;
+
+    // 若已登入，再檢查收藏狀態
     if (authStore.me) {
       handleGetFavorite();
     } else {
@@ -54,17 +59,66 @@ const fetchDetail = async () => {
 };
 
 
+
+const route = useRoute();
 const authStore = useAuthStore();
 const isFavorite = ref(false);
+const showLoginGuide = ref(false);
 // 控制彈窗顯示
 const showAddFavModal = ref(false);
 // 成功收藏餐廳函式
-const onFavSuccess = () => {
+
+
+/**
+ * 記錄使用者行為（給 AI 推薦系統蒐集資料用）
+ *
+ * @param {string} actionType - 行為類型
+ * 可用值：
+ * - "click"    ：點擊餐廳頁
+ * - "favorite" ：收藏餐廳
+ * - "booking"  ：完成訂位
+ */
+const recordBehavior = async (actionType) => {
+  try {
+    /*
+    除錯用
+    console.log("送出的 payload", {
+      user_id: authStore.userId,
+      restaurant_id: props.id,
+      action_type: actionType,
+    });
+    console.log("後端錯誤內容", error?.response?.data);
+    */
+    // 1. 沒登入就不記錄
+    if (!authStore.userId) return;
+
+    // 2. 沒有餐廳 id 也不記錄
+    if (!props.id) return;
+
+    // 3. 呼叫後端行為 API
+    await api.post("/behavior", {
+      user_id: authStore.userId,
+      restaurant_id: props.id,
+      action_type: actionType
+    });
+
+    console.log(`行為紀錄成功: ${actionType}`);
+  } catch (error) {
+    // 只記錄錯誤，不要中斷頁面功能
+    console.warn(`行為紀錄失敗: ${actionType}`, error);
+  }
+};
+/**
+ * 成功收藏後觸發
+ */
+const onFavSuccess = async () => {
   showAddFavModal.value = false;
   isFavorite.value = true;
+
+  // 記錄收藏行為
+  await recordBehavior("favorite");
 };
 
-const showLoginGuide = ref(false);
 
 // 切換收藏餐廳函式
 const toggleFavorite = () => {
@@ -117,8 +171,18 @@ const getImageUrl = (path) => {
   return `${baseUrl}${encodeURI(path)}`;
 };
 
-onMounted(() => {
-  fetchDetail();
+/**
+ * 頁面載入時：
+ * 1. 抓餐廳資料
+ * 2. 記錄點擊行為
+ */
+
+onMounted(async () => {
+  // 1. 先抓餐廳詳細資料
+  await fetchDetail();
+
+  // 2. 若已登入，記錄「點擊餐廳」行為
+  await recordBehavior("click");
 });
 </script>
 

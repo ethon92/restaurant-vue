@@ -1,3 +1,4 @@
+//
 import { createRouter, createWebHistory } from "vue-router";
 import Home from "@/views/Home.vue";
 import RestaurantDetail from "../views/RestaurantDetail.vue";
@@ -11,6 +12,10 @@ import SearchPage from "@/views/SearchPage.vue";
 import AccountDetail from "@/views/ProfileDetail/AccountDetail.vue";
 import ChangePassword from "@/views/ProfileDetail/ChangePassword.vue";
 import UserComment from "@/views/ProfileDetail/UserComment.vue";
+import adminPage from "@/views/adminPage.vue";
+import memberDetail from "@/views/admin/memberDetail.vue";
+import record from "@/views/admin/record.vue";
+import restaurantDetail from "@/views/admin/restaurantDetail.vue";
 
 const router = createRouter({
   history: createWebHistory(),
@@ -53,6 +58,35 @@ const router = createRouter({
       component: ForgotPassword,
       name: "forgot-password",
     },
+    // admin page
+    {
+      path: "/adminPage",
+      component: adminPage,
+      name: "adminPage",
+      meta: { requiresAuth: true, requiresAdmin: true },
+      children: [
+        {
+          path: "",
+          redirect: { name: "memberDetail" },
+        },
+        {
+          path: "memberDetail",
+          component: memberDetail,
+          name: "memberDetail",
+        },
+        {
+          path: "record",
+          component: record,
+          name: "record",
+        },
+        {
+          path: "restaurantDetail",
+          component: restaurantDetail,
+          name: "restaurantDetail",
+        },
+      ],
+    },
+
     // 未登入不能進 Profile
     {
       path: "/profile",
@@ -91,15 +125,21 @@ const router = createRouter({
 });
 
 /**
- * Router Guard
- * ✅ 目前用 localStorage 的 "auth_user_id" 當登入旗標
- * 這個 key 由 Pinia store 的 setSession 寫入（src/stores/auth.js）
+ * * ✅ 目前用 localStorage 的 "auth_access_token" 當登入旗標
+ * [原本看 auth_user_id
+ * 現在改成看 auth_access_token]
  */
-const isAuthenticated = () => Boolean(localStorage.getItem("auth_user_id"));
+const isAuthenticated = () =>
+  Boolean(localStorage.getItem("auth_access_token"));
+const isAdmin = () => localStorage.getItem("auth_role") === "admin";
 
 router.beforeEach((to) => {
   if (to.meta?.requiresAuth && !isAuthenticated()) {
     return { name: "login" };
+  }
+
+  if (to.meta?.requiresAdmin && !isAdmin()) {
+    return { name: "home" };
   }
 });
 
