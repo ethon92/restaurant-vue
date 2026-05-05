@@ -3,7 +3,7 @@ defineProps({
     info: {
         type: Object,
         required: true
-    },resRating : Number
+    }, resRating: Number
 });
 
 const getImageUrl = (path) => {
@@ -30,15 +30,23 @@ const getImageUrl = (path) => {
             </div>
 
             <p class="res-tags">
-                {{ info.TagStr?.split(',')[0] }} • {{ info.City }}
+                {{ info.TagsStr?.split(',')[0] }} • {{ info.City }}
             </p>
-            </div>
+            <!-- AI 推薦理由：只有「為你推薦」資料有 recommend_reason 時才會顯示 -->
+            <p v-if="info.recommend_reason" class="recommend-reason"
+                :class="`source-${info.recommend_source || 'default'}`">
+                ✨ {{ info.recommend_reason }}
+            </p>
 
-            <router-link :to="{ name: 'RestaurantDetail', params: { id: info.ID } }" class="card-btn">
-                立即訂位
-            </router-link>
+
         </div>
-    
+
+
+        <router-link :to="{ name: 'RestaurantDetail', params: { id: info.ID } }" class="card-btn">
+            立即訂位
+        </router-link>
+    </div>
+
 </template>
 
 
@@ -121,5 +129,16 @@ const getImageUrl = (path) => {
     text-decoration: none;
     border-radius: 8px;
     font-weight: bold;
+}
+
+.recommend-reason {
+    font-size: 0.82rem;
+    color: #d61a8d;
+    font-weight: 700;
+    line-height: 1.4;
+    margin: 4px 0 12px;
+    background: #fff0f7;
+    padding: 8px 10px;
+    border-radius: 8px;
 }
 </style>
