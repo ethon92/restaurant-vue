@@ -42,7 +42,6 @@ export default {
   },
 
   /* 5. 提交預約 */
-
   book(bookingData) {
     return service.post("/api/reservations", bookingData);
   },
@@ -55,6 +54,16 @@ export default {
   /* 7. [新功能] 取得所有預約 */
   getAllReservations() {
     return service.get('/api/reservations');
+  },
+
+  // 8. 以圖片搜尋餐廳API
+  searchByImage(data, city) {
+    return service({
+      url: '/api/search/image',
+      method: 'post',
+      data,
+      params: { city } // 將 city 作為 query 參數傳遞
+    })
   }
 };
 

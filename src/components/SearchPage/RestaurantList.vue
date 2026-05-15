@@ -1,9 +1,41 @@
 <script setup>
 import { useRouter } from 'vue-router';
 import ImageLoader from '../RestaurantDetail/ImageLoader.vue';
+import { useAiGuide } from '@/composables/useAiGuide';
+
 const props = defineProps(['data']);
 const emit = defineEmits(['select-restaurant']);
 const router = useRouter();
+const { getGuide, isBookable, loadGuides } = useAiGuide();
+
+// 確保頁面載入時 JSON 已準備好
+loadGuides();
+
+// 解析 Tags 欄位（Python dict 格式字串 → JS 物件）
+const parseScenarioTags = (item) => {
+  // 優先用 TagsStr（舊格式，逗號分隔）
+  if (item.TagsStr && item.TagsStr.trim()) {
+    return item.TagsStr.split(',').map(t => t.trim()).filter(Boolean);
+  }
+  // 新格式：Tags 是 JSON-like 字串，取 scenario 陣列
+  if (item.Tags) {
+    try {
+      // Python dict → JSON 轉換（單引號換雙引號、True/False 換 true/false）
+      const jsonStr = item.Tags
+        .replace(/'/g, '"')
+        .replace(/\bTrue\b/g, 'true')
+        .replace(/\bFalse\b/g, 'false');
+      const parsed = JSON.parse(jsonStr);
+      const tags = [];
+      if (parsed.category) tags.push(parsed.category);
+      if (Array.isArray(parsed.scenario)) tags.push(...parsed.scenario.slice(0, 2));
+      return tags;
+    } catch {
+      // 解析失敗就用 Category
+    }
+  }
+  return item.Category ? [item.Category] : ['一般餐廳'];
+};
 
 const getImageUrl = (path) => {
   if (!path) return 'https://via.placeholder.com/150?text=No+Image';
@@ -42,17 +74,18 @@ const goBooking = (id) => {
 
         <p class="address"><i class="bi bi-geo-alt"></i> {{ item.Add }}</p>
 
+        <!-- AI 黃金組合 mini badge -->
+        <div v-if="getGuide(item.ID)?.golden_combo" class="ai-combo-badge">
+          <span class="combo-icon">🥇</span>
+          <span class="combo-text">{{ getGuide(item.ID).golden_combo }}</span>
+        </div>
 
         <div class="footer">
           <div class="tags-wrapper">
-            <template v-if="item.TagsStr">
-              <span v-for="(tag, index) in item.TagsStr.split(',')" :key="index" class="custom-tag">{{ tag.trim()
-              }}</span>
-            </template>
-            <span v-else class="custom-tag">一般餐廳</span>
+            <span v-for="(tag, index) in parseScenarioTags(item)" :key="index" class="custom-tag">{{ tag }}</span>
           </div>
-          <button class="custom-book" @click.stop="goBooking(item.ID)">
-            立即預約
+          <button class="custom-book" :class="{ 'btn-detail': !isBookable(item.ID) }" @click.stop="goBooking(item.ID)">
+            {{ isBookable(item.ID) ? '立即預約' : '查看詳情' }}
           </button>
         </div>
       </div>
@@ -188,5 +221,36 @@ const goBooking = (id) => {
   text-align: center;
   padding: 50px 20px;
   color: #999;
+}
+
+/* AI 黃金組合 badge */
+.ai-combo-badge {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  background: #fffbf0;
+  border: 1px solid #fde8a0;
+  border-radius: 8px;
+  padding: 5px 10px;
+  margin-bottom: 6px;
+}
+
+.combo-icon {
+  font-size: 0.8rem;
+  flex-shrink: 0;
+}
+
+.combo-text {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #c26a1a;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* 查看詳情按鈕（小吃店） */
+.custom-book.btn-detail {
+  background-color: #6b7280;
 }
 </style>

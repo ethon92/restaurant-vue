@@ -1,19 +1,24 @@
 <script setup>
 import { ref, onMounted } from 'vue';
+import { useRoute } from 'vue-router';
 import AppointmentSection from '@/components/AppointmentSection.vue';
+import AiOrderingGuide from '@/components/AiOrderingGuide.vue';
+import { useAiGuide } from '@/composables/useAiGuide';
 import restaurantApi, { restaurantCommentList } from '@/api/modules/restaurant';
 import FaqSection from '@/components/FaqSection.vue';
 import InfoMetaItem from '@/components/RestaurantDetail/InfoMetaItem.vue';
 import DetailCard from '@/components/RestaurantDetail/DetailCard.vue';
 import AddFavoriteCard from '@/components/AddFavoriteCard.vue';
 import { useAuthStore } from '@/stores/auth';
-import { deleteFavoriteRestaurant, getFavorite }from '@/api/modules/feature';
+import { deleteFavoriteRestaurant, getFavorite } from '@/api/modules/feature';
 import Navbar from '@/components/Navbar.vue';
 import TheFooter from '@/components/TheFooter.vue';
 import LoginGuideModel from '@/components/RestaurantDetail/LoginGuideModel.vue';
 import ImageLoader from '@/components/RestaurantDetail/ImageLoader.vue';
 import RestaurantCard from '@/components/HomeDetail/RestaurantCard.vue';
 import RestaurantCommentCard from '@/components/RestaurantCommentCard.vue';
+import api from "@/api";
+import { recordBehaviorApi } from "@/api/modules/behavior";
 
 
 const props = defineProps({
@@ -22,6 +27,9 @@ const props = defineProps({
     required: true
   }
 });
+
+const { getGuide, isBookable } = useAiGuide();
+
 const info = ref({});
 const gallery = ref([]);
 const isLoading = ref(true);
@@ -40,6 +48,8 @@ const fetchDetail = async () => {
     alert("找不到此餐廳資訊！");
   } finally {
     isLoading.value = false;
+
+    // 若已登入，再檢查收藏狀態
     if (authStore.me) {
       handleGetFavorite();
     } else {
@@ -49,17 +59,66 @@ const fetchDetail = async () => {
 };
 
 
+
+const route = useRoute();
 const authStore = useAuthStore();
 const isFavorite = ref(false);
+const showLoginGuide = ref(false);
 // 控制彈窗顯示
 const showAddFavModal = ref(false);
 // 成功收藏餐廳函式
-const onFavSuccess = () => {
+
+
+/**
+ * 記錄使用者行為（給 AI 推薦系統蒐集資料用）
+ *
+ * @param {string} actionType - 行為類型
+ * 可用值：
+ * - "click"    ：點擊餐廳頁
+ * - "favorite" ：收藏餐廳
+ * - "booking"  ：完成訂位
+ */
+const recordBehavior = async (actionType) => {
+  try {
+    /*
+    除錯用
+    console.log("送出的 payload", {
+      user_id: authStore.userId,
+      restaurant_id: props.id,
+      action_type: actionType,
+    });
+    console.log("後端錯誤內容", error?.response?.data);
+    */
+    // 1. 沒登入就不記錄
+    if (!authStore.userId) return;
+
+    // 2. 沒有餐廳 id 也不記錄
+    if (!props.id) return;
+
+    // 3. 呼叫後端行為 API
+    await api.post("/behavior", {
+      user_id: authStore.userId,
+      restaurant_id: props.id,
+      action_type: actionType
+    });
+
+    console.log(`行為紀錄成功: ${actionType}`);
+  } catch (error) {
+    // 只記錄錯誤，不要中斷頁面功能
+    console.warn(`行為紀錄失敗: ${actionType}`, error);
+  }
+};
+/**
+ * 成功收藏後觸發
+ */
+const onFavSuccess = async () => {
   showAddFavModal.value = false;
   isFavorite.value = true;
+
+  // 記錄收藏行為
+  await recordBehavior("favorite");
 };
 
-const showLoginGuide = ref(false);
 
 // 切換收藏餐廳函式
 const toggleFavorite = () => {
@@ -106,18 +165,24 @@ const handleGetFavorite = async () => {
 }
 
 const getImageUrl = (path) => {
-  if (!path) return '';
-  if (path.startsWith('http')) return path;
+  const baseUrl = 'http://127.0.0.1:8000/static';
 
-  const baseUrl = 'http://127.0.0.1:8000';
-  const hasStatic = path.includes('/static');
-  const cleanPath = path.startsWith('/') ? path : `/${path}`;
-
-  return hasStatic ? `${baseUrl}${cleanPath}` : `${baseUrl}/static${cleanPath}`;
+  // 使用 encodeURI 處理空格與中文字元
+  return `${baseUrl}${encodeURI(path)}`;
 };
 
-onMounted(() => {
-  fetchDetail();
+/**
+ * 頁面載入時：
+ * 1. 抓餐廳資料
+ * 2. 記錄點擊行為
+ */
+
+onMounted(async () => {
+  // 1. 先抓餐廳詳細資料
+  await fetchDetail();
+
+  // 2. 若已登入，記錄「點擊餐廳」行為
+  await recordBehavior("click");
 });
 </script>
 
@@ -168,7 +233,14 @@ onMounted(() => {
             <InfoMetaItem icon="🛜" label="餐廳網址">
               <a :href="info.Website" target="_blank" class="modern-link">{{ info.Name }}</a>
             </InfoMetaItem>
-            <InfoMetaItem icon="🍽️" label="營業風格" :value="info.TagsStr" />
+            <InfoMetaItem icon="🍽️" label="營業風格">
+              <div v-if="info.TagsStr" class="tag-chips">
+                <span v-for="tag in info.TagsStr.split(',')" :key="tag" class="tag-chip">
+                  {{ tag.trim() }}
+                </span>
+              </div>
+              <span v-else class="meta-empty">—</span>
+            </InfoMetaItem>
             <InfoMetaItem icon="🔖" label="鄰近縣市" :value="info.City" />
             <InfoMetaItem icon="🅿️" label="停車資訊" :value="info.Parking" />
           </div>
@@ -189,7 +261,13 @@ onMounted(() => {
 
       <aside class="sidebar">
         <div class="sticky-container">
-          <AppointmentSection :restaurant-name="info.Name" />
+          <AppointmentSection v-if="isBookable(props.id)" :restaurant-name="info.Name" />
+          <AiOrderingGuide
+            v-else
+            :restaurant-name="info.Name"
+            :golden-combo="getGuide(props.id)?.golden_combo"
+            :warning-tips="getGuide(props.id)?.warning_tips"
+          />
         </div>
       </aside>
 
@@ -421,5 +499,27 @@ onMounted(() => {
   color: hsl(28, 75%, 45%);
   text-decoration: none;
   font-weight: 500;
+}
+
+.tag-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 2px;
+}
+
+.tag-chip {
+  background: #fdf3e4;
+  color: #c26a1a;
+  border: 1px solid #f5c98a;
+  border-radius: 20px;
+  padding: 3px 10px;
+  font-size: 0.78rem;
+  font-weight: 500;
+}
+
+.meta-empty {
+  color: #bbb;
+  font-weight: 400;
 }
 </style>
