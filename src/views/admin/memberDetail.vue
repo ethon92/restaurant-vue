@@ -9,6 +9,7 @@
           <th>電子信箱</th>
           <th>電話號碼</th>
           <th>生日</th>
+          <th>權限</th>
         </tr>
       </thead>
       <tbody>
@@ -19,7 +20,8 @@
             <span v-if="user.user_phone">{{ user.user_phone }}</span>
             <span v-else class="text-muted">未提供</span>
           </td>
-          <td>{{ user.user_birthdate }}</td>
+          <td>{{ user.user_birthday }}</td>
+          <td>{{user.user_role }}</td>
         </tr>
         <tr v-if="memberList.length === 0">
           <td colspan="4" class="text-center">暫無會員資料</td>
@@ -38,17 +40,17 @@ const memberList = ref([]);
 // 獲取會員資料的函數
 const fetchMembers = async () => {
   try {
-    // 請將此處 URL 替換為您後端 API 的實際路徑
-    // const response = await axios.get('http://localhost:3000/api/users');
-    // memberList.value = response.data;
-    
-    // 以下為模擬您截圖中的資料庫數據
-    memberList.value = [
-      { user_name: "123", user_email: "1234@gmail.com", user_phone: null, user_birthdate: "2026-02-16" },
-      { user_name: "安安", user_email: "chang@gmail.com", user_phone: null, user_birthdate: "2026-03-11" },
-      { user_name: "安安", user_email: "chang.yao.an@gmail.com", user_phone: null, user_birthdate: "2026-03-17" },
-      { user_name: "123", user_email: "j547471@outlook.com", user_phone: null, user_birthdate: "2026-03-16" }
-    ];
+    // 1. 取得 Token
+    const token = localStorage.getItem('auth_access_token'); 
+
+    // 2. 在請求中加入 headers
+    const response = await axios.get('http://127.0.0.1:8000/admin/users', {
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    });
+
+    memberList.value = response.data;
   } catch (error) {
     console.error("抓取會員資料失敗:", error);
   }

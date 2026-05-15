@@ -8,7 +8,7 @@ const isLoading = ref(false)
 const fetchTableData = async () => {
   isLoading.value = true
   try {
-    const res = await axios.get('http://127.0.0.1:8000/api/v1/admin/restaurant-status')
+    const res = await axios.get('http://127.0.0.1:8000/admin/restaurant-status')
     // 確保 res.data 是陣列，避免 v-for 報錯
     restaurantList.value = Array.isArray(res.data) ? res.data : []
   } catch (error) {

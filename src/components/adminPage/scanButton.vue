@@ -42,7 +42,7 @@ const isAnalyzing = ref(false)
 const handleBatchAnalyze = async () => {
   isAnalyzing.value = true
   try {
-    const res = await axios.post('http://127.0.0.1:8000/api/v1/admin/batch-analyze')
+    const res = await axios.post('http://127.0.0.1:8000/admin/batch-analyze')
     if (res.data.status === 'success') {
       // 成功後發送事件給父組件
       emit('finished', res.data)
